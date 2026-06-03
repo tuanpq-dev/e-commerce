@@ -18,6 +18,7 @@ import {
   UpdateProduct,
 } from "../../api/productApi";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
+import { GetCategory } from "../../api/categoryApi";
 
 const statusProduct = [
   {
@@ -42,6 +43,7 @@ const Product: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const { product, isLoading, refetch } = GetProduct();
+  const { category } = GetCategory();
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -251,6 +253,7 @@ const Product: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         isUpdate={isUpdate}
+        options={category}
       />
 
       <ModalConfirm

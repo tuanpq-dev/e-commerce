@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { DataType, ProductInitialValues } from "../types/domain";
 import { apiUrl } from "./mockApi";
+import axiosClient from "./axiosClient";
 
 export const GetProduct = () => {
   const [product, setProduct] = useState<DataType[]>([]);
@@ -34,24 +35,20 @@ export const GetProduct = () => {
 
 export const CreateProduct = async (values: ProductInitialValues) => {
   try {
-    const res = await fetch(`${apiUrl}/products`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...values,
-        id: Date.now(),
-        sku: `${values.sku} ${Date.now()}`,
-        price: Number(values.price),
-        stock: Number(values.stock),
-        status: "pending",
-        image:
-          "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      }),
-    });
+    const payload = {
+      ...values,
+      id: Date.now(),
+      sku: `${values.sku} ${Date.now()}`,
+      price: Number(values.price),
+      stock: Number(values.stock),
+      status: "pending",
+      image:
+        "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+    };
 
-    const data = await res.json();
+    const res = await axiosClient.post("/products", payload);
+
+    const data = await res.data;
     return data;
   } catch (err) {
     console.log(err);
@@ -64,23 +61,19 @@ type UpdateProductValues = Omit<ProductInitialValues, "id" | "stock"> & {
 
 export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
   try {
-    const res = await fetch(`${apiUrl}/products/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        price: Number(values.price),
-        image:
-          "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-        name: values.name,
-        category: values.category,
-        description: values.description,
-        status: "pending",
-      }),
-    });
+    const payload = {
+      price: Number(values.price),
+      image:
+        "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      name: values.name,
+      category: values.category,
+      description: values.description,
+      status: "pending",
+    };
 
-    const data = await res.json();
+    const res = await axiosClient.patch(`/products/${id}`, payload);
+
+    const data = await res.data;
     return data;
   } catch (err) {
     console.log(err);
@@ -89,11 +82,9 @@ export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
 
 export const DeleteProduct = async (id: number | string) => {
   try {
-    const res = await fetch(`${apiUrl}/products/${id}`, {
-      method: "DELETE",
-    });
+    const res = await axiosClient.delete(`/products/${id}`);
 
-    const data = await res.json();
+    const data = await res.data;
     return data;
   } catch (err) {
     console.log(err);

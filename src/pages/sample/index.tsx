@@ -7,12 +7,14 @@ const Product = React.lazy(() => import("../components/product"));
 const Category = React.lazy(() => import("../components/category"));
 const Order = React.lazy(() => import("../components/order"));
 const Customer = React.lazy(() => import("../components/customer"));
+const Profile = React.lazy(() => import("../../features/auth/profile"));
 
 import {
   FolderOpenOutlined,
   HomeOutlined,
   OrderedListOutlined,
   ProductOutlined,
+  SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 
@@ -46,5 +48,11 @@ export const samplePageConfig = [
     path: config.routes.CUSTOMER_MANAGEMENT,
     element: <Customer />,
     label: "Customer",
+  },
+  {
+    icon: <SettingOutlined />,
+    path: config.routes.PROFILE,
+    element: <Profile />,
+    label: "Profile",
   },
 ];

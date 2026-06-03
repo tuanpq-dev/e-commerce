@@ -4,6 +4,7 @@ const routes = {
   CATEGORY_MANAGEMENT: "category-management",
   ORDER_MANAGEMENT: "order-management",
   CUSTOMER_MANAGEMENT: "customer-management",
+  PROFILE: "profile",
 };
 
 export default routes;
