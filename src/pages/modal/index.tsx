@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Button, Form, Input, Modal, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import FormInput from "../../@crema/core/Form/FormInput";
-import type { ProductInitialValues } from "../../types/domain";
+import type { CategoryType, ProductInitialValues } from "../../types/domain";
 import "./index.css";
 
 type ModalProductProps = {
@@ -14,11 +14,11 @@ type ModalProductProps = {
 };
 
 type ModalCategoryProps = {
-  // isUpdate?: boolean;
-  // initialValue?: ProductInitialValues | null;
+  isUpdate?: boolean;
+  initialValue?: CategoryType | null;
   open: boolean;
   onCancel: () => void;
-  // onOk: (values: ProductInitialValues) => void;
+  onOk: (values: CategoryType) => void;
 };
 
 export const ModalProduct = ({
@@ -54,7 +54,7 @@ export const ModalProduct = ({
       onCancel={onCancel}
       afterClose={() => form.resetFields()}
       destroyOnHidden
-      okText="Lưu"
+      okText={isUpdate ? "Lưu" : "Thêm mới"}
       cancelText="Hủy"
       className="product-modal"
     >
@@ -68,7 +68,7 @@ export const ModalProduct = ({
         <FormInput
           label="SKU"
           name="sku"
-          disabled={isUpdate ? true : false}
+          disabled={isUpdate}
           rules={[{ required: true, message: "Vui lòng nhập SKU" }]}
         />
         <FormInput
@@ -84,7 +84,7 @@ export const ModalProduct = ({
         <FormInput
           label="Tồn kho"
           name="stock"
-          disabled={isUpdate ? true : false}
+          disabled={isUpdate}
           rules={[{ required: true, message: "Vui lòng nhập tồn kho" }]}
         />
         <Form.Item label="Mô tả" name="description">
@@ -100,7 +100,13 @@ export const ModalProduct = ({
   );
 };
 
-export const ModalCategory = ({ open, onCancel }: ModalCategoryProps) => {
+export const ModalCategory = ({
+  initialValue,
+  isUpdate,
+  open,
+  onOk,
+  onCancel,
+}: ModalCategoryProps) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -108,11 +114,27 @@ export const ModalCategory = ({ open, onCancel }: ModalCategoryProps) => {
       return;
     }
 
+    if (initialValue) {
+      form.setFieldsValue(initialValue);
+      return;
+    }
+
     form.resetFields();
-  }, [form, open]);
+  }, [form, initialValue, open]);
 
   return (
-    <Modal open={open} onCancel={onCancel}>
+    <Modal
+      title={isUpdate ? "Chỉnh sửa danh mục" : "Thêm mới danh mục"}
+      open={open}
+      onOk={async () => {
+        const values = await form.validateFields();
+        onOk(values);
+      }}
+      onCancel={onCancel}
+      afterClose={() => form.resetFields()}
+      okText={isUpdate ? "Lưu" : "Thêm mới"}
+      cancelText="Hủy"
+    >
       <Form form={form} layout="vertical">
         <FormInput
           label="Tên danh mục"
@@ -122,6 +144,7 @@ export const ModalCategory = ({ open, onCancel }: ModalCategoryProps) => {
         <FormInput
           label="Tổng"
           name="total"
+          disabled={isUpdate}
           rules={[{ required: true, message: "Vui lòng nhập tổng" }]}
         />
       </Form>

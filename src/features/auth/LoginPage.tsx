@@ -1,10 +1,14 @@
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form } from "antd";
 import type { FieldType } from "../../types/domain";
 import { useNavigate } from "react-router-dom";
-import { mockApiLogin } from "../../api/mockApi";
 import "./Login.css";
+import FormInput from "../../@crema/core/Form/FormInput";
+import { EMAIL_REGEX } from "../../shared/constant/Regex";
+import FormInputPassword from "../../@crema/core/Form/FormInputPassword";
+import { mockApiLogin } from "../../api/mockApi";
+
 type LoginType = {
-  username: string;
+  email: string;
   password: string;
   remember?: boolean;
 };
@@ -13,7 +17,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const handleSubmit = async (values: LoginType) => {
     try {
-      const res = await mockApiLogin(values.username, values.password);
+      const res = await mockApiLogin(values.email, values.password);
 
       const storage = localStorage;
 
@@ -32,43 +36,42 @@ const LoginPage = () => {
           <h1>Sign in</h1>
           <p>Access your e-commerce dashboard</p>
         </div>
-      <Form
-        name="basic"
-        layout="vertical"
-        className="login-form"
-        autoComplete="off"
-        onFinish={handleSubmit}
-      >
-        <Form.Item<FieldType>
-          label="Username"
-          name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
+        <Form
+          name="basic"
+          layout="vertical"
+          className="login-form"
+          autoComplete="off"
+          onFinish={handleSubmit}
         >
-          <Input />
-        </Form.Item>
+          <FormInput
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Vui lòng nhập email!" },
+              { pattern: EMAIL_REGEX, message: "Email không đúng định dạng!" },
+            ]}
+          />
 
-        <Form.Item<FieldType>
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password />
-        </Form.Item>
+          <FormInputPassword
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Vui lòng nhập password!" }]}
+          />
 
-        <Form.Item<FieldType>
-          name="remember"
-          valuePropName="checked"
-          label={null}
-        >
-          <Checkbox>Remember me</Checkbox>
-        </Form.Item>
+          <Form.Item<FieldType>
+            name="remember"
+            valuePropName="checked"
+            label={null}
+          >
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
 
-        <Form.Item label={null}>
-          <Button type="primary" htmlType="submit" block size="large">
-            Sign in
-          </Button>
-        </Form.Item>
-      </Form>
+          <Form.Item label={null}>
+            <Button type="primary" htmlType="submit" block size="large">
+              Sign in
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
     </div>
   );

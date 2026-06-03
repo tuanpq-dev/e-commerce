@@ -85,38 +85,48 @@ const Product: React.FC = () => {
       title: "Image",
       dataIndex: "image",
       key: "image",
+      width: 50,
+      fixed: "start",
       render: (image: string) => <Image width={50} alt="image" src={image} />,
     },
     {
       title: "SKU",
       dataIndex: "sku",
       key: "sku",
+      width: 100,
+      fixed: "start",
     },
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      width: 100,
+      fixed: "start",
     },
     {
       title: "Category",
       dataIndex: "category",
       key: "category",
+      width: 50,
     },
     {
       title: "Price",
       dataIndex: "price",
       key: "price",
+      width: 100,
       render: (price) => formatCurrency(price),
     },
     {
       title: "Stock",
       dataIndex: "stock",
       key: "stock",
+      width: 100,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      width: 50,
       render: (status: string) => {
         const item = statusProduct.find((item) => item.status === status);
         if (!item) return <Tag>{status}</Tag>;
@@ -131,6 +141,9 @@ const Product: React.FC = () => {
     {
       title: "Action",
       key: "action",
+      fixed: "end",
+      width: 100,
+      align: "center",
       render: (_, record) => {
         return (
           <>

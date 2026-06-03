@@ -1,5 +1,11 @@
+import openNotification from "../@crema/core/Notification";
+
 export const mockApiLogin = async (email: string, password: string) => {
-  if (email === "admin" && password === "123456") {
+  if (email === "admin@gmail.com" && password === "123456") {
+    openNotification("success", {
+      message: "Thành công",
+      description: "Đăng nhập thành công",
+    });
     return {
       accessToken: `access_token ${Date.now()}`,
       user: {
@@ -8,6 +14,11 @@ export const mockApiLogin = async (email: string, password: string) => {
         name: "Admin",
       },
     };
+  } else {
+    openNotification("error", {
+      message: "Thất bại",
+      description: "Email hoặc Password không đúng",
+    });
   }
 
   throw new Error("Email hoặc mật khẩu không đúng");

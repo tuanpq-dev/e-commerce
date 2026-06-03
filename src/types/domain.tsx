@@ -11,7 +11,7 @@ export interface DataType {
 }
 
 export type FieldType = {
-  username?: string;
+  email?: string;
   password?: string;
   remember?: string;
 };
@@ -30,6 +30,6 @@ export type ProductInitialValues = {
 
 export type CategoryType = {
   id?: number | string;
-  name: string;
-  total: number | string;
+  name?: string;
+  total?: number | string;
 };
