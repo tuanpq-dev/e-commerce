@@ -17,6 +17,7 @@ import {
   GetProduct,
   UpdateProduct,
 } from "../../api/productApi";
+import ModalConfirm from "../../@crema/core/ModalConfirm";
 
 const statusProduct = [
   {
@@ -37,6 +38,8 @@ const Product: React.FC = () => {
   const { Search } = Input;
   const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isDeleteModal, setIsDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const { product, isLoading, refetch } = GetProduct();
 
@@ -49,12 +52,21 @@ const Product: React.FC = () => {
   const handleCancel = () => {
     setIsOpenModal(false);
     setIsUpdate(false);
+    setIsDeleteModal(false);
     setRowData(null);
   };
 
-  const handleDelete = async (id: number | string) => {
-    await DeleteProduct(id);
+  const handleDelete = async () => {
+    if (!rowData?.id) {
+      return;
+    }
+
+    setIsDeleting(true);
+    await DeleteProduct(rowData.id);
     await refetch();
+    setIsDeleting(false);
+    setIsDeleteModal(false);
+    setRowData(null);
 
     openNotification("success", {
       message: "Thành công",
@@ -160,9 +172,8 @@ const Product: React.FC = () => {
                 danger
                 icon={<DeleteOutlined />}
                 onClick={() => {
-                  if (record.id) {
-                    handleDelete(record.id);
-                  }
+                  setIsDeleteModal(true);
+                  setRowData({ id: record.id, name: record.name });
                 }}
               />
             </Space>
@@ -240,6 +251,14 @@ const Product: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         isUpdate={isUpdate}
+      />
+
+      <ModalConfirm
+        rowData={rowData}
+        isDeleteModal={isDeleteModal}
+        isDeleting={isDeleting}
+        onOk={handleDelete}
+        onCancel={handleCancel}
       />
     </>
   );

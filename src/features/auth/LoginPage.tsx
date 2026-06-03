@@ -17,14 +17,20 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const handleSubmit = async (values: LoginType) => {
     try {
-      const res = await mockApiLogin(values.email, values.password);
+      const res = await mockApiLogin(
+        values.email.trim(),
+        values.password.trim(),
+      );
 
       const storage = localStorage;
 
       storage.setItem("accessToken", res.accessToken);
       storage.setItem("user", JSON.stringify(res.user));
 
-      navigate("/dash-board");
+      sessionStorage.setItem("accessToken", res.accessToken);
+      sessionStorage.setItem("user", JSON.stringify(res.user));
+
+      navigate("/dashboard");
     } catch (err) {
       console.log(err);
     }
@@ -47,7 +53,10 @@ const LoginPage = () => {
             label="Email"
             name="email"
             rules={[
-              { required: true, message: "Vui lòng nhập email!" },
+              {
+                required: true,
+                message: "Vui lòng nhập email!",
+              },
               { pattern: EMAIL_REGEX, message: "Email không đúng định dạng!" },
             ]}
           />
