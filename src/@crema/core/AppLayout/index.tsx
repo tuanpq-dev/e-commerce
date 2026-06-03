@@ -24,6 +24,7 @@ const menuStyle: React.CSSProperties = {
   minWidth: 0,
   textAlign: "left",
   backgroundColor: "#f3f5f7",
+  border: "none",
 };
 
 const siderContentStyle: React.CSSProperties = {
@@ -40,6 +41,7 @@ const contentStyle: React.CSSProperties = {
   overflowY: "auto",
   overflowX: "hidden",
   padding: 24,
+  border: "1px solid #f3f5f7",
 };
 
 const AppLayout = ({ children }: AppLayoutProps) => {
@@ -70,13 +72,17 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               <div
                 style={{
                   height: 64,
-                  background: "gray",
+                  background: "#f3f5f7",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                EC
+                <img
+                  src="/favicon.svg"
+                  alt="E-commerce logo"
+                  style={{ width: 40, height: 40, objectFit: "contain" }}
+                />
               </div>
               <Menu
                 theme="light"
@@ -89,7 +95,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               />
             </div>
 
-            <Button onClick={toggleCollapsed} style={{ marginBottom: 16 }}>
+            <Button
+              onClick={toggleCollapsed}
+              style={{ marginBottom: 16, background: "#f3f5f7" }}
+            >
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </Button>
           </div>

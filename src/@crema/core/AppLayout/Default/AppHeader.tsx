@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../../api/mockApi";
 import { useEffect } from "react";
 import { DownOutlined } from "@ant-design/icons";
+import openNotification from "../../Notification";
 
 const AppHeader = () => {
   const token = getAccessToken();
@@ -18,7 +19,7 @@ const AppHeader = () => {
     height: 64,
     justifyContent: "flex-end",
     paddingInline: 48,
-    borderBottom: "1px solid #f3f5f7",
+    // borderBottom: "1px solid #f3f5f7",
   };
 
   const userMenuItems: MenuProps["items"] = [
@@ -37,6 +38,11 @@ const AppHeader = () => {
     localStorage.removeItem("user");
 
     navigate("/login");
+
+    openNotification("success", {
+      message: "Thành công",
+      description: "Đăng xuất thành công",
+    });
   };
 
   const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
