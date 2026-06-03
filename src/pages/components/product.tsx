@@ -1,130 +1,232 @@
 import React, { useState } from "react";
-import { Button, Flex, Image, Space, Table, Tag } from "antd";
+import { Button, Flex, Image, Input, Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
-import { products } from "../../mock-data/product";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import type { DataType } from "../../types/domain";
+import type { DataType, ProductInitialValues } from "../../types/domain";
 import { ModalProduct } from "../modal";
-
-type ProductInitialValues = {
-  prod_name?: string;
-  sku?: string;
-  category?: string;
-  price?: number | string;
-  stock?: number | string;
-  description?: string;
-  images?: string[];
-};
+import openNotification from "../../@crema/core/Notification";
+import formatCurrency from "../../utils/formatCurrecy";
+import {
+  CreateProduct,
+  DeleteProduct,
+  GetProduct,
+  UpdateProduct,
+} from "../../api/productApi";
 
 const statusProduct = [
-  { status: "active", icon: <CheckCircleOutlined />, title: "Đang bán" },
-  { status: "pending", icon: <CloseCircleOutlined />, title: "Chưa bán" },
-];
-
-const columns: TableProps<DataType>["columns"] = [
   {
-    title: "Image",
-    dataIndex: "image",
-    key: "image",
-    render: (image: string) => <Image width={50} alt="image" src={image} />,
+    status: "active",
+    icon: <CheckCircleOutlined />,
+    title: "Đang bán",
+    color: "green",
   },
   {
-    title: "SKU",
-    dataIndex: "sku",
-    key: "sku",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Category",
-    dataIndex: "category",
-    key: "category",
-  },
-  {
-    title: "Price",
-    dataIndex: "price",
-    key: "price",
-  },
-  {
-    title: "Stock",
-    dataIndex: "stock",
-    key: "stock",
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-    render: (status: string) => {
-      const item = statusProduct.find((item) => item.status === status);
-      if (!item) return <Tag>{status}</Tag>;
-
-      return (
-        <Tag key={item.status} icon={item.icon} color={status}>
-          {item.title}
-        </Tag>
-      );
-    },
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: () => (
-      <Space size="medium">
-        <EditOutlined />
-        <DeleteOutlined />
-      </Space>
-    ),
+    status: "pending",
+    icon: <CloseCircleOutlined />,
+    title: "Chưa bán",
+    color: "yellow",
   },
 ];
 
 const Product: React.FC = () => {
-  const [data, setData] = useState<ProductInitialValues | null>(null);
+  const { Search } = Input;
+  const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const { product, isLoading, refetch } = GetProduct();
 
   const handleAdd = () => {
     setIsOpenModal(true);
-    setData(null);
+    setIsUpdate(false);
+    setRowData(null);
   };
 
   const handleCancel = () => {
     setIsOpenModal(false);
-    setData(null);
+    setIsUpdate(false);
+    setRowData(null);
   };
 
-  const handleOk = () => {
-    console.log("Submit add product");
-    setIsOpenModal(false);
-    setData(null);
+  const handleDelete = async (id: number | string) => {
+    await DeleteProduct(id);
+    await refetch();
+
+    openNotification("success", {
+      message: "Thành công",
+      description: "Xóa thành công sản phẩm",
+    });
+  };
+
+  const handleUpdate = (values: DataType) => {
+    setRowData({
+      id: values.id,
+      name: values.name,
+      sku: values.sku,
+      category: values.category,
+      price: values.price,
+      stock: values.stock,
+      status: "pending",
+      image: Array.isArray(values.image)
+        ? values.image
+        : values.image
+          ? [String(values.image)]
+          : [],
+      description: values.description || "",
+    });
+  };
+
+  const columns: TableProps<DataType>["columns"] = [
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (image: string) => <Image width={50} alt="image" src={image} />,
+    },
+    {
+      title: "SKU",
+      dataIndex: "sku",
+      key: "sku",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => formatCurrency(price),
+    },
+    {
+      title: "Stock",
+      dataIndex: "stock",
+      key: "stock",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status: string) => {
+        const item = statusProduct.find((item) => item.status === status);
+        if (!item) return <Tag>{status}</Tag>;
+
+        return (
+          <Tag key={item.status} icon={item.icon} color={item.color}>
+            {item.title}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => {
+        return (
+          <>
+            <Space size="medium">
+              <Button
+                icon={<EditOutlined />}
+                onClick={() => {
+                  handleUpdate(record);
+                  setIsUpdate(true);
+                  setIsOpenModal(true);
+                }}
+              />
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => {
+                  if (record.id) {
+                    handleDelete(record.id);
+                  }
+                }}
+              />
+            </Space>
+          </>
+        );
+      },
+    },
+  ];
+
+  const handleOk = async (values: ProductInitialValues) => {
+    if (isUpdate) {
+      if (!rowData?.id) {
+        return;
+      }
+
+      const { ...updateValues } = values;
+
+      delete updateValues.id;
+      delete updateValues.stock;
+
+      await UpdateProduct({ ...updateValues, id: rowData.id });
+      await refetch();
+      setIsOpenModal(false);
+      setIsUpdate(false);
+      setRowData(null);
+
+      openNotification("success", {
+        message: "Thành công",
+        description: "Chỉnh sửa sản phẩm thành công",
+      });
+    } else {
+      await CreateProduct(values);
+      await refetch();
+      setIsOpenModal(false);
+      openNotification("success", {
+        message: "Thành công",
+        description: "Thêm mới sản phẩm thành công",
+      });
+    }
+  };
+
+  const handleSearch = (value: string | number | null) => {
+    console.log(value);
   };
 
   return (
     <>
       <Flex gap="medium" vertical>
-        <Flex align="center" gap="medium" justify="end">
+        <Flex align="center" gap="medium" justify="space-between">
+          <Search
+            allowClear={true}
+            placeholder="Tìm kiếm sản phẩm"
+            onSearch={(value) => handleSearch(value)}
+            style={{ width: "20%" }}
+          />
           <Button type="primary" onClick={handleAdd}>
             Add
           </Button>
         </Flex>
-        <Table<DataType>
-          columns={columns}
-          dataSource={products}
-          scroll={{ x: "max-content" }}
-        />
+        <div style={{ border: "1px solid #f3f5f7" }}>
+          <Table<DataType>
+            rowKey="sku"
+            columns={columns}
+            dataSource={product}
+            loading={isLoading}
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
+          />
+        </div>
       </Flex>
 
       <ModalProduct
-        initialValue={data}
+        initialValue={rowData}
         open={isOpenModal}
         onOk={handleOk}
         onCancel={handleCancel}
+        isUpdate={isUpdate}
       />
     </>
   );
