@@ -33,6 +33,7 @@ const siderContentStyle: React.CSSProperties = {
   flexDirection: "column",
   justifyContent: "space-between",
   fontWeight: 500,
+  border: "1px solid #f3f5f7",
 };
 
 const contentStyle: React.CSSProperties = {
@@ -77,6 +78,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   alignItems: "center",
                   justifyContent: "center",
                 }}
+                onClick={() => navigate("/dashboard")}
               >
                 <img
                   src="/favicon.svg"

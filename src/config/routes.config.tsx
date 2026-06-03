@@ -1,5 +1,5 @@
 const routes = {
-  DASHBOARD: "dash-board",
+  DASHBOARD: "dashboard",
   PRODUCT_MANAGEMENT: "product-management",
   CATEGORY_MANAGEMENT: "category-management",
   ORDER_MANAGEMENT: "order-management",

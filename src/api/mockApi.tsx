@@ -25,7 +25,9 @@ export const mockApiLogin = async (email: string, password: string) => {
 };
 
 export const getAccessToken = () => {
-  return localStorage.getItem("accessToken");
+  return (
+    localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")
+  );
 };
 
 export const apiUrl = "http://localhost:3001";

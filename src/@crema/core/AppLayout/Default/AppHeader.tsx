@@ -5,6 +5,7 @@ import { getAccessToken } from "../../../../api/mockApi";
 import { useEffect } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import openNotification from "../../Notification";
+import config from "../../../../config";
 
 const AppHeader = () => {
   const token = getAccessToken();
@@ -19,12 +20,12 @@ const AppHeader = () => {
     height: 64,
     justifyContent: "flex-end",
     paddingInline: 48,
-    // borderBottom: "1px solid #f3f5f7",
+    border: "1px solid #f3f5f7",
   };
 
   const userMenuItems: MenuProps["items"] = [
     {
-      key: "profile",
+      key: config.routes.CUSTOMER_MANAGEMENT,
       label: "Profile",
     },
     {
@@ -37,6 +38,9 @@ const AppHeader = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
 
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("user");
+
     navigate("/login");
 
     openNotification("success", {
@@ -46,16 +50,15 @@ const AppHeader = () => {
   };
 
   const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
-    if (key === "profile") {
-      navigate("/proflie");
-    }
     if (key === "logout") {
       handleLogout();
+    } else {
+      navigate(`/${key}`);
     }
   };
 
   const getUserName = () => {
-    const user = localStorage.getItem("user");
+    const user = localStorage.getItem("user") || sessionStorage.getItem("user");
 
     if (!user) {
       return "Admin";
