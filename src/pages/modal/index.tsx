@@ -4,6 +4,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import FormInput from "../../@crema/core/Form/FormInput";
 import type { CategoryType, ProductInitialValues } from "../../types/domain";
 import "./index.css";
+import FormSelect from "../../@crema/core/Form/FormSelect";
 
 type ModalProductProps = {
   isUpdate?: boolean;
@@ -11,6 +12,7 @@ type ModalProductProps = {
   open: boolean;
   onCancel: () => void;
   onOk: (values: ProductInitialValues) => void;
+  options: CategoryType[];
 };
 
 type ModalCategoryProps = {
@@ -27,6 +29,7 @@ export const ModalProduct = ({
   open,
   onCancel,
   onOk,
+  options,
 }: ModalProductProps) => {
   const [form] = Form.useForm();
 
@@ -71,11 +74,15 @@ export const ModalProduct = ({
           disabled={isUpdate}
           rules={[{ required: true, message: "Vui lòng nhập SKU" }]}
         />
-        <FormInput
+
+        <FormSelect
           label="Danh mục"
           name="category"
-          rules={[{ required: true, message: "Vui lòng nhập danh mục" }]}
+          options={options}
+          placeholder="Chọn danh mục"
+          rules={[{ required: true, message: "Vui lòng Chọn danh mục" }]}
         />
+
         <FormInput
           label="Giá"
           name="price"

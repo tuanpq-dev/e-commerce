@@ -73,6 +73,44 @@
       "description": "",
       "status": "pending",
       "sku": "SP010 17803"
+    },
+    {
+      "name": "tien_trinh_27/8_2222",
+      "sku": "SP010 1780478924369",
+      "category": "new cate",
+      "price": 4321,
+      "stock": 12,
+      "description": "eeeeee1111",
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "id": "r5jXBhVY2ug",
+      "status": "pending",
+      "method": "PATCH",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": "{\"price\":4312,\"image\":\"https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80\",\"name\":\"tien_trinh_27/8_2222\",\"category\":\"new cate\",\"description\":\"eeeeee111\",\"status\":\"pending\"}"
+    },
+    {
+      "name": "New product",
+      "sku": "sku 1780479326808",
+      "category": "new cate",
+      "price": 5555,
+      "stock": 24,
+      "description": "description",
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "id": "swLYyZu4Dns",
+      "status": "pending"
+    },
+    {
+      "name": "Phạm Quang Tuấn 1111",
+      "sku": "SP010 1780483009061",
+      "category": "Quan",
+      "price": 380001222,
+      "stock": 24,
+      "description": "aaaaaa",
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "id": "R_rqeVv6hTo",
+      "status": "pending"
     }
   ],
   "category": [

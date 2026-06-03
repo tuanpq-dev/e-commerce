@@ -25,7 +25,7 @@ const AppHeader = () => {
 
   const userMenuItems: MenuProps["items"] = [
     {
-      key: config.routes.CUSTOMER_MANAGEMENT,
+      key: config.routes.PROFILE,
       label: "Profile",
     },
     {
