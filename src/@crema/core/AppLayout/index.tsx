@@ -11,17 +11,19 @@ const siderStyle: React.CSSProperties = {
   textAlign: "center",
   lineHeight: "120px",
   color: "#fff",
-  backgroundColor: "#fff",
+  backgroundColor: "#f3f5f7",
 };
 
 const MenuHorizontal: MenuProps["items"] = samplePageConfig.map((item) => ({
   key: item.path,
   label: `${item.label}`,
+  icon: item.icon,
 }));
 
-const menuStyle = {
-  flex: 1,
+const menuStyle: React.CSSProperties = {
   minWidth: 0,
+  textAlign: "left",
+  backgroundColor: "#f3f5f7",
 };
 
 const siderContentStyle: React.CSSProperties = {
@@ -29,12 +31,14 @@ const siderContentStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
+  fontWeight: 500,
 };
 
 const contentStyle: React.CSSProperties = {
-  background: "#f5f7fb",
+  background: "#fff",
   minHeight: "calc(100vh - 64px)",
-  overflow: "auto",
+  overflowY: "auto",
+  overflowX: "hidden",
   padding: 24,
 };
 
@@ -56,7 +60,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     <Flex gap="medium">
       <Layout style={{ minHeight: "100vh" }}>
         <Sider
-          width={200}
+          width={240}
           style={siderStyle}
           collapsedWidth={80}
           collapsed={collapsed}
@@ -90,7 +94,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </Button>
           </div>
         </Sider>
-        <Layout>
+        <Layout style={{ height: "100vh", overflow: "hidden" }}>
           <AppHeader />
           <Layout.Content style={contentStyle}>{children}</Layout.Content>
         </Layout>

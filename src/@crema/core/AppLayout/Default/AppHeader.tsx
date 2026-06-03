@@ -3,6 +3,7 @@ import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../../api/mockApi";
 import { useEffect } from "react";
+import { DownOutlined } from "@ant-design/icons";
 
 const AppHeader = () => {
   const token = getAccessToken();
@@ -17,9 +18,14 @@ const AppHeader = () => {
     height: 64,
     justifyContent: "flex-end",
     paddingInline: 48,
+    borderBottom: "1px solid #f3f5f7",
   };
 
   const userMenuItems: MenuProps["items"] = [
+    {
+      key: "profile",
+      label: "Profile",
+    },
     {
       key: "logout",
       label: "Logout",
@@ -34,6 +40,9 @@ const AppHeader = () => {
   };
 
   const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
+    if (key === "profile") {
+      navigate("/proflie");
+    }
     if (key === "logout") {
       handleLogout();
     }
@@ -71,7 +80,9 @@ const AppHeader = () => {
           onClick: handleUserMenuClick,
         }}
       >
-        <Button type="text">{getUserName()}</Button>
+        <Button type="text">
+          {getUserName()} <DownOutlined />
+        </Button>
       </Dropdown>
     </Header>
   );
