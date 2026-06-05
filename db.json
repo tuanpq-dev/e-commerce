@@ -102,10 +102,10 @@
       "status": "pending"
     },
     {
-      "name": "Phạm Quang Tuấn 1111",
+      "name": "Phạm Quang Tuấn",
       "sku": "SP010 1780483009061",
       "category": "Quan",
-      "price": 380001222,
+      "price": 3800,
       "stock": 24,
       "description": "aaaaaa",
       "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
@@ -132,6 +132,43 @@
     {
       "id": "nHjpYLuJyOQ",
       "name": "Phụ kiện"
+    }
+  ],
+  "customers": [
+    {
+      "id": 1,
+      "fullname": "Quang Tuấn",
+      "email": "ptuan25941@gmail.com",
+      "total_orders": 10,
+      "total_expend": 10000
+    },
+    {
+      "id": 2,
+      "fullname": "Quang Tuấn 2",
+      "email": "ptuan25942@gmail.com",
+      "total_orders": 13,
+      "total_expend": 13000
+    },
+    {
+      "id": 3,
+      "fullname": "Quang Tuấn 3",
+      "email": "ptuan25943@gmail.com",
+      "total_orders": 12,
+      "total_expend": 12000
+    },
+    {
+      "id": 4,
+      "fullname": "Quang Tuấn 4",
+      "email": "ptuan25944@gmail.com",
+      "total_orders": 11,
+      "total_expend": 11000
+    },
+    {
+      "id": 5,
+      "fullname": "Quang Tuấn 5",
+      "email": "ptuan25945@gmail.com",
+      "total_orders": 20,
+      "total_expend": 20000
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
