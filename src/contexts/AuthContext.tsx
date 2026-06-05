@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -70,6 +71,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     setUserInfo(res.user);
   };
+
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
   return (
     <AuthContext.Provider

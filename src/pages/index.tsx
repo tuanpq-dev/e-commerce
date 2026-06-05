@@ -1,8 +1,8 @@
 import { Navigate } from "react-router-dom";
-import { samplePageConfig } from "./sample";
 import LoginPage from "../features/auth/LoginPage";
 import ProtectedRoute from "../routes/protected-routes";
 import AppLayout from "../@crema/core/AppLayout";
+import { routeConfig } from "./sample/route.config";
 
 export const routes = [
   {
@@ -13,7 +13,7 @@ export const routes = [
     path: "/login",
     element: <LoginPage />,
   },
-  ...samplePageConfig.map((route) => ({
+  ...routeConfig.map((route) => ({
     ...route,
     element: (
       <ProtectedRoute>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Flex, Image, Input, Space, Table, Tag } from "antd";
+import { Flex, Image, Input, Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
 import {
   CheckCircleOutlined,
@@ -19,6 +19,7 @@ import {
 } from "../../api/productApi";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { GetCategory } from "../../api/categoryApi";
+import AntButton from "../../@crema/component/AntButton";
 
 const statusProduct = [
   {
@@ -162,7 +163,8 @@ const Product: React.FC = () => {
         return (
           <>
             <Space size="medium">
-              <Button
+              <AntButton
+                tooltip="Chỉnh sửa"
                 icon={<EditOutlined />}
                 onClick={() => {
                   handleUpdate(record);
@@ -170,8 +172,9 @@ const Product: React.FC = () => {
                   setIsOpenModal(true);
                 }}
               />
-              <Button
+              <AntButton
                 danger
+                tooltip="Xóa"
                 icon={<DeleteOutlined />}
                 onClick={() => {
                   setIsDeleteModal(true);
@@ -231,9 +234,9 @@ const Product: React.FC = () => {
             onSearch={(value) => handleSearch(value)}
             style={{ width: "20%" }}
           />
-          <Button type="primary" onClick={handleAdd}>
+          <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
             Add
-          </Button>
+          </AntButton>
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
           <Table<DataType>
@@ -257,9 +260,10 @@ const Product: React.FC = () => {
       />
 
       <ModalConfirm
-        rowData={rowData}
-        isDeleteModal={isDeleteModal}
-        isDeleting={isDeleting}
+        open={isDeleteModal}
+        confirmLoading={isDeleting}
+        disabled={!rowData?.id}
+        targetName={rowData?.name}
         onOk={handleDelete}
         onCancel={handleCancel}
       />

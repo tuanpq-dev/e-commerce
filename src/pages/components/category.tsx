@@ -1,4 +1,4 @@
-import { Button, Flex, Input, Space, Table } from "antd";
+import { Flex, Input, Space, Table } from "antd";
 import type React from "react";
 import type { TableProps } from "antd";
 import type { CategoryType } from "../../types/domain";
@@ -12,6 +12,7 @@ import { ModalCategory } from "../modal";
 import { useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import openNotification from "../../@crema/core/Notification";
+import AntButton from "../../@crema/component/AntButton";
 
 const Category: React.FC = () => {
   const { Search } = Input;
@@ -68,7 +69,8 @@ const Category: React.FC = () => {
         return (
           <>
             <Space size="medium">
-              <Button
+              <AntButton
+                tooltip="Chỉnh sửa"
                 icon={<EditOutlined />}
                 onClick={() => {
                   handleUpdate(record);
@@ -76,8 +78,9 @@ const Category: React.FC = () => {
                   setIsOpenModal(true);
                 }}
               />
-              <Button
+              <AntButton
                 danger
+                tooltip="Xóa"
                 icon={<DeleteOutlined />}
                 onClick={() => {
                   console.log(record.id);
@@ -132,9 +135,9 @@ const Category: React.FC = () => {
             placeholder="Tìm kiếm sản phẩm"
             style={{ width: "20%" }}
           />
-          <Button type="primary" onClick={handleAdd}>
+          <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
             Add
-          </Button>
+          </AntButton>
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
           <Table<CategoryType>

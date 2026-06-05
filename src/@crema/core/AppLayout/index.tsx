@@ -1,9 +1,9 @@
 import { Button, Flex, Layout, Menu, type MenuProps } from "antd";
 import React, { useState } from "react";
 import AppHeader from "./Default/AppHeader";
-import { samplePageConfig } from "../../../pages/sample";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { menuConfig } from "../../../pages/sample/menu.config";
 
 type AppLayoutProps = React.PropsWithChildren;
 
@@ -14,7 +14,7 @@ const siderStyle: React.CSSProperties = {
   backgroundColor: "#f3f5f7",
 };
 
-const MenuHorizontal: MenuProps["items"] = samplePageConfig.map((item) => ({
+const MenuHorizontal: MenuProps["items"] = menuConfig.map((item) => ({
   key: item.path,
   label: `${item.label}`,
   icon: item.icon,
@@ -49,6 +49,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const selectedKey = location.pathname.split("/")[1];
   const { Sider } = Layout;
 
   const handleRedirect = (key: string) => {
@@ -89,7 +90,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               <Menu
                 theme="light"
                 mode="inline"
-                selectedKeys={[location.pathname.replace("/", "")]}
+                selectedKeys={[selectedKey]}
                 items={MenuHorizontal}
                 onClick={({ key }) => handleRedirect(key)}
                 style={menuStyle}
