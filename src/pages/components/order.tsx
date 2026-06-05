@@ -1,23 +1,35 @@
-import { Button, Flex, Input, Table } from "antd";
+import { Button, Flex, Input, Table, type TableProps } from "antd";
 import type React from "react";
-import type { CategoryType } from "../../types/domain";
-// import { GetCategory } from "../../api/categoryApi";
+import type { OrderType } from "../../types/domain";
 
 const Order: React.FC = () => {
   const { Search } = Input;
 
-  // const { category, isLoading } = GetCategory();
-
-  const columns = [
+  const columns: TableProps<OrderType>["columns"] = [
     {
-      title: "Name Category",
-      dataIndex: "category",
-      key: "category",
+      title: "Mã đơn",
+      dataIndex: "order_code",
+      key: "order_code",
     },
     {
-      title: "Total",
+      title: "Khách hàng",
+      dataIndex: "customer",
+      key: "customer",
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "create_order",
+      key: "create_order",
+    },
+    {
+      title: "Tổng tiền",
       dataIndex: "total",
       key: "total",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
     },
   ];
   return (
@@ -32,11 +44,10 @@ const Order: React.FC = () => {
           <Button type="primary">Add</Button>
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
-          <Table<CategoryType>
-            rowKey="category"
+          <Table<OrderType>
+            rowKey="order_code"
             columns={columns}
             // dataSource={category}
-            // loading={isLoading}
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
           />

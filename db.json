@@ -128,47 +128,137 @@
       "id": "3",
       "name": "Mu",
       "total": 30
-    },
-    {
-      "id": "nHjpYLuJyOQ",
-      "name": "Phụ kiện"
     }
   ],
   "customers": [
     {
-      "id": 1,
+      "id": "1",
       "fullname": "Quang Tuấn",
       "email": "ptuan25941@gmail.com",
       "total_orders": 10,
       "total_expend": 10000
     },
     {
-      "id": 2,
+      "id": "2",
       "fullname": "Quang Tuấn 2",
       "email": "ptuan25942@gmail.com",
       "total_orders": 13,
       "total_expend": 13000
     },
     {
-      "id": 3,
+      "id": "3",
       "fullname": "Quang Tuấn 3",
       "email": "ptuan25943@gmail.com",
       "total_orders": 12,
       "total_expend": 12000
     },
     {
-      "id": 4,
+      "id": "4",
       "fullname": "Quang Tuấn 4",
       "email": "ptuan25944@gmail.com",
       "total_orders": 11,
       "total_expend": 11000
+    }
+  ],
+  "detail_customers": [
+    {
+      "id": "1",
+      "list_order": [
+        {
+          "order_code": "code_abc_xyz1",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "name": "Mũ lưỡi trai đen",
+          "price": 99000,
+          "status": "success"
+        },
+        {
+          "order_code": "code_abc_xyz2",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "name": "Áo khoác bomber",
+          "price": 550000,
+          "status": "success"
+        },
+        {
+          "order_code": "code_abc_xyz3",
+          "price": 20000,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "name": "Sản phẩm 26",
+          "status": "error"
+        },
+        {
+          "order_code": "code_abc_xyz4",
+          "price": 3000,
+          "image": [
+            "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80"
+          ],
+          "name": "JOB_007",
+          "status": "success"
+        }
+      ]
     },
     {
-      "id": 5,
-      "fullname": "Quang Tuấn 5",
-      "email": "ptuan25945@gmail.com",
-      "total_orders": 20,
-      "total_expend": 20000
+      "id": "2",
+      "list_order": [
+        {
+          "order_code": "code_abc1",
+          "name": "New product",
+          "price": 5555,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "status": "success"
+        },
+        {
+          "order_code": "code_abc2",
+          "name": "Phạm Quang Tuấn",
+          "price": 3800,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "status": "error"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "list_order": [
+        {
+          "order_code": "code_order_1",
+          "name": "New product",
+          "price": 5555,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "status": "success"
+        },
+        {
+          "order_code": "code_order_2",
+          "name": "Phạm Quang Tuấn",
+          "price": 3800,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "status": "error"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "list_order": [
+        {
+          "order_code": "code_order_abc_1",
+          "name": "New product",
+          "price": 5555,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "status": "success"
+        },
+        {
+          "order_code": "code_order_abc_2",
+          "name": "Phạm Quang Tuấn",
+          "price": 3800,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "status": "error"
+        },
+        {
+          "order_code": "code_order_abc_3",
+          "name": "Phạm Quang Tuấn",
+          "price": 3800,
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "status": "success"
+        }
+      ]
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

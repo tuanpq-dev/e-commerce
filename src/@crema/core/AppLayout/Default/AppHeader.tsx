@@ -5,13 +5,15 @@ import { getAccessToken } from "../../../../api/mockApi";
 import { useEffect } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import config from "../../../../config";
-import { getUserInfoById, LogoutApi } from "../../../../services/auth.service";
+import { LogoutApi } from "../../../../services/auth.service";
 import { useAuth } from "../../../../contexts/AuthContext";
 
 const AppHeader = () => {
   const token = getAccessToken();
   const { Header } = Layout;
   const navigate = useNavigate();
+  const { userInfo } = useAuth();
+  const userName = userInfo?.name ?? "You";
 
   const headerStyle = {
     alignItems: "center",
@@ -44,12 +46,6 @@ const AppHeader = () => {
     }
   };
 
-  const getUserName = () => {
-    const { userInfo } = useAuth();
-
-    return userInfo ? userInfo.name : "You";
-  };
-
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -69,7 +65,7 @@ const AppHeader = () => {
         }}
       >
         <Button type="text">
-          {getUserName()} <DownOutlined />
+          {userName} <DownOutlined />
         </Button>
       </Dropdown>
     </Header>
