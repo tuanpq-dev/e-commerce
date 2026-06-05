@@ -1,26 +1,39 @@
 import { useParams } from "react-router-dom";
-import { GetCustomerById, GetCustomers } from "../../api/customerApi";
 import { useEffect, useState } from "react";
-import { Card, Descriptions, Image, Table, Tag, type TableProps } from "antd";
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Descriptions,
+  Empty,
+  Spin,
+  Table,
+  Tag,
+  type TableProps,
+} from "antd";
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+} from "@ant-design/icons";
+import { GetOrders } from "../../api/orderApi";
+import { GetCustomers } from "../../api/customerApi";
+import type { CustomerType, OrderType } from "../../types/domain";
+import formatCurrency from "../../utils/formatCurrecy";
 
-type ListOrder = {
-  name: string;
-  price: number;
-  image: string;
-  status: string;
-  order_code: number | string;
-};
-
-const statusDetailProductCustomer = [
+const statusOrder = [
   {
     status: "success",
     icon: <CheckCircleOutlined />,
-    title: "Đã giao",
+    title: "Thành công",
     color: "green",
   },
   {
-    status: "error",
+    status: "processing",
+    icon: <ClockCircleOutlined />,
+    title: "Đang xử lý",
+    color: "blue",
+  },
+  {
+    status: "cancelled",
     icon: <CloseCircleOutlined />,
     title: "Đã hủy",
     color: "red",
@@ -29,62 +42,62 @@ const statusDetailProductCustomer = [
 
 const DetailCustomer = () => {
   const { id } = useParams();
-  const [data, setData] = useState({});
-  console.log({ data });
+  const [customer, setCustomer] = useState<CustomerType | null>(null);
+  const [orders, setOrders] = useState<OrderType[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchDataDetail = async () => {
+    if (!id) return;
+
+    setLoading(true);
     try {
-      const dataDetail = await GetCustomerById(Number(id));
-      const dataUser = await GetCustomers();
+      const [customers, dataOrder] = await Promise.all([
+        GetCustomers(),
+        GetOrders(),
+      ]);
+      const customerData = (customers ?? []).find(
+        (item: CustomerType) => String(item.id) === id,
+      );
+      const customerOrders = (dataOrder ?? []).filter(
+        (item: OrderType) => String(item.customer_id) === id,
+      );
 
-      const dataByIdUser = dataUser.find((item) => item.id === id);
-
-      setData({ ...dataByIdUser, ...dataDetail });
+      setCustomer(customerData ?? null);
+      setOrders(customerOrders);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const orderData = data.list_order;
-
   useEffect(() => {
     fetchDataDetail();
-  }, []);
+  }, [id]);
 
-  if (!data) return;
-
-  const columns: TableProps<ListOrder>["columns"] = [
+  const columns: TableProps<OrderType>["columns"] = [
     {
       title: "Mã đơn",
       dataIndex: "order_code",
       key: "order_code",
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "name",
-      key: "name",
-      fixed: "start",
+      title: "Ngày tạo đơn",
+      dataIndex: "created_at",
+      key: "created_at",
     },
     {
-      title: "Giá",
-      dataIndex: "price",
-      key: "price",
-      fixed: "start",
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "image",
-      key: "image",
-      render: (image: string) => <Image width={50} alt="image" src={image} />,
+      title: "Tổng tiền",
+      dataIndex: "total_price",
+      key: "total_price",
+      render: (totalPrice) => formatCurrency(Number(totalPrice ?? 0)),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
-        const item = statusDetailProductCustomer.find(
-          (item) => item.status === status,
-        );
+        const item = statusOrder.find((item) => item.status === status);
         if (!item) return <Tag>{status}</Tag>;
 
         return (
@@ -96,12 +109,27 @@ const DetailCustomer = () => {
     },
   ];
 
+  if (loading) return <Spin />;
+  if (!customer) return <Empty description="Không tìm thấy khách hàng" />;
+
+  const totalExpend = orders.reduce((total, order) => {
+    return total + Number(order.total_price ?? 0);
+  }, 0);
+
   return (
     <Card title="Chi tiết khách hàng">
       <Descriptions column={2} bordered>
-        <Descriptions.Item label="Tên">{data.fullname}</Descriptions.Item>
-
-        <Descriptions.Item label="Email">{data.email}</Descriptions.Item>
+        <Descriptions.Item label="Tên">{customer.fullname}</Descriptions.Item>
+        <Descriptions.Item label="Email">{customer.email}</Descriptions.Item>
+        <Descriptions.Item label="Số điện thoại">
+          {customer.phone}
+        </Descriptions.Item>
+        <Descriptions.Item label="Tổng số đơn">
+          {orders.length}
+        </Descriptions.Item>
+        <Descriptions.Item label="Tổng chi tiêu">
+          {formatCurrency(totalExpend)}
+        </Descriptions.Item>
       </Descriptions>
 
       <Card
@@ -113,7 +141,7 @@ const DetailCustomer = () => {
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={orderData}
+          dataSource={orders}
           pagination={false}
         />
       </Card>

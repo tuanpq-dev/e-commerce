@@ -6,6 +6,8 @@ const routes = {
   CUSTOMER_MANAGEMENT: "customer-management",
   PROFILE: "profile",
   DETAIL_CUSTOMER: (id: string | number) => `customer-management/${id}`,
+  DETAIL_ORDER: (order_code: string | number) =>
+    `order-management/${order_code}`,
 };
 
 export default routes;

@@ -83,7 +83,6 @@ const Category: React.FC = () => {
                 tooltip="Xóa"
                 icon={<DeleteOutlined />}
                 onClick={() => {
-                  console.log(record.id);
                   if (record.id) {
                     handleDelete(record.id);
                   }
@@ -132,7 +131,7 @@ const Category: React.FC = () => {
         <Flex align="center" gap="medium" justify="space-between">
           <Search
             allowClear={true}
-            placeholder="Tìm kiếm sản phẩm"
+            placeholder="Tìm kiếm danh mục"
             style={{ width: "20%" }}
           />
           <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>

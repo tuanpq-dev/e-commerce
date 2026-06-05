@@ -1,8 +1,56 @@
-import { Button, Flex, Input, Table, type TableProps } from "antd";
+import { Flex, Input, Space, Table, Tag, type TableProps } from "antd";
 import type React from "react";
 import type { OrderType } from "../../types/domain";
+import { useEffect, useState } from "react";
+import { GetOrders } from "../../api/orderApi";
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
+import formatCurrency from "../../utils/formatCurrecy";
+import AntButton from "../../@crema/component/AntButton";
+import { useNavigate } from "react-router-dom";
+import config from "../../config";
+
+const statusOrder = [
+  {
+    status: "success",
+    icon: <CheckCircleOutlined />,
+    title: "Thành công",
+    color: "green",
+  },
+  {
+    status: "processing",
+    icon: <ClockCircleOutlined />,
+    title: "Đang xử lý",
+    color: "blue",
+  },
+  {
+    status: "cancelled",
+    icon: <CloseCircleOutlined />,
+    title: "Đã hủy",
+    color: "red",
+  },
+];
 
 const Order: React.FC = () => {
+  const [data, setData] = useState([]);
+  const navigate = useNavigate();
+
+  const fetchDataOrder = async () => {
+    try {
+      const dataOrder = await GetOrders();
+      setData(dataOrder);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDataOrder();
+  }, []);
   const { Search } = Input;
 
   const columns: TableProps<OrderType>["columns"] = [
@@ -10,26 +58,64 @@ const Order: React.FC = () => {
       title: "Mã đơn",
       dataIndex: "order_code",
       key: "order_code",
+      fixed: "start",
     },
     {
       title: "Khách hàng",
-      dataIndex: "customer",
-      key: "customer",
+      dataIndex: "customer_name",
+      key: "customer_name",
+      fixed: "start",
     },
     {
       title: "Ngày tạo",
-      dataIndex: "create_order",
-      key: "create_order",
+      dataIndex: "created_at",
+      key: "created_at",
     },
     {
       title: "Tổng tiền",
-      dataIndex: "total",
-      key: "total",
+      dataIndex: "total_price",
+      key: "total_price",
+      render: (_, record) => formatCurrency(Number(record.total_price)),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
+      fixed: "end",
+      render: (status: string) => {
+        const item = statusOrder.find((item) => item.status === status);
+        if (!item) return <Tag>{status}</Tag>;
+
+        return (
+          <Tag key={item.status} icon={item.icon} color={item.color}>
+            {item.title}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      fixed: "end",
+      width: 100,
+      align: "center",
+      render: (_, record) => {
+        return (
+          <>
+            <Space size="medium">
+              <AntButton
+                tooltip="Xem chi tiết"
+                icon={<EyeOutlined />}
+                onClick={() => {
+                  if (!record.order_code) return;
+
+                  navigate(`/${config.routes.DETAIL_ORDER(record.order_code)}`);
+                }}
+              />
+            </Space>
+          </>
+        );
+      },
     },
   ];
   return (
@@ -38,29 +124,20 @@ const Order: React.FC = () => {
         <Flex align="center" gap="medium" justify="space-between">
           <Search
             allowClear={true}
-            placeholder="Tìm kiếm sản phẩm"
+            placeholder="Tìm kiếm đơn hàng"
             style={{ width: "20%" }}
           />
-          <Button type="primary">Add</Button>
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
           <Table<OrderType>
             rowKey="order_code"
             columns={columns}
-            // dataSource={category}
+            dataSource={data}
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
           />
         </div>
       </Flex>
-      {/* 
-      <ModalProduct
-        initialValue={rowData}
-        open={isOpenModal}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        isUpdate={isUpdate}
-      /> */}
     </>
   );
 };

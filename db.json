@@ -135,29 +135,25 @@
       "id": "1",
       "fullname": "Quang Tuấn",
       "email": "ptuan25941@gmail.com",
-      "total_orders": 10,
-      "total_expend": 10000
+      "phone": "0987654321"
     },
     {
       "id": "2",
       "fullname": "Quang Tuấn 2",
       "email": "ptuan25942@gmail.com",
-      "total_orders": 13,
-      "total_expend": 13000
+      "phone": "0123456789"
     },
     {
       "id": "3",
       "fullname": "Quang Tuấn 3",
       "email": "ptuan25943@gmail.com",
-      "total_orders": 12,
-      "total_expend": 12000
+      "phone": "0999888765"
     },
     {
       "id": "4",
       "fullname": "Quang Tuấn 4",
       "email": "ptuan25944@gmail.com",
-      "total_orders": 11,
-      "total_expend": 11000
+      "phone": "0988888888"
     }
   ],
   "detail_customers": [
@@ -257,6 +253,248 @@
           "price": 3800,
           "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
           "status": "success"
+        }
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "id": "1",
+      "order_code": "ORD001",
+      "customer_id": "1",
+      "customer_name": "Quang Tuấn",
+      "customer_email": "ptuan25941@gmail.com",
+      "created_at": "2026-06-05",
+      "total_price": 1799000,
+      "payment_method": "COD",
+      "payment_status": "paid",
+      "shipping_status": "delivered",
+      "status": "success",
+      "shipping_address": "Hà Nội",
+      "items": [
+        {
+          "id": "1",
+          "product_id": "2",
+          "product_name": "Quần jeans xanh",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 420000
+        },
+        {
+          "id": "2",
+          "product_id": "3",
+          "product_name": "Giày sneaker trắng",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 690000
+        },
+        {
+          "id": "3",
+          "product_id": "4",
+          "product_name": "Mũ lưỡi trai đen",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 2,
+          "price": 99000
+        },
+        {
+          "id": "4",
+          "product_id": "5",
+          "product_name": "Áo khoác bomber",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 491000
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "order_code": "ORD002",
+      "customer_id": "1",
+      "customer_name": "Quang Tuấn",
+      "customer_email": "ptuan25941@gmail.com",
+      "created_at": "2026-06-04",
+      "total_price": 1375000,
+      "payment_method": "VNPay",
+      "payment_status": "paid",
+      "shipping_status": "shipping",
+      "status": "processing",
+      "shipping_address": "Hà Nội",
+      "items": [
+        {
+          "id": "1",
+          "product_id": "3",
+          "product_name": "Giày sneaker trắng",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 690000
+        },
+        {
+          "id": "2",
+          "product_id": "4",
+          "product_name": "Mũ lưỡi trai đen",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 3,
+          "price": 99000
+        },
+        {
+          "id": "3",
+          "product_id": "ClbIq3Jdhpk",
+          "product_name": "Sản phẩm 26",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 2,
+          "price": 20000
+        },
+        {
+          "id": "4",
+          "product_id": "5",
+          "product_name": "Áo khoác bomber",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 348000
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "order_code": "ORD003",
+      "customer_id": "2",
+      "customer_name": "Quang Tuấn 2",
+      "customer_email": "ptuan25942@gmail.com",
+      "created_at": "2026-06-03",
+      "total_price": 1229000,
+      "payment_method": "COD",
+      "payment_status": "unpaid",
+      "shipping_status": "pending",
+      "status": "cancelled",
+      "shipping_address": "Hồ Chí Minh",
+      "items": [
+        {
+          "id": "1",
+          "product_id": "2",
+          "product_name": "Quần jeans xanh",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 2,
+          "price": 420000
+        },
+        {
+          "id": "2",
+          "product_id": "4",
+          "product_name": "Mũ lưỡi trai đen",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 99000
+        },
+        {
+          "id": "3",
+          "product_id": "ClbIq3Jdhpk",
+          "product_name": "Sản phẩm 26",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 5,
+          "price": 20000
+        },
+        {
+          "id": "4",
+          "product_id": "swLYyZu4Dns",
+          "product_name": "New product",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 190000
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "order_code": "ORD004",
+      "customer_id": "3",
+      "customer_name": "Quang Tuấn 3",
+      "customer_email": "ptuan25943@gmail.com",
+      "created_at": "2026-06-02",
+      "total_price": 1612000,
+      "payment_method": "Momo",
+      "payment_status": "paid",
+      "shipping_status": "delivered",
+      "status": "success",
+      "shipping_address": "Đà Nẵng",
+      "items": [
+        {
+          "id": "1",
+          "product_id": "5",
+          "product_name": "Áo khoác bomber",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 2,
+          "price": 550000
+        },
+        {
+          "id": "2",
+          "product_id": "3",
+          "product_name": "Giày sneaker trắng",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 690000
+        },
+        {
+          "id": "3",
+          "product_id": "4",
+          "product_name": "Mũ lưỡi trai đen",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 99000
+        },
+        {
+          "id": "4",
+          "product_id": "ClbIq3Jdhpk",
+          "product_name": "Sản phẩm 26",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 6,
+          "price": 20000
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "order_code": "ORD005",
+      "customer_id": "4",
+      "customer_name": "Quang Tuấn 4",
+      "customer_email": "ptuan25944@gmail.com",
+      "created_at": "2026-06-01",
+      "total_price": 1860000,
+      "payment_method": "VNPay",
+      "payment_status": "paid",
+      "shipping_status": "shipping",
+      "status": "processing",
+      "shipping_address": "Hải Phòng",
+      "items": [
+        {
+          "id": "1",
+          "product_id": "3",
+          "product_name": "Giày sneaker trắng",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 1,
+          "price": 690000
+        },
+        {
+          "id": "2",
+          "product_id": "5",
+          "product_name": "Áo khoác bomber",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 2,
+          "price": 550000
+        },
+        {
+          "id": "3",
+          "product_id": "4",
+          "product_name": "Mũ lưỡi trai đen",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 4,
+          "price": 99000
+        },
+        {
+          "id": "4",
+          "product_id": "ClbIq3Jdhpk",
+          "product_name": "Sản phẩm 26",
+          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+          "quantity": 2,
+          "price": 20000
         }
       ]
     }
