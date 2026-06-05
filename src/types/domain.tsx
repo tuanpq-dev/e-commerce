@@ -35,10 +35,13 @@ export type CategoryType = {
 };
 
 export type OrderType = {
+  id?: number | string;
   order_code?: number | string;
-  customer?: string;
-  create_order?: number | string;
-  total?: number | string;
+  customer_id?: number | string;
+  customer_name?: string;
+  customer_email?: string;
+  created_at?: string;
+  total_price?: number | string;
   status?: string;
 };
 
@@ -46,6 +49,7 @@ export type CustomerType = {
   id?: number | string;
   fullname?: string;
   email?: string;
+  phone?: number | string;
   total_orders?: number | string;
   total_expend?: number | string;
 };

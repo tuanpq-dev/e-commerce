@@ -11,6 +11,7 @@ const Profile = React.lazy(() => import("../../features/auth/profile"));
 const DetailCustomer = React.lazy(
   () => import("../components/detail-customer"),
 );
+const DetailOrder = React.lazy(() => import("../components/detail-order"));
 
 export const routeConfig = [
   {
@@ -40,5 +41,9 @@ export const routeConfig = [
   {
     path: config.routes.DETAIL_CUSTOMER(":id"),
     element: <DetailCustomer />,
+  },
+  {
+    path: config.routes.DETAIL_ORDER(":order_code"),
+    element: <DetailOrder />,
   },
 ];

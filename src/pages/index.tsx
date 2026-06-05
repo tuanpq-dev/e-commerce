@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { Suspense } from "react";
 import LoginPage from "../features/auth/LoginPage";
 import ProtectedRoute from "../routes/protected-routes";
 import AppLayout from "../@crema/core/AppLayout";
@@ -17,7 +18,9 @@ export const routes = [
     ...route,
     element: (
       <ProtectedRoute>
-        <AppLayout>{route.element}</AppLayout>
+        <AppLayout>
+          <Suspense fallback={<div>Loading...</div>}>{route.element}</Suspense>
+        </AppLayout>
       </ProtectedRoute>
     ),
   })),
