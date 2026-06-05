@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../../api/mockApi";
 import { useEffect } from "react";
 import { DownOutlined } from "@ant-design/icons";
-import openNotification from "../../Notification";
 import config from "../../../../config";
+import { getUserInfoById, LogoutApi } from "../../../../services/auth.service";
+import { useAuth } from "../../../../contexts/AuthContext";
 
 const AppHeader = () => {
   const token = getAccessToken();
@@ -34,41 +35,19 @@ const AppHeader = () => {
     },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
-
-    sessionStorage.removeItem("accessToken");
-    sessionStorage.removeItem("user");
-
-    navigate("/login");
-
-    openNotification("success", {
-      message: "Thành công",
-      description: "Đăng xuất thành công",
-    });
-  };
-
   const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
     if (key === "logout") {
-      handleLogout();
+      LogoutApi();
+      navigate("/");
     } else {
       navigate(`/${key}`);
     }
   };
 
   const getUserName = () => {
-    const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+    const { userInfo } = useAuth();
 
-    if (!user) {
-      return "Admin";
-    }
-
-    try {
-      return JSON.parse(user).name || "You";
-    } catch {
-      return "You";
-    }
+    return userInfo ? userInfo.name : "You";
   };
 
   useEffect(() => {

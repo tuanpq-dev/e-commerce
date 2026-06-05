@@ -33,3 +33,15 @@ export type CategoryType = {
   name?: string;
   total?: number | string;
 };
+
+export type UpdateUserPayload = {
+  name?: string;
+  username?: string;
+  email?: string;
+  avatar?: string;
+};
+
+export type LoginPayload = {
+  email: string;
+  password: string;
+};

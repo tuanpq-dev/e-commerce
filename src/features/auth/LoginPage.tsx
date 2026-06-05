@@ -5,7 +5,7 @@ import "./Login.css";
 import FormInput from "../../@crema/core/Form/FormInput";
 import { EMAIL_REGEX } from "../../shared/constant/Regex";
 import FormInputPassword from "../../@crema/core/Form/FormInputPassword";
-import { mockApiLogin } from "../../api/mockApi";
+import { useAuth } from "../../contexts/AuthContext";
 
 type LoginType = {
   email: string;
@@ -14,21 +14,11 @@ type LoginType = {
 };
 
 const LoginPage = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const handleSubmit = async (values: LoginType) => {
     try {
-      const res = await mockApiLogin(
-        values.email.trim(),
-        values.password.trim(),
-      );
-
-      const storage = localStorage;
-
-      storage.setItem("accessToken", res.accessToken);
-      storage.setItem("user", JSON.stringify(res.user));
-
-      sessionStorage.setItem("accessToken", res.accessToken);
-      sessionStorage.setItem("user", JSON.stringify(res.user));
+      await login(values);
 
       navigate("/dashboard");
     } catch (err) {
