@@ -44,7 +44,7 @@ export const routeConfig = [
     element: <DetailCustomer />,
   },
   {
-    path: config.routes.DETAIL_ORDER(":order_code"),
+    path: config.routes.DETAIL_ORDER(":id"),
     element: <DetailOrder />,
   },
   {
