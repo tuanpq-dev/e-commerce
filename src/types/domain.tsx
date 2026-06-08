@@ -71,3 +71,18 @@ export type LoginPayload = {
   email: string;
   password: string;
 };
+
+export type UpdateStatusValues = {
+  id: string | number;
+  status: string;
+  historyDetailOrder?: {
+    status: string;
+    message: string;
+    createdAt: string;
+  }[];
+  updatedBy?: {
+    id?: string | number;
+    name?: string;
+    email?: string;
+  };
+};

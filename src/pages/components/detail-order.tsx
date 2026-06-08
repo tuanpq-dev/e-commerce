@@ -2,17 +2,20 @@ import {
   Card,
   Descriptions,
   Empty,
+  Form,
   Image,
   Spin,
   Table,
-  Tag,
   Timeline,
 } from "antd";
 import type { TableProps } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { GetOrderByOrderCode } from "../../api/orderApi";
+import { GetOrderById, UpdateStatusDetailOrder } from "../../api/orderApi";
 import formatCurrency from "../../utils/formatCurrecy";
+import FormSelect from "../../@crema/core/Form/FormSelect";
+import formatDate from "../../utils/formatDate";
+import { useAuth } from "../../contexts/AuthContext";
 
 type OrderItemType = {
   id: string;
@@ -47,21 +50,58 @@ type OrderType = {
   histories?: OrderHistoryType[];
 };
 
-const DetailOrder = () => {
-  const { order_code } = useParams();
+// Định nghĩa các transition hợp lệ
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  pending: ["processing", "cancelled"],
+  processing: ["shipping"],
+  shipping: ["completed"],
+  completed: [],
+  cancelled: [],
+};
 
+const ALL_STATUSES = Object.keys(STATUS_TRANSITIONS);
+
+const STATUS_CONFIG = {
+  pending: { label: "Chờ xử lý", color: "#d46b08", bg: "#fff7e6" },
+  processing: { label: "Đang xử lý", color: "#096dd9", bg: "#e6f4ff" },
+  shipping: { label: "Đang giao", color: "#7c3aed", bg: "#f5f3ff" },
+  completed: { label: "Hoàn thành", color: "#389e0d", bg: "#f6ffed" },
+  cancelled: { label: "Đã hủy", color: "#cf1322", bg: "#fff1f0" },
+};
+
+const StatusBadge = ({ value }: { value: string }) => {
+  const cfg = STATUS_CONFIG[value as keyof typeof STATUS_CONFIG];
+  if (!cfg) return null;
+
+  return (
+    <span
+      style={{
+        color: cfg.color,
+        background: cfg.bg,
+        padding: "2px 10px",
+        borderRadius: 999,
+        fontWeight: 600,
+      }}
+    >
+      ● {cfg.label}
+    </span>
+  );
+};
+
+const DetailOrder = () => {
+  const { userInfo } = useAuth();
+  const { id } = useParams();
+  const [form] = Form.useForm();
   const [data, setData] = useState<OrderType | null>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
-    if (!order_code) return;
-
+    if (!id) return;
     try {
       setLoading(true);
-
-      const dataDetailOrder = await GetOrderByOrderCode(order_code);
-
+      const dataDetailOrder = await GetOrderById(id);
       setData(dataDetailOrder);
+      form.setFieldsValue({ status: dataDetailOrder?.status });
     } catch (err) {
       console.log(err);
     } finally {
@@ -71,7 +111,7 @@ const DetailOrder = () => {
 
   useEffect(() => {
     fetchData();
-  }, [order_code]);
+  }, []);
 
   const columns: TableProps<OrderItemType>["columns"] = [
     {
@@ -106,87 +146,108 @@ const DetailOrder = () => {
     },
   ];
 
+  const handleUpdateStatus = async (status: string) => {
+    if (!data?.id) return;
+
+    const updatedOrder = await UpdateStatusDetailOrder({
+      id: data.id,
+      status,
+      historyDetailOrder: data.historyDetailOrder ?? [],
+      updatedBy: {
+        id: userInfo?.id,
+        name: userInfo?.name,
+        email: userInfo?.email,
+      },
+    });
+
+    setData(updatedOrder);
+  };
+
   if (loading) return <Spin />;
   if (!data) return <Empty description="Không tìm thấy đơn hàng" />;
 
   return (
-    <Card title={`Chi tiết đơn hàng ${data.order_code}`} loading={loading}>
-      <Descriptions column={2} bordered>
-        <Descriptions.Item label="Mã đơn">{data.order_code}</Descriptions.Item>
+    <Form form={form}>
+      <Card title={`Chi tiết đơn hàng ${data.order_code}`} loading={loading}>
+        <Descriptions column={2} bordered>
+          <Descriptions.Item label="Mã đơn">
+            {data.order_code}
+          </Descriptions.Item>
 
-        <Descriptions.Item label="Ngày mua">
-          {data.created_at}
-        </Descriptions.Item>
+          <Descriptions.Item label="Ngày mua">
+            {data.created_at}
+          </Descriptions.Item>
 
-        <Descriptions.Item label="Tên khách hàng">
-          {data.customer_name}
-        </Descriptions.Item>
+          <Descriptions.Item label="Tên khách hàng">
+            {data.customer_name}
+          </Descriptions.Item>
 
-        <Descriptions.Item label="Email">
-          {data.customer_email}
-        </Descriptions.Item>
+          <Descriptions.Item label="Email">
+            {data.customer_email}
+          </Descriptions.Item>
 
-        <Descriptions.Item label="Địa chỉ giao hàng">
-          {data.shipping_address}
-        </Descriptions.Item>
+          <Descriptions.Item label="Địa chỉ giao hàng">
+            {data.shipping_address}
+          </Descriptions.Item>
 
-        <Descriptions.Item label="Phương thức thanh toán">
-          {data.payment_method}
-        </Descriptions.Item>
+          <Descriptions.Item label="Trạng thái đơn hàng">
+            <FormSelect
+              name="status"
+              onChange={handleUpdateStatus}
+              labelRender={({ value }) => <StatusBadge value={String(value)} />}
+              options={ALL_STATUSES.map((s) => ({
+                label: STATUS_CONFIG[s].label,
+                value: s,
+                disabled:
+                  s !== data.status &&
+                  !STATUS_TRANSITIONS[data.status]?.includes(s),
+              }))}
+            />
+          </Descriptions.Item>
 
-        <Descriptions.Item label="Trạng thái thanh toán">
-          {data.payment_status === "paid" ? (
-            <Tag color="success">Đã thanh toán</Tag>
-          ) : (
-            <Tag color="warning">Chưa thanh toán</Tag>
-          )}
-        </Descriptions.Item>
+          <Descriptions.Item label="Tổng tiền">
+            {formatCurrency(data.total_price)}
+          </Descriptions.Item>
+        </Descriptions>
 
-        <Descriptions.Item label="Trạng thái đơn hàng">
-          {data.status === "success" && <Tag color="success">Thành công</Tag>}
-          {data.status === "processing" && (
-            <Tag color="processing">Đang xử lý</Tag>
-          )}
-          {data.status === "cancelled" && <Tag color="error">Đã hủy</Tag>}
-        </Descriptions.Item>
+        <Card
+          title="Danh sách sản phẩm"
+          style={{
+            marginTop: 24,
+          }}
+        >
+          <Table
+            rowKey="id"
+            columns={columns}
+            dataSource={data.items}
+            pagination={false}
+          />
+        </Card>
 
-        <Descriptions.Item label="Tổng tiền">
-          {formatCurrency(data.total_price)}
-        </Descriptions.Item>
-      </Descriptions>
-
-      <Card
-        title="Danh sách sản phẩm"
-        style={{
-          marginTop: 24,
-        }}
-      >
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={data.items}
-          pagination={false}
-        />
+        <Card
+          title="Lịch sử trạng thái"
+          style={{
+            marginTop: 24,
+          }}
+        >
+          <Timeline
+            reverse={true}
+            items={(data.historyDetailOrder ?? []).map((item) => ({
+              children: (
+                <div>
+                  <div>
+                    {item.updatedBy.name}, {item.message.toLowerCase()}
+                  </div>
+                  <div style={{ color: "#999", fontSize: 13 }}>
+                    {formatDate(item.createdAt)}
+                  </div>
+                </div>
+              ),
+            }))}
+          />
+        </Card>
       </Card>
-
-      <Card
-        title="Lịch sử trạng thái"
-        style={{
-          marginTop: 24,
-        }}
-      >
-        <Timeline
-          items={(data.histories ?? []).map((item) => ({
-            children: (
-              <div>
-                <div>{item.title}</div>
-                <div style={{ color: "#999", fontSize: 13 }}>{item.time}</div>
-              </div>
-            ),
-          }))}
-        />
-      </Card>
-    </Card>
+    </Form>
   );
 };
 

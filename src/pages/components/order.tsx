@@ -16,7 +16,7 @@ import config from "../../config";
 
 const statusOrder = [
   {
-    status: "success",
+    status: "completed",
     icon: <CheckCircleOutlined />,
     title: "Thành công",
     color: "green",
@@ -25,13 +25,25 @@ const statusOrder = [
     status: "processing",
     icon: <ClockCircleOutlined />,
     title: "Đang xử lý",
-    color: "blue",
+    color: "yellow",
   },
   {
     status: "cancelled",
     icon: <CloseCircleOutlined />,
     title: "Đã hủy",
     color: "red",
+  },
+  {
+    status: "pending",
+    icon: <CloseCircleOutlined />,
+    title: "Chờ xử lý",
+    color: "gray",
+  },
+  {
+    status: "shipping",
+    icon: <ClockCircleOutlined />,
+    title: "Đang giao",
+    color: "blue",
   },
 ];
 
@@ -109,7 +121,7 @@ const Order: React.FC = () => {
                 onClick={() => {
                   if (!record.order_code) return;
 
-                  navigate(`/${config.routes.DETAIL_ORDER(record.order_code)}`);
+                  navigate(`/${config.routes.DETAIL_ORDER(record.id)}`);
                 }}
               />
             </Space>
