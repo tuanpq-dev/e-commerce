@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { DataType, ProductInitialValues } from "../types/domain";
 import { apiUrl } from "./mockApi";
 import axiosClient from "./axiosClient";
+import { IncreaseCategoryProductTotal } from "./categoryApi";
 
 export const GetProduct = () => {
   const [product, setProduct] = useState<DataType[]>([]);
@@ -44,12 +45,18 @@ export const CreateProduct = async (values: ProductInitialValues) => {
       status: "pending",
       image:
         "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      category_child: values?.category_child || [],
     };
 
-    const res = await axiosClient.post("/products", payload);
+    const [res] = await Promise.all([
+      axiosClient.post("/products", payload),
+      IncreaseCategoryProductTotal({
+        category: values.category,
+        category_child: values.category_child,
+      }),
+    ]);
 
-    const data = await res.data;
-    return data;
+    return res.data;
   } catch (err) {
     console.log(err);
   }
@@ -67,6 +74,7 @@ export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
         "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
       name: values.name,
       category: values.category,
+      category_child: values.category_child || [],
       description: values.description,
       status: "pending",
     };

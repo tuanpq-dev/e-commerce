@@ -8,6 +8,7 @@ const routes = {
   DETAIL_CUSTOMER: (id: string | number) => `customer-management/${id}`,
   DETAIL_ORDER: (order_code: string | number) =>
     `order-management/${order_code}`,
+  CATEGORY_CHILD: (id: number | string) => `category-management/${id}`,
 };
 
 export default routes;

@@ -1,9 +1,10 @@
 export interface DataType {
   id?: string | number;
-  image: string;
+  image: string | string[];
   sku: string;
   name: string;
-  category: string;
+  category: string | CategoryType;
+  category_child?: CategoryType[];
   price: number;
   stock: number;
   status?: string;
@@ -20,7 +21,8 @@ export type ProductInitialValues = {
   id?: string | number;
   name?: string;
   sku?: string;
-  category?: string;
+  category?: string | number | CategoryType;
+  category_child?: (string | number | CategoryType)[];
   price?: number | string;
   stock?: number | string;
   description?: string;
@@ -32,6 +34,10 @@ export type CategoryType = {
   id?: number | string;
   name?: string;
   total?: number | string;
+  parentId?: number | string;
+  child?: CategoryType[];
+  category_child?: number;
+  total_prod?: number | string;
 };
 
 export type OrderType = {

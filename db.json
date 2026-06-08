@@ -11,123 +11,226 @@
   ],
   "products": [
     {
-      "id": "2",
-      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "sku": "SP002",
-      "name": "Quần jeans xanh",
-      "category": "Quần",
-      "price": 420000,
-      "stock": 18,
-      "status": "pending"
-    },
-    {
-      "id": "3",
-      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "sku": "SP003",
-      "name": "Giày sneaker trắng",
-      "category": "Giày",
-      "price": 690000,
-      "stock": 12,
-      "status": "active"
-    },
-    {
-      "id": "4",
-      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "sku": "SP004",
-      "name": "Mũ lưỡi trai đen",
-      "category": "Phụ kiện",
-      "price": 99000,
-      "stock": 50,
-      "status": "active"
-    },
-    {
-      "id": "5",
-      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "sku": "SP005",
-      "name": "Áo khoác bomber",
-      "category": "Áo",
-      "price": 550000,
-      "stock": 8,
-      "status": "pending"
-    },
-    {
-      "id": "ClbIq3Jdhpk",
-      "sku": "SP 1780394995316",
-      "price": 20000,
-      "stock": 123,
-      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "name": "Sản phẩm 26",
-      "category": "Áo gì đó",
-      "description": "",
-      "status": "pending"
-    },
-    {
-      "id": "KuuEYN9i9nE",
-      "price": 3000,
-      "stock": 10,
-      "image": [
-        "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80"
-      ],
-      "name": "JOB_007",
-      "category": "Áo gì đó",
-      "description": "",
-      "status": "pending",
-      "sku": "SP010 17803"
-    },
-    {
-      "name": "tien_trinh_27/8_2222",
-      "sku": "SP010 1780478924369",
-      "category": "new cate",
-      "price": 4321,
-      "stock": 12,
-      "description": "eeeeee1111",
-      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "id": "r5jXBhVY2ug",
-      "status": "pending",
-      "method": "PATCH",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": "{\"price\":4312,\"image\":\"https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80\",\"name\":\"tien_trinh_27/8_2222\",\"category\":\"new cate\",\"description\":\"eeeeee111\",\"status\":\"pending\"}"
-    },
-    {
       "name": "New product",
-      "sku": "sku 1780479326808",
-      "category": "new cate",
-      "price": 5555,
-      "stock": 24,
-      "description": "description",
+      "sku": "SP010 1780889673718",
+      "category": "DoSf-yUiv4c",
+      "price": 3000,
+      "stock": 12,
+      "description": "aaaaaaa",
       "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "id": "swLYyZu4Dns",
+      "category_child": [
+        "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
+        "e53fa783-6076-4456-9bb5-6b00f7469fe9"
+      ],
+      "id": "vN11ZGYspxk",
       "status": "pending"
     },
     {
-      "name": "Phạm Quang Tuấn",
-      "sku": "SP010 1780483009061",
-      "category": "Quan",
-      "price": 3800,
+      "name": "New product 2",
+      "sku": "SP010 1780902024879",
+      "category": "DoSf-yUiv4c",
+      "price": 3000,
       "stock": 24,
-      "description": "aaaaaa",
+      "description": "hehehehehe",
       "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "id": "R_rqeVv6hTo",
+      "category_child": [
+        "e75dc3cb-3508-4570-b398-bc563dc85ceb",
+        "e53fa783-6076-4456-9bb5-6b00f7469fe9",
+        "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86"
+      ],
+      "id": "28r8MoDiVyc",
+      "status": "pending"
+    },
+    {
+      "name": "New product 3",
+      "sku": "SP010 1780902076933",
+      "category": "DoSf-yUiv4c",
+      "price": 20000,
+      "stock": 1,
+      "description": "qqqqqq",
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "category_child": [
+        "e53fa783-6076-4456-9bb5-6b00f7469fe9"
+      ],
+      "id": "rGRfKH8FgTo",
+      "status": "pending"
+    },
+    {
+      "name": "Quần bagy",
+      "sku": "SPQUAN 1780902739711",
+      "category": "sFGTOuTS9OA",
+      "price": 123,
+      "stock": 10,
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "category_child": [
+        "3f77cd0c-52cd-4862-97f1-3a910e3a1b64"
+      ],
+      "id": "l-r3d8GDdqc",
       "status": "pending"
     }
   ],
   "category": [
     {
-      "id": "1",
-      "name": "Ao",
-      "total": 10
+      "name": "Áo",
+      "total": 2,
+      "child": [
+        {
+          "id": "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
+          "name": "Áo khoác gió",
+          "parentId": "DoSf-yUiv4c",
+          "total": 1
+        },
+        {
+          "id": "e53fa783-6076-4456-9bb5-6b00f7469fe9",
+          "name": "Áo thun",
+          "parentId": "DoSf-yUiv4c",
+          "total": 2
+        },
+        {
+          "id": "e75dc3cb-3508-4570-b398-bc563dc85ceb",
+          "name": "Áo Bí ngô",
+          "parentId": "DoSf-yUiv4c",
+          "total": 1
+        },
+        {
+          "id": "741f8b33-a995-4bb4-a295-960cf56e8ed4",
+          "name": "Áo sơ mi",
+          "parentId": "DoSf-yUiv4c",
+          "total": 0
+        },
+        {
+          "id": "7f09306f-5e31-4abd-ae12-31ebd500cd0c",
+          "name": "Áo polo",
+          "parentId": "DoSf-yUiv4c",
+          "total": 0
+        }
+      ],
+      "id": "DoSf-yUiv4c"
     },
     {
-      "id": "2",
-      "name": "Quan",
-      "total": 20
+      "name": "Quần",
+      "total": 1,
+      "child": [
+        {
+          "id": "3f77cd0c-52cd-4862-97f1-3a910e3a1b64",
+          "name": "Quần bagy",
+          "parentId": "sFGTOuTS9OA",
+          "total": 1
+        },
+        {
+          "id": "1a0c1568-3fe8-4e2a-984c-c80423fa592f",
+          "name": "Quần jeans",
+          "parentId": "sFGTOuTS9OA",
+          "total": 0
+        },
+        {
+          "id": "fda303da-0e1d-4ab0-a319-44e5f652bfa9",
+          "name": "Quần short",
+          "parentId": "sFGTOuTS9OA",
+          "total": 0
+        },
+        {
+          "id": "524e2ddc-7d50-417d-b740-c23428ab4d0b",
+          "name": "Quần kaki",
+          "parentId": "sFGTOuTS9OA",
+          "total": 0
+        }
+      ],
+      "id": "sFGTOuTS9OA"
     },
     {
-      "id": "3",
-      "name": "Mu",
-      "total": 30
+      "name": "Phụ kiện",
+      "total": 0,
+      "child": [
+        {
+          "id": "ad5432b9-d9af-422a-8247-13a69017ac4e",
+          "name": "Mũ",
+          "parentId": "5bcazNqa_ek",
+          "total": 0
+        },
+        {
+          "id": "efb349f2-ca65-46a4-869f-9b3564198bae",
+          "name": "Kính",
+          "parentId": "5bcazNqa_ek",
+          "total": 0
+        },
+        {
+          "id": "faed55ce-0c15-43f1-80f9-518b979fe2c8",
+          "name": "Thắt lưng",
+          "parentId": "5bcazNqa_ek",
+          "total": 0
+        }
+      ],
+      "id": "5bcazNqa_ek"
+    },
+    {
+      "name": "Váy",
+      "total": 0,
+      "child": [
+        {
+          "id": "9a9172ce-4c65-47d9-8797-c0ead15a9ed4",
+          "name": "Váy ngắn",
+          "parentId": "VizxbJbAhGg",
+          "total": 0
+        },
+        {
+          "id": "6670fa3b-ea83-4280-b483-73083f8aa4a6",
+          "name": "Váy dài",
+          "parentId": "VizxbJbAhGg",
+          "total": 0
+        },
+        {
+          "id": "a35a3b73-00dc-4e49-9c49-5d78af445b20",
+          "name": "Chân váy",
+          "parentId": "VizxbJbAhGg",
+          "total": 0
+        },
+        {
+          "id": "59247bde-225b-41a2-97d7-110776e1eb2c",
+          "name": "Đầm dự tiệc",
+          "parentId": "VizxbJbAhGg",
+          "total": 0
+        }
+      ],
+      "id": "VizxbJbAhGg"
+    },
+    {
+      "name": "Túi xách",
+      "total": 0,
+      "child": [
+        {
+          "id": "768f8053-57ae-46dd-a000-1d6ef41fb105",
+          "name": "Túi đeo chéo",
+          "parentId": "L0LncjdxyvU",
+          "total": 0
+        },
+        {
+          "id": "e15a02fb-7867-4afa-b966-0c0e360d0fcc",
+          "name": "Ví",
+          "parentId": "L0LncjdxyvU",
+          "total": 0
+        }
+      ],
+      "id": "L0LncjdxyvU"
+    },
+    {
+      "name": "Giày dép",
+      "total": 0,
+      "child": [
+        {
+          "id": "c7324306-0792-4479-9801-c83a49b4b95d",
+          "name": "Giày sneaker",
+          "parentId": "3FyNULcPqC4",
+          "total": 0
+        },
+        {
+          "id": "85634d11-7489-4fed-8b45-dcb727d68793",
+          "name": "Giày cao gót",
+          "parentId": "3FyNULcPqC4",
+          "total": 0
+        }
+      ],
+      "id": "3FyNULcPqC4"
     }
   ],
   "customers": [

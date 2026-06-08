@@ -66,7 +66,7 @@ const Profile = () => {
           </div>
 
           <Card style={{ width: 240, textAlign: "center" }}>
-            <Space direction="vertical" size={16}>
+            <Space vertical size={16}>
               <Avatar size={96} icon={<UserOutlined />} />
 
               <div>
