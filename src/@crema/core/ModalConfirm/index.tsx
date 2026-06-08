@@ -11,7 +11,7 @@ type ModalConfirmProps = {
   cancelText?: string;
   confirmLoading?: boolean;
   disabled?: boolean;
-  onOk: () => void;
+  onOk: () => void | Promise<void>;
   onCancel: () => void;
 };
 

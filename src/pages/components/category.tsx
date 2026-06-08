@@ -4,20 +4,27 @@ import type { TableProps } from "antd";
 import type { CategoryType } from "../../types/domain";
 import {
   CreateCategory,
+  CreateCategoryChild,
   DeleteCategory,
   GetCategory,
   UpdateCategory,
 } from "../../api/categoryApi";
-import { ModalCategory } from "../modal";
+import { ModalCategory, ModalCategoryChild } from "../modal";
 import { useState } from "react";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import openNotification from "../../@crema/core/Notification";
 import AntButton from "../../@crema/component/AntButton";
+import { useNavigate } from "react-router-dom";
+import config from "../../config";
+import ModalConfirm from "../../@crema/core/ModalConfirm";
 
 const Category: React.FC = () => {
   const { Search } = Input;
+  const navigate = useNavigate();
   const [rowData, setRowData] = useState<CategoryType>();
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isOpenModalChild, setIsOpenModalChild] = useState(false);
+  const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
   const { category, isLoading, refetch } = GetCategory();
   const [isUpdate, setIsUpdate] = useState(false);
 
@@ -27,14 +34,27 @@ const Category: React.FC = () => {
     setRowData({});
   };
 
-  const handleCancel = () => {
-    setIsOpenModal(false);
+  const handleAddChild = () => {
+    setIsOpenModalChild(true);
+    setIsUpdate(false);
+    setRowData({});
   };
 
-  const handleDelete = async (id: number | string) => {
-    await DeleteCategory(id);
+  const handleCancel = () => {
+    setIsOpenModal(false);
+    setIsOpenModalChild(false);
+    setIsOpenModalDelete(false);
+  };
+
+  const handleDelete = async () => {
+    if (!rowData?.id) {
+      return;
+    }
+
+    await DeleteCategory(rowData?.id);
     await refetch();
 
+    setIsOpenModalDelete(false);
     openNotification("success", {
       message: "Thành công",
       description: "Xóa thành công danh mục",
@@ -47,14 +67,23 @@ const Category: React.FC = () => {
 
   const columns: TableProps<CategoryType>["columns"] = [
     {
-      title: "Name Category",
+      title: "Tên danh mục",
       dataIndex: "name",
       key: "name",
       width: 100,
       fixed: "start",
     },
     {
-      title: "Total",
+      title: "Số danh mục con",
+      dataIndex: "category_child",
+      key: "category_child",
+      width: 100,
+      render: (_, record) => {
+        return record?.child ? record?.child.length : 0;
+      },
+    },
+    {
+      title: "Tổng sản phẩm",
       dataIndex: "total",
       key: "total",
       width: 100,
@@ -70,6 +99,17 @@ const Category: React.FC = () => {
           <>
             <Space size="medium">
               <AntButton
+                tooltip="Xem danh mục con"
+                icon={<EyeOutlined />}
+                onClick={() => {
+                  if (!record.id) {
+                    return;
+                  }
+
+                  navigate(`/${config.routes.CATEGORY_CHILD(record.id)}`);
+                }}
+              />
+              <AntButton
                 tooltip="Chỉnh sửa"
                 icon={<EditOutlined />}
                 onClick={() => {
@@ -83,9 +123,8 @@ const Category: React.FC = () => {
                 tooltip="Xóa"
                 icon={<DeleteOutlined />}
                 onClick={() => {
-                  if (record.id) {
-                    handleDelete(record.id);
-                  }
+                  setIsOpenModalDelete(true);
+                  setRowData({ id: record.id, name: record.name });
                 }}
               />
             </Space>
@@ -111,7 +150,7 @@ const Category: React.FC = () => {
 
       openNotification("success", {
         message: "Thành công",
-        description: "Chỉnh sửa danh mục thành công",
+        description: "Chỉnh sửa danh mục cha thành công",
       });
     } else {
       await CreateCategory(values);
@@ -120,9 +159,19 @@ const Category: React.FC = () => {
       setIsOpenModal(false);
       openNotification("success", {
         message: "Thành công",
-        description: "Thêm mới danh mục thành công",
+        description: "Thêm mới danh mục cha thành công",
       });
     }
+  };
+
+  const handleOkChild = async (values: CategoryType) => {
+    await CreateCategoryChild(values);
+    await refetch();
+    setIsOpenModalChild(false);
+    openNotification("success", {
+      message: "Thành công",
+      description: "Thêm mới danh mục con thành công",
+    });
   };
 
   return (
@@ -134,13 +183,22 @@ const Category: React.FC = () => {
             placeholder="Tìm kiếm danh mục"
             style={{ width: "20%" }}
           />
-          <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-            Add
-          </AntButton>
+          <div style={{ display: "flex", gap: 10 }}>
+            <AntButton
+              tooltip="Thêm mới"
+              type="primary"
+              onClick={handleAddChild}
+            >
+              Thêm danh mục con
+            </AntButton>
+            <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
+              Thêm danh mục cha
+            </AntButton>
+          </div>
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
           <Table<CategoryType>
-            rowKey="name"
+            rowKey="id"
             columns={columns}
             dataSource={category}
             loading={isLoading}
@@ -156,6 +214,22 @@ const Category: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         isUpdate={isUpdate}
+      />
+
+      <ModalCategoryChild
+        initialValue={rowData}
+        open={isOpenModalChild}
+        onOk={handleOkChild}
+        onCancel={handleCancel}
+        isUpdate={isUpdate}
+        options={category}
+      />
+
+      <ModalConfirm
+        open={isOpenModalDelete}
+        onOk={handleDelete}
+        onCancel={handleCancel}
+        targetName={rowData?.name}
       />
     </>
   );

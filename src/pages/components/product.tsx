@@ -121,8 +121,11 @@ const Product: React.FC = () => {
     {
       title: "Category",
       dataIndex: "category",
-      key: "category",
       width: 50,
+      render: (categoryId: string) => {
+        const found = category.find((o) => o.id === categoryId);
+        return found?.name ?? categoryId;
+      },
     },
     {
       title: "Price",

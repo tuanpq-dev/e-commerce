@@ -23,6 +23,15 @@ type ModalCategoryProps = {
   onOk: (values: CategoryType) => void;
 };
 
+type ModalCategoryChildProps = {
+  isUpdate?: boolean;
+  initialValue?: CategoryType | null;
+  open: boolean;
+  onCancel: () => void;
+  onOk: (values: CategoryType) => void;
+  options?: CategoryType[];
+};
+
 export const ModalProduct = ({
   isUpdate,
   initialValue,
@@ -32,19 +41,13 @@ export const ModalProduct = ({
   options,
 }: ModalProductProps) => {
   const [form] = Form.useForm();
+  const selectedCategoryId = Form.useWatch("category", form);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
+  const selectedCategory = options.find(
+    (option) => option.id === selectedCategoryId,
+  );
 
-    if (initialValue) {
-      form.setFieldsValue(initialValue);
-      return;
-    }
-
-    form.resetFields();
-  }, [form, initialValue, open]);
+  const optionsChild = selectedCategory?.child ?? [];
 
   return (
     <Modal
@@ -55,6 +58,14 @@ export const ModalProduct = ({
         onOk(values);
       }}
       onCancel={onCancel}
+      afterOpenChange={(visible) => {
+        if (!visible) return;
+        if (initialValue) {
+          form.setFieldsValue({ ...initialValue });
+        } else {
+          form.resetFields();
+        }
+      }}
       afterClose={() => form.resetFields()}
       destroyOnHidden
       okText={isUpdate ? "Lưu" : "Thêm mới"}
@@ -78,10 +89,23 @@ export const ModalProduct = ({
         <FormSelect
           label="Danh mục"
           name="category"
+          fieldNames={{ value: "id", label: "name" }}
           options={options}
           placeholder="Chọn danh mục"
-          rules={[{ required: true, message: "Vui lòng Chọn danh mục" }]}
+          rules={[{ required: true, message: "Vui lòng chọn danh mục" }]}
         />
+
+        {selectedCategoryId && (
+          <FormSelect
+            label="Danh mục con"
+            name="category_child"
+            allowClear={true}
+            fieldNames={{ value: "id", label: "name" }}
+            mode="multiple"
+            options={optionsChild}
+            placeholder="Chọn danh mục"
+          />
+        )}
 
         <FormInput
           label="Giá"
@@ -131,7 +155,7 @@ export const ModalCategory = ({
 
   return (
     <Modal
-      title={isUpdate ? "Chỉnh sửa danh mục" : "Thêm mới danh mục"}
+      title={isUpdate ? "Chỉnh sửa danh mục cha" : "Thêm mới danh mục cha"}
       open={open}
       onOk={async () => {
         const values = await form.validateFields();
@@ -148,11 +172,65 @@ export const ModalCategory = ({
           name="name"
           rules={[{ required: true, message: "Vui lòng nhập tên danh mục" }]}
         />
+      </Form>
+    </Modal>
+  );
+};
+
+export const ModalCategoryChild = ({
+  initialValue,
+  isUpdate,
+  open,
+  onOk,
+  onCancel,
+  options,
+}: ModalCategoryChildProps) => {
+  const [form] = Form.useForm();
+  const parentOptions = (options ?? []).map((option) => ({
+    ...option,
+    value: option.id,
+    label: option.name,
+  }));
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (initialValue) {
+      form.setFieldsValue(initialValue);
+      return;
+    }
+
+    form.resetFields();
+  }, [form, initialValue, open]);
+
+  return (
+    <Modal
+      title={isUpdate ? "Chỉnh sửa danh mục con" : "Thêm mới danh mục con"}
+      open={open}
+      onOk={async () => {
+        const values = await form.validateFields();
+        onOk(values);
+      }}
+      onCancel={onCancel}
+      afterClose={() => form.resetFields()}
+      okText={isUpdate ? "Lưu" : "Thêm mới"}
+      cancelText="Hủy"
+    >
+      <Form form={form} layout="vertical">
         <FormInput
-          label="Tổng"
-          name="total"
-          disabled={isUpdate}
-          rules={[{ required: true, message: "Vui lòng nhập tổng" }]}
+          label="Tên danh mục"
+          name="name"
+          rules={[{ required: true, message: "Vui lòng nhập tên danh mục" }]}
+        />
+
+        <FormSelect
+          label="Danh mục"
+          name="id"
+          options={parentOptions}
+          placeholder="Chọn danh mục"
+          rules={[{ required: true, message: "Vui lòng chọn danh mục cha" }]}
         />
       </Form>
     </Modal>
