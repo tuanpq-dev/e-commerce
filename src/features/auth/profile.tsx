@@ -7,6 +7,8 @@ import {
   Modal,
   Space,
   Typography,
+  Upload,
+  type UploadProps,
 } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -17,7 +19,8 @@ import openNotification from "../../@crema/core/Notification";
 const Profile = () => {
   const [isUpdate, setIsUpdate] = useState(false);
   const [form] = Form.useForm();
-  const { getUserInfo, userInfo, updateUser, refreshUser } = useAuth();
+  const { getUserInfo, userInfo, updateUser, uploadAvatar, refreshUser } =
+    useAuth();
 
   useEffect(() => {
     getUserInfo();
@@ -39,6 +42,25 @@ const Profile = () => {
       message: "Thành công",
       description: "Chỉnh sửa thông tin thành công",
     });
+  };
+
+  const handleUploadAvatar: UploadProps["beforeUpload"] = async (file) => {
+    if (!file.type.startsWith("image/")) {
+      openNotification("error", {
+        message: "Thất bại",
+        description: "Vui lòng chọn file ảnh",
+      });
+
+      return Upload.LIST_IGNORE;
+    }
+
+    await uploadAvatar(file);
+    openNotification("success", {
+      message: "Thành công",
+      description: "Cập nhật ảnh đại diện thành công",
+    });
+
+    return false;
   };
 
   return (
@@ -67,7 +89,7 @@ const Profile = () => {
 
           <Card style={{ width: 240, textAlign: "center" }}>
             <Space vertical size={16}>
-              <Avatar size={96} icon={<UserOutlined />} />
+              <Avatar size={96} icon={<UserOutlined />} src={userInfo.avatar} />
 
               <div>
                 <Typography.Title level={5} style={{ margin: 0 }}>
@@ -79,7 +101,14 @@ const Profile = () => {
                 </Typography.Text>
               </div>
 
-              <Button type="primary">Cập nhật</Button>
+              <Upload
+                accept="image/*"
+                beforeUpload={handleUploadAvatar}
+                maxCount={1}
+                showUploadList={false}
+              >
+                <Button type="primary">Cập nhật</Button>
+              </Upload>
             </Space>
           </Card>
         </div>

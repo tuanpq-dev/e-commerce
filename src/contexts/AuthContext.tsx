@@ -11,6 +11,7 @@ import {
   getUserInfoById,
   LoginApi,
   LogoutApi,
+  UploadAvatar,
   UpdateUser,
 } from "../services/auth.service";
 
@@ -28,6 +29,7 @@ type AuthContextType = {
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (payload: UpdateUserPayload) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<void>;
   getUserInfo: () => void;
   refreshUser: () => void;
 };
@@ -72,13 +74,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUserInfo(res.user);
   };
 
+  const uploadAvatar = async (file: File) => {
+    const res = await UploadAvatar(file);
+
+    if (!res.success || !res.user) return;
+
+    setUserInfo(res.user);
+  };
+
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
 
   return (
     <AuthContext.Provider
-      value={{ login, logout, userInfo, getUserInfo, updateUser, refreshUser }}
+      value={{
+        login,
+        logout,
+        userInfo,
+        getUserInfo,
+        updateUser,
+        uploadAvatar,
+        refreshUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
