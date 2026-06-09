@@ -17,9 +17,12 @@ import AntButton from "../../@crema/component/AntButton";
 import { useNavigate } from "react-router-dom";
 import config from "../../config";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
+import { CreateActiveLog } from "../../api/activeLogApi";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Category: React.FC = () => {
   const { Search } = Input;
+  const { userInfo } = useAuth();
   const navigate = useNavigate();
   const [rowData, setRowData] = useState<CategoryType>();
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -51,7 +54,14 @@ const Category: React.FC = () => {
       return;
     }
 
-    await DeleteCategory(rowData?.id);
+    await Promise.all([
+      DeleteCategory(rowData?.id),
+      CreateActiveLog({
+        module: "Category",
+        action: "DELETE",
+        user: userInfo?.name,
+      }),
+    ]);
     await refetch();
 
     setIsOpenModalDelete(false);
@@ -142,7 +152,15 @@ const Category: React.FC = () => {
 
       const updateValues = { id: rowData.id, ...values };
 
-      await UpdateCategory(updateValues);
+      await Promise.all([
+        UpdateCategory(updateValues),
+        CreateActiveLog({
+          module: "Category",
+          action: "UPDATE",
+          user: userInfo?.name,
+        }),
+      ]);
+
       await refetch();
       setIsOpenModal(false);
       setIsUpdate(false);
@@ -153,7 +171,14 @@ const Category: React.FC = () => {
         description: "Chỉnh sửa danh mục cha thành công",
       });
     } else {
-      await CreateCategory(values);
+      await Promise.all([
+        CreateCategory(values),
+        CreateActiveLog({
+          module: "Category",
+          action: "CREATE",
+          user: userInfo?.name,
+        }),
+      ]);
       await refetch();
 
       setIsOpenModal(false);
@@ -165,7 +190,14 @@ const Category: React.FC = () => {
   };
 
   const handleOkChild = async (values: CategoryType) => {
-    await CreateCategoryChild(values);
+    await Promise.all([
+      CreateCategoryChild(values),
+      CreateActiveLog({
+        module: "Category - Child",
+        action: "CREATE",
+        user: userInfo?.name,
+      }),
+    ]);
     await refetch();
     setIsOpenModalChild(false);
     openNotification("success", {

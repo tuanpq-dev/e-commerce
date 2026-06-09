@@ -12,6 +12,7 @@ import type { TableProps } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { GetOrderById, UpdateStatusDetailOrder } from "../../api/orderApi";
+import { CreateActiveLog } from "../../api/activeLogApi";
 import formatCurrency from "../../utils/formatCurrecy";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import formatDate from "../../utils/formatDate";
@@ -27,10 +28,14 @@ type OrderItemType = {
 };
 
 type OrderHistoryType = {
-  id: string;
   status: string;
-  title: string;
-  time: string;
+  message: string;
+  createdAt: string;
+  updatedBy: {
+    id?: string | number;
+    name?: string;
+    email?: string;
+  };
 };
 
 type OrderType = {
@@ -48,6 +53,7 @@ type OrderType = {
   shipping_address: string;
   items: OrderItemType[];
   histories?: OrderHistoryType[];
+  historyDetailOrder?: OrderHistoryType[];
 };
 
 // Định nghĩa các transition hợp lệ
@@ -158,6 +164,12 @@ const DetailOrder = () => {
         name: userInfo?.name,
         email: userInfo?.email,
       },
+    });
+
+    await CreateActiveLog({
+      module: `Detail Order - Status - ${id}`,
+      action: "UPDATE",
+      user: userInfo?.name,
     });
 
     setData(updatedOrder);

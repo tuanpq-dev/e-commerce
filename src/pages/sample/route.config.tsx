@@ -7,6 +7,7 @@ const Product = React.lazy(() => import("../components/product"));
 const Category = React.lazy(() => import("../components/category"));
 const Order = React.lazy(() => import("../components/order"));
 const Customer = React.lazy(() => import("../components/customer"));
+const ActiveLog = React.lazy(() => import("../components/active-log"));
 const Profile = React.lazy(() => import("../../features/auth/profile"));
 const DetailCustomer = React.lazy(
   () => import("../components/detail-customer"),
@@ -34,6 +35,10 @@ export const routeConfig = [
   {
     path: config.routes.CUSTOMER_MANAGEMENT,
     element: <Customer />,
+  },
+  {
+    path: config.routes.ACTIVE_LOG,
+    element: <ActiveLog />,
   },
   {
     path: config.routes.PROFILE,

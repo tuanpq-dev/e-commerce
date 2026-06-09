@@ -15,6 +15,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useEffect, useState } from "react";
 import ModalProfile from "./modal-profile";
 import openNotification from "../../@crema/core/Notification";
+import { CreateActiveLog } from "../../api/activeLogApi";
 
 const Profile = () => {
   const [isUpdate, setIsUpdate] = useState(false);
@@ -35,7 +36,14 @@ const Profile = () => {
   const handleSubmitUpdate = async () => {
     const values = await form.validateFields();
 
-    await updateUser(values);
+    await Promise.all([
+      updateUser(values),
+      CreateActiveLog({
+        module: "Profile",
+        action: "UPDATE",
+        user: userInfo?.name,
+      }),
+    ]);
     setIsUpdate(false);
     refreshUser();
     openNotification("success", {
@@ -54,7 +62,14 @@ const Profile = () => {
       return Upload.LIST_IGNORE;
     }
 
-    await uploadAvatar(file);
+    await Promise.all([
+      uploadAvatar(file),
+      CreateActiveLog({
+        module: "Profile - Avatar",
+        action: "UPLOAD",
+        user: userInfo?.name,
+      }),
+    ]);
     openNotification("success", {
       message: "Thành công",
       description: "Cập nhật ảnh đại diện thành công",
