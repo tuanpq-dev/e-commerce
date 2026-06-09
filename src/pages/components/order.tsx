@@ -48,6 +48,7 @@ const statusOrder = [
 ];
 
 const Order: React.FC = () => {
+  const { Search } = Input;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
@@ -63,7 +64,6 @@ const Order: React.FC = () => {
   useEffect(() => {
     fetchDataOrder();
   }, []);
-  const { Search } = Input;
 
   const columns: TableProps<OrderType>["columns"] = [
     {

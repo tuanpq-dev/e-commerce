@@ -67,12 +67,36 @@
       ],
       "id": "l-r3d8GDdqc",
       "status": "pending"
+    },
+    {
+      "name": "Áo Polo mùa hè",
+      "sku": "SP010 1780990484356",
+      "category": "DoSf-yUiv4c",
+      "price": 3001,
+      "stock": 10,
+      "description": "hello",
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "category_child": [],
+      "id": "3MWvNUC7j8A",
+      "status": "pending"
+    },
+    {
+      "name": "Quần bagy be",
+      "sku": "SPQUAN 1780990740155",
+      "category": "sFGTOuTS9OA",
+      "price": 986,
+      "stock": 24,
+      "description": "hehehe",
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "category_child": [],
+      "id": "6VzdY2huFcg",
+      "status": "pending"
     }
   ],
   "category": [
     {
       "name": "Áo",
-      "total": 2,
+      "total": 3,
       "child": [
         {
           "id": "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
@@ -102,7 +126,7 @@
           "id": "7f09306f-5e31-4abd-ae12-31ebd500cd0c",
           "name": "Áo polo",
           "parentId": "DoSf-yUiv4c",
-          "total": 0
+          "total": 1
         }
       ],
       "id": "DoSf-yUiv4c"
@@ -157,6 +181,12 @@
         {
           "id": "faed55ce-0c15-43f1-80f9-518b979fe2c8",
           "name": "Thắt lưng",
+          "parentId": "5bcazNqa_ek",
+          "total": 0
+        },
+        {
+          "id": "924259f9-c4cf-494a-9b63-6b3a2113c4c7",
+          "name": "Test",
           "parentId": "5bcazNqa_ek",
           "total": 0
         }
@@ -609,7 +639,7 @@
       "payment_method": "Momo",
       "payment_status": "paid",
       "shipping_status": "delivered",
-      "status": "shipping",
+      "status": "completed",
       "shipping_address": "Đà Nẵng",
       "items": [
         {
@@ -661,6 +691,16 @@
           "status": "shipping",
           "message": "Đã đổi trạng thái sang shipping",
           "createdAt": "2026-06-08T09:47:37.400Z",
+          "updatedBy": {
+            "id": 2,
+            "name": "Phạm Quang Núi",
+            "email": "anui@gmail.com"
+          }
+        },
+        {
+          "status": "completed",
+          "message": "Đã đổi trạng thái sang completed",
+          "createdAt": "2026-06-09T08:18:19.320Z",
           "updatedBy": {
             "id": 2,
             "name": "Phạm Quang Núi",
@@ -728,6 +768,78 @@
           }
         }
       ]
+    }
+  ],
+  "active_logs": [
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T07:34:44.444Z",
+      "id": "HMCsYOxF6iM"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-09T07:39:00.294Z",
+      "id": "ebhEi9NwiPs"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-09T07:51:04.870Z",
+      "id": "38eO9Ib-siM"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T07:58:52.191Z",
+      "id": "m5oJEsUO_dk"
+    },
+    {
+      "module": "Detail Order - Status - 4",
+      "action": "UPDATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T08:18:19.350Z",
+      "id": "BaDVHMvVpYQ"
+    },
+    {
+      "module": "Category - Child",
+      "action": "CREATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T08:19:04.899Z",
+      "id": "zfaG4xPgKLI"
+    },
+    {
+      "module": "Profile",
+      "action": "UPDATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T08:21:38.497Z",
+      "id": "yJDNF5-8g9I"
+    },
+    {
+      "module": "Profile - Avatar",
+      "action": "UPLOAD",
+      "user": "Phạm Quang Núi 1",
+      "created_at": "2026-06-09T08:21:52.139Z",
+      "id": "t9YF9rx9Z-M"
+    },
+    {
+      "module": "Profile",
+      "action": "UPDATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T08:22:57.026Z",
+      "id": "GeTnZJO4HcY"
+    },
+    {
+      "module": "Profile",
+      "action": "UPDATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T08:23:29.184Z",
+      "id": "Zo6mQjrXm6s"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

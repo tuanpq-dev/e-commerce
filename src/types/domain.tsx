@@ -60,6 +60,14 @@ export type CustomerType = {
   total_expend?: number | string;
 };
 
+export type ActiveLogType = {
+  id?: number | string;
+  user?: string;
+  action?: string;
+  module?: string;
+  created_at?: string;
+};
+
 export type UpdateUserPayload = {
   name?: string;
   username?: string;

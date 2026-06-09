@@ -20,6 +20,8 @@ import {
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { GetCategory } from "../../api/categoryApi";
 import AntButton from "../../@crema/component/AntButton";
+import { CreateActiveLog } from "../../api/activeLogApi";
+import { useAuth } from "../../contexts/AuthContext";
 
 const STATUS_MAP: Record<
   string,
@@ -49,6 +51,7 @@ const RANGE_PRICE = [
 
 const Product: React.FC = () => {
   const { Search } = Input;
+  const { userInfo } = useAuth();
   const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
@@ -128,7 +131,16 @@ const Product: React.FC = () => {
     }
 
     setIsDeleting(true);
-    await DeleteProduct(rowData.id);
+
+    await Promise.all([
+      DeleteProduct(rowData.id),
+      CreateActiveLog({
+        module: "Product",
+        action: "DELETE",
+        user: userInfo?.name,
+      }),
+    ]);
+
     await refetch();
     setIsDeleting(false);
     setIsDeleteModal(false);
@@ -262,7 +274,15 @@ const Product: React.FC = () => {
       delete updateValues.id;
       delete updateValues.stock;
 
-      await UpdateProduct({ ...updateValues, id: rowData.id });
+      await Promise.all([
+        UpdateProduct({ ...updateValues, id: rowData.id }),
+        CreateActiveLog({
+          module: "Product",
+          action: "UPDATE",
+          user: userInfo?.name,
+        }),
+      ]);
+
       await refetch();
       setIsOpenModal(false);
       setIsUpdate(false);
@@ -273,7 +293,15 @@ const Product: React.FC = () => {
         description: "Chỉnh sửa sản phẩm thành công",
       });
     } else {
-      await CreateProduct(values);
+      await Promise.all([
+        CreateProduct(values),
+        CreateActiveLog({
+          module: "Product",
+          action: "CREATE",
+          user: userInfo?.name,
+        }),
+      ]);
+
       await refetch();
       setIsOpenModal(false);
       openNotification("success", {
@@ -318,7 +346,7 @@ const Product: React.FC = () => {
               allowClear
               placeholder="Price"
               options={RANGE_PRICE}
-              value={selectedStatus}
+              value={selectedPrice}
               onChange={setSelectedPrice}
               style={{ width: 150 }}
             />

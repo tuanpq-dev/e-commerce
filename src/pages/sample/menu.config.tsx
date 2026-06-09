@@ -1,4 +1,5 @@
 import {
+  AuditOutlined,
   FolderOpenOutlined,
   HomeOutlined,
   OrderedListOutlined,
@@ -33,6 +34,11 @@ export const menuConfig = [
     icon: <UserOutlined />,
     path: config.routes.CUSTOMER_MANAGEMENT,
     label: "Customer",
+  },
+  {
+    icon: <AuditOutlined />,
+    path: config.routes.ACTIVE_LOG,
+    label: "Active",
   },
   {
     icon: <SettingOutlined />,
