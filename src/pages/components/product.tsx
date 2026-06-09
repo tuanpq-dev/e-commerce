@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Flex, Image, Input, Space, Table, Tag } from "antd";
+import React, { useMemo, useState } from "react";
+import { Flex, Image, Input, Select, Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
 import {
   CheckCircleOutlined,
@@ -21,19 +21,30 @@ import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { GetCategory } from "../../api/categoryApi";
 import AntButton from "../../@crema/component/AntButton";
 
-const statusProduct = [
-  {
-    status: "active",
-    icon: <CheckCircleOutlined />,
-    title: "Đang bán",
-    color: "green",
-  },
-  {
-    status: "pending",
+const STATUS_MAP: Record<
+  string,
+  { icon: React.ReactNode; title: string; color: string }
+> = {
+  active: { icon: <CheckCircleOutlined />, title: "Đang bán", color: "green" },
+  pending: {
     icon: <CloseCircleOutlined />,
     title: "Chưa bán",
     color: "yellow",
   },
+};
+
+const STATUS_OPTIONS = Object.entries(STATUS_MAP).map(([value, { title }]) => ({
+  label: title,
+  value,
+}));
+
+const RANGE_PRICE = [
+  { label: "Dưới 100", value: "100" },
+  { label: "Dưới 1000", value: "1000" },
+  { label: "Dưới 1500", value: "1500" },
+  { label: "Dưới 2000", value: "2000" },
+  { label: "Dưới 2500", value: "2500" },
+  { label: "Trên 3000", value: "above-3000" },
 ];
 
 const Product: React.FC = () => {
@@ -43,8 +54,60 @@ const Product: React.FC = () => {
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>();
+  const [selectedStatus, setSelectedStatus] = useState<string>();
+  const [selectedPrice, setSelectedPrice] = useState<string>();
   const { product, isLoading, refetch } = GetProduct();
   const { category } = GetCategory();
+
+  const categoryMap = useMemo(
+    () => new Map(category.map((item) => [String(item.id), item.name])),
+    [category],
+  );
+
+  const filteredProduct = useMemo(() => {
+    const keyword = searchText.trim().toLowerCase();
+
+    return product.filter((item) => {
+      const categoryId =
+        typeof item.category === "object" ? item.category?.id : item.category;
+      const categoryName = categoryMap.get(String(categoryId)) ?? "";
+
+      const matchesSearch =
+        !keyword ||
+        item.name?.toLowerCase().includes(keyword) ||
+        item.sku?.toLowerCase().includes(keyword) ||
+        categoryName.toLowerCase().includes(keyword);
+
+      const matchesCategory =
+        !selectedCategory || String(categoryId) === selectedCategory;
+      const matchesStatus = !selectedStatus || item.status === selectedStatus;
+      const matchesPrice =
+        !selectedPrice ||
+        (selectedPrice === "above-3000"
+          ? item.price > 3000
+          : item.price <= Number(selectedPrice));
+
+      return matchesSearch && matchesCategory && matchesStatus && matchesPrice;
+    });
+  }, [
+    categoryMap,
+    product,
+    searchText,
+    selectedCategory,
+    selectedStatus,
+    selectedPrice,
+  ]);
+
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(categoryMap.entries()).map(([value, label]) => ({
+        label,
+        value,
+      })),
+    [categoryMap],
+  );
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -122,10 +185,8 @@ const Product: React.FC = () => {
       title: "Category",
       dataIndex: "category",
       width: 50,
-      render: (categoryId: string) => {
-        const found = category.find((o) => o.id === categoryId);
-        return found?.name ?? categoryId;
-      },
+      render: (categoryId: string) =>
+        categoryMap.get(String(categoryId)) ?? categoryId,
     },
     {
       title: "Price",
@@ -146,11 +207,10 @@ const Product: React.FC = () => {
       key: "status",
       width: 50,
       render: (status: string) => {
-        const item = statusProduct.find((item) => item.status === status);
+        const item = STATUS_MAP[status];
         if (!item) return <Tag>{status}</Tag>;
-
         return (
-          <Tag key={item.status} icon={item.icon} color={item.color}>
+          <Tag icon={item.icon} color={item.color}>
             {item.title}
           </Tag>
         );
@@ -224,19 +284,45 @@ const Product: React.FC = () => {
   };
 
   const handleSearch = (value: string | number | null) => {
-    console.log(value);
+    setSearchText(value ? String(value) : "");
   };
 
   return (
     <>
       <Flex gap="medium" vertical>
-        <Flex align="center" gap="medium" justify="space-between">
-          <Search
-            allowClear={true}
-            placeholder="Tìm kiếm sản phẩm"
-            onSearch={(value) => handleSearch(value)}
-            style={{ width: "20%" }}
-          />
+        <Flex align="center" gap="medium" justify="space-between" wrap>
+          <Flex align="center" gap="small" wrap>
+            <Search
+              allowClear={true}
+              placeholder="Tìm kiếm sản phẩm"
+              onChange={(event) => handleSearch(event.target.value)}
+              style={{ width: 260 }}
+            />
+            <Select
+              allowClear
+              placeholder="Category"
+              options={categoryOptions}
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              style={{ width: 180 }}
+            />
+            <Select
+              allowClear
+              placeholder="Status"
+              options={STATUS_OPTIONS}
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              style={{ width: 150 }}
+            />
+            <Select
+              allowClear
+              placeholder="Price"
+              options={RANGE_PRICE}
+              value={selectedStatus}
+              onChange={setSelectedPrice}
+              style={{ width: 150 }}
+            />
+          </Flex>
           <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
             Add
           </AntButton>
@@ -245,7 +331,7 @@ const Product: React.FC = () => {
           <Table<DataType>
             rowKey="sku"
             columns={columns}
-            dataSource={product}
+            dataSource={filteredProduct}
             loading={isLoading}
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
