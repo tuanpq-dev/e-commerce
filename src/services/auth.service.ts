@@ -110,3 +110,31 @@ export const UpdateUser = (payload: UpdateUserPayload) => {
     user: updatedUser,
   };
 };
+
+const fileToBase64 = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+export const UploadAvatar = async (file: File) => {
+  const token =
+    localStorage.getItem("accessToken") ||
+    sessionStorage.getItem("accessToken");
+  const userId =
+    localStorage.getItem("userId") || sessionStorage.getItem("userId");
+
+  if (!token || !userId) {
+    return {
+      success: false,
+      message: "Chưa đăng nhập",
+    };
+  }
+
+  const avatar = await fileToBase64(file);
+
+  return UpdateUser({ avatar });
+};
