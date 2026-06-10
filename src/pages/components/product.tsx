@@ -22,6 +22,7 @@ import { GetCategory } from "../../api/categoryApi";
 import AntButton from "../../@crema/component/AntButton";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
+import formatDate from "../../utils/formatDate";
 
 const STATUS_MAP: Record<
   string,
@@ -226,6 +227,15 @@ const Product: React.FC = () => {
             {item.title}
           </Tag>
         );
+      },
+    },
+    {
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created_at",
+      width: 100,
+      render: () => {
+        return formatDate(Date.now() * Math.random());
       },
     },
     {

@@ -1,4 +1,4 @@
-import { Flex, Input, Space, Table, Tag, type TableProps } from "antd";
+import { Flex, Input, Select, Space, Table, Tag, type TableProps } from "antd";
 import type React from "react";
 import type { OrderType } from "../../types/domain";
 import { useEffect, useState } from "react";
@@ -47,10 +47,34 @@ const statusOrder = [
   },
 ];
 
+const STATUS_OPTIONS = Object.entries(statusOrder).map(
+  ([_, { title, status }]) => ({
+    label: title,
+    value: status,
+  }),
+);
+
+console.log("STATUS_OPTIONS", STATUS_OPTIONS);
+
 const Order: React.FC = () => {
   const { Search } = Input;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
+  const [searchText, setSearchText] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<string>();
+  const keyword = searchText.trim().toLocaleLowerCase();
+  const filterDataOrder = data.filter((item) => {
+    const matchesStatus = !selectedStatus || item.status === selectedStatus;
+    const matchesSearch =
+      !keyword ||
+      item.order_code?.toLowerCase().includes(keyword) ||
+      item.customer_name?.toLowerCase().includes(keyword);
+    return matchesStatus && matchesSearch;
+  });
+
+  const handleSearch = (value: string | number | null) => {
+    setSearchText(value ? String(value) : "");
+  };
 
   const fetchDataOrder = async () => {
     try {
@@ -134,17 +158,28 @@ const Order: React.FC = () => {
     <>
       <Flex gap="medium" vertical>
         <Flex align="center" gap="medium" justify="space-between">
-          <Search
-            allowClear={true}
-            placeholder="Tìm kiếm đơn hàng"
-            style={{ width: "20%" }}
-          />
+          <Flex align="center" gap="small" wrap>
+            <Search
+              allowClear={true}
+              onChange={(event) => handleSearch(event.target.value)}
+              placeholder="Tìm kiếm đơn hàng"
+              style={{ width: 260 }}
+            />
+            <Select
+              allowClear
+              placeholder="Status"
+              options={STATUS_OPTIONS}
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              style={{ width: 180 }}
+            />
+          </Flex>
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
           <Table<OrderType>
             rowKey="order_code"
             columns={columns}
-            dataSource={data}
+            dataSource={filterDataOrder}
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
           />

@@ -9,8 +9,17 @@ import { GetCategoryById } from "../../api/categoryApi";
 const CategoryChild = () => {
   const { id } = useParams();
   const { Search } = Input;
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const keyword = searchText.trim().toLocaleLowerCase();
+  const filterDataCategoryChild = data.filter(
+    (item) => !keyword || item.name?.toLowerCase().includes(keyword),
+  );
+
+  const handleSearch = (value: string | number | null) => {
+    setSearchText(value ? String(value) : "");
+  };
 
   const fetchCategory = async () => {
     if (!id) {
@@ -69,6 +78,7 @@ const CategoryChild = () => {
       <Flex align="center" gap="medium" justify="space-between">
         <Search
           allowClear={true}
+          onChange={(event) => handleSearch(event.target.value)}
           placeholder="Tìm kiếm danh mục"
           style={{ width: "20%" }}
         />
@@ -77,7 +87,7 @@ const CategoryChild = () => {
         <Table<CategoryType>
           rowKey="id"
           columns={columns}
-          dataSource={data}
+          dataSource={filterDataCategoryChild}
           loading={isLoading}
           pagination={{ pageSize: 5 }}
           scroll={{ x: "max-content" }}

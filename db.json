@@ -91,30 +91,46 @@
       "category_child": [],
       "id": "6VzdY2huFcg",
       "status": "pending"
+    },
+    {
+      "name": "tesss",
+      "sku": "SP010 1780999469963",
+      "category": "DoSf-yUiv4c",
+      "price": 3000,
+      "stock": 123,
+      "description": "ppppppp",
+      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "category_child": [
+        "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
+        "e53fa783-6076-4456-9bb5-6b00f7469fe9",
+        "e75dc3cb-3508-4570-b398-bc563dc85ceb"
+      ],
+      "id": "ma6zoalbghI",
+      "status": "pending"
     }
   ],
   "category": [
     {
       "name": "Áo",
-      "total": 3,
+      "total": 4,
       "child": [
         {
           "id": "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
           "name": "Áo khoác gió",
           "parentId": "DoSf-yUiv4c",
-          "total": 1
+          "total": 2
         },
         {
           "id": "e53fa783-6076-4456-9bb5-6b00f7469fe9",
           "name": "Áo thun",
           "parentId": "DoSf-yUiv4c",
-          "total": 2
+          "total": 3
         },
         {
           "id": "e75dc3cb-3508-4570-b398-bc563dc85ceb",
           "name": "Áo Bí ngô",
           "parentId": "DoSf-yUiv4c",
-          "total": 1
+          "total": 2
         },
         {
           "id": "741f8b33-a995-4bb4-a295-960cf56e8ed4",
@@ -840,6 +856,20 @@
       "user": "Phạm Quang Núi",
       "created_at": "2026-06-09T08:23:29.184Z",
       "id": "Zo6mQjrXm6s"
+    },
+    {
+      "module": "Profile - Avatar",
+      "action": "UPLOAD",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T10:03:15.056Z",
+      "id": "HljvOG3Q9O4"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Núi",
+      "created_at": "2026-06-09T10:04:29.965Z",
+      "id": "l8_ezbY73hM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
