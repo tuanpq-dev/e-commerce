@@ -63,7 +63,6 @@ const Order: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const keyword = searchText.trim().toLocaleLowerCase();
-  console.log("keyword", keyword);
   const filterDataOrder = data.filter((item) => {
     const matchesStatus = !selectedStatus || item.status === selectedStatus;
     const matchesSearch =
