@@ -15,6 +15,19 @@ const Customer: React.FC = () => {
   const [dataCustomer, setDataCustomer] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchText, setSearchText] = useState("");
+  const keyword = searchText.trim().toLocaleLowerCase();
+  const filterDataOrder = dataCustomer.filter((item) => {
+    return (
+      !keyword ||
+      item.fullname?.toLowerCase().includes(keyword) ||
+      item.email?.toLowerCase().includes(keyword)
+    );
+  });
+
+  const handleSearch = (value: string | number | null) => {
+    setSearchText(value ? String(value) : "");
+  };
 
   const fetchCustomer = async () => {
     setIsLoading(true);
@@ -124,7 +137,8 @@ const Customer: React.FC = () => {
       <Flex align="center" gap="medium" justify="space-between">
         <Search
           allowClear={true}
-          placeholder="Tìm kiếm sản phẩm"
+          onChange={(event) => handleSearch(event.target.value)}
+          placeholder="Tìm kiếm khách hàng"
           style={{ width: "20%" }}
         />
       </Flex>
@@ -133,7 +147,7 @@ const Customer: React.FC = () => {
           rowKey="id"
           columns={columns}
           loading={isLoading}
-          dataSource={dataCustomer}
+          dataSource={filterDataOrder}
           pagination={{ pageSize: 5 }}
           scroll={{ x: "max-content" }}
         />

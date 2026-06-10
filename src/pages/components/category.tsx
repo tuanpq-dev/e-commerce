@@ -30,6 +30,12 @@ const Category: React.FC = () => {
   const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
   const { category, isLoading, refetch } = GetCategory();
   const [isUpdate, setIsUpdate] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const keyword = searchText.trim().toLocaleLowerCase();
+  const filterData = category.filter(
+    (item) => !keyword || item.name?.toLowerCase().includes(keyword),
+  );
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -206,6 +212,10 @@ const Category: React.FC = () => {
     });
   };
 
+  const handleSearch = (value: string | number | null) => {
+    setSearchText(value ? String(value) : "");
+  };
+
   return (
     <>
       <Flex gap="medium" vertical>
@@ -213,6 +223,7 @@ const Category: React.FC = () => {
           <Search
             allowClear={true}
             placeholder="Tìm kiếm danh mục"
+            onChange={(event) => handleSearch(event.target.value)}
             style={{ width: "20%" }}
           />
           <div style={{ display: "flex", gap: 10 }}>
@@ -232,7 +243,7 @@ const Category: React.FC = () => {
           <Table<CategoryType>
             rowKey="id"
             columns={columns}
-            dataSource={category}
+            dataSource={filterData}
             loading={isLoading}
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
