@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { apiUrl } from "./mockApi";
 import type { CategoryType } from "../types/domain";
 import axiosClient from "./axiosClient";
+import callApiWithRetries from "./callApiWithRetries";
 
 export const GetCategory = () => {
   const [category, setCategory] = useState<CategoryType[]>([]);
@@ -10,13 +11,9 @@ export const GetCategory = () => {
   const fetchCategory = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/category`);
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch products");
-      }
-
-      const data = await res.json();
+      const data = await callApiWithRetries({
+        url: "/category",
+      });
       setCategory(data);
     } catch (err) {
       console.log(err);
@@ -33,9 +30,9 @@ export const GetCategory = () => {
 };
 
 export const GetCategoryById = async (id: number | string) => {
-  const res = await axiosClient.get(`/category/${id}`);
-
-  return res.data;
+  return callApiWithRetries({
+    url: `/category/${id}`,
+  });
 };
 
 export const CreateCategory = async (values: CategoryType) => {
@@ -113,7 +110,9 @@ export const IncreaseCategoryProductTotal = async (values: {
       .filter((id): id is string | number => id !== undefined),
   );
 
-  const { data: dataParent } = await axiosClient.get(`/category/${parentId}`);
+  const dataParent = await callApiWithRetries({
+    url: `/category/${parentId}`,
+  });
   const child = (dataParent.child ?? []).map((categoryChild: CategoryType) => {
     if (!categoryChild.id || !childIds.has(categoryChild.id)) {
       return categoryChild;
@@ -138,7 +137,9 @@ export const CreateCategoryChild = async (
 ) => {
   const { id: parentId, name } = values;
 
-  const { data: dataParent } = await axiosClient.get(`/category/${parentId}`);
+  const dataParent = await callApiWithRetries({
+    url: `/category/${parentId}`,
+  });
 
   const res = await axiosClient.put(`/category/${parentId}`, {
     ...dataParent,

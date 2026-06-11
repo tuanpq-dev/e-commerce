@@ -1,9 +1,11 @@
 import axiosClient from "./axiosClient";
+import callApiWithRetries from "./callApiWithRetries";
 
 export const GetCustomers = async () => {
   try {
-    const res = await axiosClient.get("/customers");
-    const data = res.data;
+    const data = await callApiWithRetries({
+      url: "/customers",
+    });
 
     return data;
   } catch (err) {
@@ -24,9 +26,9 @@ export const DeleteCustomer = async (id: string | number) => {
 
 export const GetCustomerById = async (id: number | string) => {
   try {
-    const res = await axiosClient.get(`/detail_customers/${id}`);
-
-    const data = res.data;
+    const data = await callApiWithRetries({
+      url: `/detail_customers/${id}`,
+    });
     return data;
   } catch (err) {
     console.log(err);
