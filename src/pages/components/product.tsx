@@ -23,6 +23,8 @@ import AntButton from "../../@crema/component/AntButton";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import formatDate from "../../utils/formatDate";
+import { UserPermission } from "../../api/userPermission";
+import useDebounce from "../../@crema/core/hook/useDebounce";
 
 const STATUS_MAP: Record<
   string,
@@ -64,15 +66,15 @@ const Product: React.FC = () => {
   const [selectedPrice, setSelectedPrice] = useState<string>();
   const { product, isLoading, refetch } = GetProduct();
   const { category } = GetCategory();
+  const { isAdmin } = UserPermission();
 
   const categoryMap = useMemo(
     () => new Map(category.map((item) => [String(item.id), item.name])),
     [category],
   );
 
+  const keyword = useDebounce(searchText.trim().toLowerCase());
   const filteredProduct = useMemo(() => {
-    const keyword = searchText.trim().toLowerCase();
-
     return product.filter((item) => {
       const categoryId =
         typeof item.category === "object" ? item.category?.id : item.category;
@@ -98,7 +100,7 @@ const Product: React.FC = () => {
   }, [
     categoryMap,
     product,
-    searchText,
+    keyword,
     selectedCategory,
     selectedStatus,
     selectedPrice,
@@ -234,8 +236,8 @@ const Product: React.FC = () => {
       dataIndex: "created_at",
       key: "created_at",
       width: 100,
-      render: () => {
-        return formatDate(Date.now() * Math.random());
+      render: (_, record) => {
+        return formatDate(record?.created_at) || "25/09/2026";
       },
     },
     {
@@ -243,6 +245,7 @@ const Product: React.FC = () => {
       key: "action",
       fixed: "end",
       width: 100,
+      hidden: !isAdmin,
       align: "center",
       render: (_, record) => {
         return (
@@ -361,9 +364,11 @@ const Product: React.FC = () => {
               style={{ width: 150 }}
             />
           </Flex>
-          <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-            Add
-          </AntButton>
+          {isAdmin && (
+            <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
+              Add
+            </AntButton>
+          )}
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
           <Table<DataType>

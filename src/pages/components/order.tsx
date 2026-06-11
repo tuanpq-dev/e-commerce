@@ -13,6 +13,7 @@ import formatCurrency from "../../utils/formatCurrecy";
 import AntButton from "../../@crema/component/AntButton";
 import { useNavigate } from "react-router-dom";
 import config from "../../config";
+import useDebounce from "../../@crema/core/hook/useDebounce";
 
 const statusOrder = [
   {
@@ -54,15 +55,13 @@ const STATUS_OPTIONS = Object.entries(statusOrder).map(
   }),
 );
 
-console.log("STATUS_OPTIONS", STATUS_OPTIONS);
-
 const Order: React.FC = () => {
   const { Search } = Input;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>();
-  const keyword = searchText.trim().toLocaleLowerCase();
+  const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
   const filterDataOrder = data.filter((item) => {
     const matchesStatus = !selectedStatus || item.status === selectedStatus;
     const matchesSearch =

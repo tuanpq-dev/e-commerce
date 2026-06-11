@@ -21,7 +21,7 @@ import formatCurrency from "../../utils/formatCurrecy";
 
 const statusOrder = [
   {
-    status: "success",
+    status: "completed",
     icon: <CheckCircleOutlined />,
     title: "Thành công",
     color: "green",
@@ -31,6 +31,12 @@ const statusOrder = [
     icon: <ClockCircleOutlined />,
     title: "Đang xử lý",
     color: "blue",
+  },
+  {
+    status: "pending",
+    icon: <ClockCircleOutlined />,
+    title: "Đang xử lý",
+    color: "yellow",
   },
   {
     status: "cancelled",

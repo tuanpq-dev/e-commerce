@@ -46,6 +46,7 @@ export const CreateProduct = async (values: ProductInitialValues) => {
       image:
         "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
       category_child: values?.category_child || [],
+      created_at: Date.now(),
     };
 
     const [res] = await Promise.all([

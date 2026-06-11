@@ -9,6 +9,7 @@ import AntButton from "../../@crema/component/AntButton";
 import { useNavigate } from "react-router-dom";
 import config from "../../config";
 import formatCurrency from "../../utils/formatCurrecy";
+import useDebounce from "../../@crema/core/hook/useDebounce";
 
 const Customer: React.FC = () => {
   const { Search } = Input;
@@ -16,7 +17,7 @@ const Customer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
-  const keyword = searchText.trim().toLocaleLowerCase();
+  const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
   const filterDataOrder = dataCustomer.filter((item) => {
     return (
       !keyword ||
