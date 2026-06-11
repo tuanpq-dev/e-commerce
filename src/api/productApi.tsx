@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { DataType, ProductInitialValues } from "../types/domain";
-import { apiUrl } from "./mockApi";
 import axiosClient from "./axiosClient";
+import callApiWithRetries from "./callApiWithRetries";
 import { IncreaseCategoryProductTotal } from "./categoryApi";
 
 export const GetProduct = () => {
@@ -11,13 +11,9 @@ export const GetProduct = () => {
   const fetchProduct = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/products`);
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch products");
-      }
-
-      const data = await res.json();
+      const data = await callApiWithRetries({
+        url: "/products",
+      });
 
       setProduct([...data].reverse());
     } catch (err) {

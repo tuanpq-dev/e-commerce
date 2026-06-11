@@ -17,7 +17,6 @@ import formatCurrency from "../../utils/formatCurrecy";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import formatDate from "../../utils/formatDate";
 import { useAuth } from "../../contexts/AuthContext";
-import { UserPermission } from "../../api/userPermission";
 
 type OrderItemType = {
   id: string;
@@ -101,7 +100,6 @@ const DetailOrder = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState<OrderType | null>(null);
   const [loading, setLoading] = useState(false);
-  const { isAdmin } = UserPermission();
 
   const fetchData = async () => {
     if (!id) return;
@@ -206,7 +204,6 @@ const DetailOrder = () => {
 
           <Descriptions.Item label="Trạng thái đơn hàng">
             <FormSelect
-              disabled={!isAdmin}
               name="status"
               onChange={handleUpdateStatus}
               labelRender={({ value }) => <StatusBadge value={String(value)} />}

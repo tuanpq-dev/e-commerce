@@ -1,10 +1,12 @@
 import type { UpdateStatusValues } from "../types/domain";
 import axiosClient from "./axiosClient";
+import callApiWithRetries from "./callApiWithRetries";
 
 export const GetOrders = async () => {
   try {
-    const res = await axiosClient.get("/orders");
-    const data = res.data;
+    const data = await callApiWithRetries({
+      url: "/orders",
+    });
 
     return data;
   } catch (err) {
@@ -14,8 +16,9 @@ export const GetOrders = async () => {
 
 export const GetOrderById = async (id: string | number) => {
   try {
-    const res = await axiosClient.get(`/orders/${id}`);
-    const data = res.data;
+    const data = await callApiWithRetries({
+      url: `/orders/${id}`,
+    });
 
     return data;
   } catch (err) {

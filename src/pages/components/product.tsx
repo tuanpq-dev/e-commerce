@@ -237,7 +237,7 @@ const Product: React.FC = () => {
       key: "created_at",
       width: 100,
       render: (_, record) => {
-        return formatDate(record?.created_at) || "25/09/2026";
+        return formatDate(record?.created_at);
       },
     },
     {
