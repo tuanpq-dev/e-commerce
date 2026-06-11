@@ -19,6 +19,8 @@ import config from "../../config";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
+import { UserPermission } from "../../api/userPermission";
+import useDebounce from "../../@crema/core/hook/useDebounce";
 
 const Category: React.FC = () => {
   const { Search } = Input;
@@ -31,8 +33,9 @@ const Category: React.FC = () => {
   const { category, isLoading, refetch } = GetCategory();
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const { isAdmin } = UserPermission();
 
-  const keyword = searchText.trim().toLocaleLowerCase();
+  const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
   const filterData = category.filter(
     (item) => !keyword || item.name?.toLowerCase().includes(keyword),
   );
@@ -125,24 +128,29 @@ const Category: React.FC = () => {
                   navigate(`/${config.routes.CATEGORY_CHILD(record.id)}`);
                 }}
               />
-              <AntButton
-                tooltip="Chỉnh sửa"
-                icon={<EditOutlined />}
-                onClick={() => {
-                  handleUpdate(record);
-                  setIsUpdate(true);
-                  setIsOpenModal(true);
-                }}
-              />
-              <AntButton
-                danger
-                tooltip="Xóa"
-                icon={<DeleteOutlined />}
-                onClick={() => {
-                  setIsOpenModalDelete(true);
-                  setRowData({ id: record.id, name: record.name });
-                }}
-              />
+              {isAdmin && (
+                <AntButton
+                  tooltip="Chỉnh sửa"
+                  icon={<EditOutlined />}
+                  onClick={() => {
+                    handleUpdate(record);
+                    setIsUpdate(true);
+                    setIsOpenModal(true);
+                  }}
+                />
+              )}
+
+              {isAdmin && (
+                <AntButton
+                  danger
+                  tooltip="Xóa"
+                  icon={<DeleteOutlined />}
+                  onClick={() => {
+                    setIsOpenModalDelete(true);
+                    setRowData({ id: record.id, name: record.name });
+                  }}
+                />
+              )}
             </Space>
           </>
         );
@@ -226,18 +234,20 @@ const Category: React.FC = () => {
             onChange={(event) => handleSearch(event.target.value)}
             style={{ width: "20%" }}
           />
-          <div style={{ display: "flex", gap: 10 }}>
-            <AntButton
-              tooltip="Thêm mới"
-              type="primary"
-              onClick={handleAddChild}
-            >
-              Thêm danh mục con
-            </AntButton>
-            <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-              Thêm danh mục cha
-            </AntButton>
-          </div>
+          {isAdmin && (
+            <div style={{ display: "flex", gap: 10 }}>
+              <AntButton
+                tooltip="Thêm mới"
+                type="primary"
+                onClick={handleAddChild}
+              >
+                Thêm danh mục con
+              </AntButton>
+              <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
+                Thêm danh mục cha
+              </AntButton>
+            </div>
+          )}
         </Flex>
         <div style={{ border: "1px solid #f3f5f7" }}>
           <Table<CategoryType>

@@ -5,6 +5,7 @@ import AntButton from "../../@crema/component/AntButton";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { GetCategoryById } from "../../api/categoryApi";
+import { UserPermission } from "../../api/userPermission";
 
 const CategoryChild = () => {
   const { id } = useParams();
@@ -13,6 +14,7 @@ const CategoryChild = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const keyword = searchText.trim().toLocaleLowerCase();
+  const { isAdmin } = UserPermission();
   const filterDataCategoryChild = data.filter(
     (item) => !keyword || item.name?.toLowerCase().includes(keyword),
   );
@@ -60,6 +62,7 @@ const CategoryChild = () => {
       key: "action",
       fixed: "end",
       width: 100,
+      hidden: !isAdmin,
       align: "center",
       render: () => {
         return (
