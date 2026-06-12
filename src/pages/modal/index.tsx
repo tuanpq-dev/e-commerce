@@ -1,10 +1,12 @@
 import { useEffect } from "react";
-import { Button, Form, Input, Modal, Upload } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Flex, Form, Modal } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import FormInput from "../../@crema/core/Form/FormInput";
 import type { CategoryType, ProductInitialValues } from "../../types/domain";
 import "./index.css";
 import FormSelect from "../../@crema/core/Form/FormSelect";
+import AntButton from "../../@crema/component/AntButton";
+import AntUpload from "../../@crema/component/AntUpload";
 
 type ModalProductProps = {
   isUpdate?: boolean;
@@ -44,14 +46,56 @@ export const ModalProduct = ({
   const selectedCategoryId = Form.useWatch("category", form);
 
   const selectedCategory = options.find(
-    (option) => option.id === selectedCategoryId,
+    (option) => String(option.id) === String(selectedCategoryId),
   );
-
   const optionsChild = selectedCategory?.child ?? [];
+
+  const normalizeCategoryChild = (
+    categoryChild: ProductInitialValues["category_child"],
+  ) =>
+    (categoryChild ?? [])
+      .map((item) => {
+        if (typeof item === "object") {
+          return item.id;
+        }
+
+        return item;
+      })
+      .filter((item): item is string | number => item !== undefined);
+
+  const getInitialProductValue = () => {
+    if (!initialValue) {
+      return {
+        variants: [{}],
+      };
+    }
+
+    if (initialValue.variants?.length) {
+      return {
+        ...initialValue,
+        category_child: normalizeCategoryChild(initialValue.category_child),
+      };
+    }
+
+    return {
+      ...initialValue,
+      category_child: normalizeCategoryChild(initialValue.category_child),
+      variants: [
+        {
+          size: "Default",
+          color: "Default",
+          price: initialValue.price,
+          stock: initialValue.stock,
+          sku: initialValue.sku,
+        },
+      ],
+    };
+  };
 
   return (
     <Modal
       title={isUpdate ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
+      width={960}
       open={open}
       onOk={async () => {
         const values = await form.validateFields();
@@ -60,11 +104,8 @@ export const ModalProduct = ({
       onCancel={onCancel}
       afterOpenChange={(visible) => {
         if (!visible) return;
-        if (initialValue) {
-          form.setFieldsValue({ ...initialValue });
-        } else {
-          form.resetFields();
-        }
+        form.resetFields();
+        form.setFieldsValue(getInitialProductValue());
       }}
       afterClose={() => form.resetFields()}
       destroyOnHidden
@@ -103,29 +144,99 @@ export const ModalProduct = ({
             fieldNames={{ value: "id", label: "name" }}
             mode="multiple"
             options={optionsChild}
-            placeholder="Chọn danh mục"
+            placeholder="Chọn danh mục con"
           />
         )}
 
-        <FormInput
-          label="Giá"
-          name="price"
-          rules={[{ required: true, message: "Vui lòng nhập giá" }]}
-        />
-        <FormInput
-          label="Tồn kho"
-          name="stock"
-          disabled={isUpdate}
-          rules={[{ required: true, message: "Vui lòng nhập tồn kho" }]}
-        />
-        <Form.Item label="Mô tả" name="description">
-          <Input.TextArea placeholder="Nhập mô tả" />
-        </Form.Item>
-        <Form.Item label="Ảnh" name="image" valuePropName="fileList">
-          <Upload beforeUpload={() => false}>
-            <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
-          </Upload>
-        </Form.Item>
+        <Form.List
+          name="variants"
+          rules={[
+            {
+              validator: async (_, variants) => {
+                if (!variants?.length) {
+                  throw new Error("Vui lòng thêm ít nhất một biến thể");
+                }
+              },
+            },
+          ]}
+        >
+          {(fields, { add, remove }, { errors }) => (
+            <Flex vertical gap="small">
+              <Flex align="center" justify="space-between">
+                <strong>Biến thể sản phẩm</strong>
+                <AntButton
+                  type="dashed"
+                  icon={<PlusOutlined />}
+                  onClick={() => add()}
+                >
+                  Thêm biến thể
+                </AntButton>
+              </Flex>
+
+              {fields.map(({ key, name, ...restField }) => (
+                <div
+                  key={key}
+                  style={{
+                    alignItems: "start",
+                    display: "grid",
+                    gap: 10,
+                    gridTemplateColumns:
+                      "80px 100px 120px 130px 150px 1fr 40px",
+                  }}
+                >
+                  <FormInput
+                    {...restField}
+                    label="Size"
+                    name={[name, "size"]}
+                    rules={[{ required: true, message: "Nhập size" }]}
+                    placeholder="S, M, L..."
+                  />
+                  <FormInput
+                    {...restField}
+                    label="Màu"
+                    name={[name, "color"]}
+                    rules={[{ required: true, message: "Nhập màu" }]}
+                    placeholder="Đen, trắng..."
+                  />
+                  <FormInput
+                    {...restField}
+                    label="Giá"
+                    name={[name, "price"]}
+                    rules={[{ required: true, message: "Nhập giá" }]}
+                    type="number"
+                    min={0}
+                  />
+                  <FormInput
+                    {...restField}
+                    label="Tồn kho"
+                    name={[name, "stock"]}
+                    rules={[{ required: true, message: "Nhập tồn kho" }]}
+                    type="number"
+                    min={0}
+                  />
+                  <FormInput
+                    {...restField}
+                    label="SKU"
+                    name={[name, "sku"]}
+                    placeholder="Tự sinh nếu trống"
+                  />
+                  <AntUpload />
+                  <AntButton
+                    danger
+                    icon={<DeleteOutlined />}
+                    disabled={fields.length === 1}
+                    onClick={() => remove(name)}
+                    style={{ marginTop: 30 }}
+                  />
+                </div>
+              ))}
+
+              <Form.ErrorList errors={errors} />
+            </Flex>
+          )}
+        </Form.List>
+
+        <FormInput label="Mô tả" name="description" textarea />
       </Form>
     </Modal>
   );
@@ -225,13 +336,15 @@ export const ModalCategoryChild = ({
           rules={[{ required: true, message: "Vui lòng nhập tên danh mục" }]}
         />
 
-        <FormSelect
-          label="Danh mục"
-          name="id"
-          options={parentOptions}
-          placeholder="Chọn danh mục"
-          rules={[{ required: true, message: "Vui lòng chọn danh mục cha" }]}
-        />
+        {!isUpdate && (
+          <FormSelect
+            label="Danh mục"
+            name="id"
+            options={parentOptions}
+            placeholder="Chọn danh mục"
+            rules={[{ required: true, message: "Vui lòng chọn danh mục cha" }]}
+          />
+        )}
       </Form>
     </Modal>
   );

@@ -1,18 +1,22 @@
-import { useParams } from "react-router-dom";
-import type { CategoryType } from "../../types/domain";
+import { EditOutlined } from "@ant-design/icons";
 import { Flex, Input, Space, Table, type TableProps } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import AntButton from "../../@crema/component/AntButton";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
-import { GetCategoryById } from "../../api/categoryApi";
+import openNotification from "../../@crema/core/Notification";
+import { GetCategoryById, updateCategoryChild } from "../../api/categoryApi";
 import { UserPermission } from "../../api/userPermission";
+import type { CategoryType } from "../../types/domain";
+import { ModalCategoryChild } from "../modal";
 
 const CategoryChild = () => {
   const { id } = useParams();
   const { Search } = Input;
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<CategoryType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [rowData, setRowData] = useState<CategoryType | null>(null);
   const keyword = searchText.trim().toLocaleLowerCase();
   const { isAdmin } = UserPermission();
   const filterDataCategoryChild = data.filter(
@@ -23,7 +27,7 @@ const CategoryChild = () => {
     setSearchText(value ? String(value) : "");
   };
 
-  const fetchCategory = async () => {
+  const fetchCategory = useCallback(async () => {
     if (!id) {
       return;
     }
@@ -31,17 +35,44 @@ const CategoryChild = () => {
     setIsLoading(true);
     try {
       const res = await GetCategoryById(id);
-      setData(res.child);
+      setData(res.child ?? []);
     } catch (err) {
       return err;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCategory();
-  }, []);
+  }, [fetchCategory]);
+
+  const handleEdit = (record: CategoryType) => {
+    setRowData(record);
+    setIsOpenModal(true);
+  };
+
+  const handleCancel = () => {
+    setIsOpenModal(false);
+    setRowData(null);
+  };
+
+  const handleOk = async (values: CategoryType) => {
+    if (!id || !rowData?.id) {
+      return;
+    }
+
+    await updateCategoryChild(id, rowData.id, values);
+    await fetchCategory();
+    setIsOpenModal(false);
+    setRowData(null);
+
+    openNotification("success", {
+      message: "Thành công",
+      description: "Chỉnh sửa danh mục con thành công",
+    });
+  };
 
   const columns: TableProps<CategoryType>["columns"] = [
     {
@@ -64,39 +95,51 @@ const CategoryChild = () => {
       width: 100,
       hidden: !isAdmin,
       align: "center",
-      render: () => {
+      render: (_, record) => {
         return (
-          <>
-            <Space size="medium">
-              <AntButton tooltip="Chỉnh sửa" icon={<EditOutlined />} />
-              <AntButton danger tooltip="Xóa" icon={<DeleteOutlined />} />
-            </Space>
-          </>
+          <Space size="medium">
+            <AntButton
+              tooltip="Chỉnh sửa"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+            />
+          </Space>
         );
       },
     },
   ];
+
   return (
-    <Flex gap="medium" vertical>
-      <Flex align="center" gap="medium" justify="space-between">
-        <Search
-          allowClear={true}
-          onChange={(event) => handleSearch(event.target.value)}
-          placeholder="Tìm kiếm danh mục"
-          style={{ width: "20%" }}
-        />
+    <>
+      <Flex gap="medium" vertical>
+        <Flex align="center" gap="medium" justify="space-between">
+          <Search
+            allowClear={true}
+            onChange={(event) => handleSearch(event.target.value)}
+            placeholder="Tìm kiếm danh mục"
+            style={{ width: "20%" }}
+          />
+        </Flex>
+        <div style={{ border: "1px solid #f3f5f7" }}>
+          <Table<CategoryType>
+            rowKey="id"
+            columns={columns}
+            dataSource={filterDataCategoryChild}
+            loading={isLoading}
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
+          />
+        </div>
       </Flex>
-      <div style={{ border: "1px solid #f3f5f7" }}>
-        <Table<CategoryType>
-          rowKey="id"
-          columns={columns}
-          dataSource={filterDataCategoryChild}
-          loading={isLoading}
-          pagination={{ pageSize: 5 }}
-          scroll={{ x: "max-content" }}
-        />
-      </div>
-    </Flex>
+
+      <ModalCategoryChild
+        initialValue={rowData}
+        open={isOpenModal}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        isUpdate={true}
+      />
+    </>
   );
 };
 

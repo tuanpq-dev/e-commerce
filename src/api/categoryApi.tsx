@@ -79,6 +79,7 @@ export const DeleteCategory = async (id: number | string) => {
 };
 
 type CreateCategoryChildValues = Pick<CategoryType, "name" | "id">;
+type UpdateCategoryChildValues = Pick<CategoryType, "name">;
 
 const getCategoryId = (
   category?: string | number | CategoryType,
@@ -152,6 +153,30 @@ export const CreateCategoryChild = async (
   return res.data;
 };
 
-// export const UpdateCategoryChild = (id: number | string) => {
+// eslint-disable-next-line react-refresh/only-export-components
+export const updateCategoryChild = async (
+  parentId: number | string,
+  childId: number | string,
+  values: UpdateCategoryChildValues,
+) => {
+  const dataParent = await callApiWithRetries({
+    url: `/category/${parentId}`,
+  });
 
-// }
+  const child = (dataParent.child ?? []).map((categoryChild: CategoryType) => {
+    if (String(categoryChild.id) !== String(childId)) {
+      return categoryChild;
+    }
+
+    return {
+      ...categoryChild,
+      name: values.name,
+    };
+  });
+
+  const res = await axiosClient.patch(`/category/${parentId}`, {
+    child,
+  });
+
+  return res.data;
+};

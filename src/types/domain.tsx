@@ -1,14 +1,25 @@
+export type ProductVariant = {
+  id?: string | number;
+  size: string;
+  color: string;
+  price: number | string;
+  stock: number | string;
+  sku?: string;
+};
+
 export interface DataType {
   id?: string | number;
   image: string | string[];
   sku: string;
   name: string;
   category: string | CategoryType;
-  category_child?: CategoryType[];
+  category_child?: (string | number | CategoryType)[];
   price: number;
   stock: number;
   status?: string;
   description?: string;
+  variants?: ProductVariant[];
+  created_at?: string | number;
 }
 
 export type FieldType = {
@@ -28,6 +39,7 @@ export type ProductInitialValues = {
   description?: string;
   image?: string[];
   status?: string;
+  variants?: ProductVariant[];
 };
 
 export type CategoryType = {
