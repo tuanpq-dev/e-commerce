@@ -1,39 +1,135 @@
-import { Card, Col, Row } from "antd";
+// Dashboard.tsx
+import { Card, Col, Row, Spin } from "antd";
+import ReactECharts from "echarts-for-react";
+import formatCurrency from "../../utils/formatCurrecy";
+import { useDashboard } from "../../@crema/core/hook/useDashboard";
+import { GetProduct } from "../../api/productApi";
 
-const chartCards = [
-  {
-    title: "Doanh thu theo tháng",
-    alt: "Revenue chart",
-    src: "https://quickchart.io/chart?width=500&height=300&c={type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Revenue',data:[120,190,300,500,420,650]}]}}",
-  },
-  {
-    title: "Đơn hàng theo trạng thái",
-    alt: "Order status chart",
-    src: "https://quickchart.io/chart?width=500&height=300&c={type:'doughnut',data:{labels:['Pending','Shipping','Completed','Cancelled'],datasets:[{data:[30,45,120,12]}]}}",
-  },
-  {
-    title: "Sản phẩm bán chạy",
-    alt: "Top products chart",
-    src: "https://quickchart.io/chart?width=500&height=300&c={type:'bar',data:{labels:['Áo','Quần','Giày','Túi','Mũ'],datasets:[{label:'Sold',data:[80,65,50,40,25]}]}}",
-  },
-  {
-    title: "Tỷ lệ danh mục",
-    alt: "Category chart",
-    src: "https://quickchart.io/chart?width=500&height=300&c={type:'pie',data:{labels:['Fashion','Shoes','Accessories','Beauty'],datasets:[{data:[45,25,20,10]}]}}",
-  },
-];
+type ChartProps = {
+  title: string;
+  type: "bar" | "line";
+  labels: string[];
+  data: number[];
+};
+
+const Chart = ({ title, type, labels, data }: ChartProps) => {
+  const option = {
+    title: { text: title, left: "center" },
+    tooltip: {
+      trigger: "axis",
+      formatter: (params: any) => {
+        const item = params[0];
+        if (title.includes("Doanh thu")) {
+          return `${item.name}: ${formatCurrency(item.value)}`;
+        }
+        return `${item.name}: ${item.value}`;
+      },
+    },
+    grid: { top: 60, left: 60, right: 30, bottom: 50 },
+    xAxis: {
+      type: "category",
+      data: labels,
+      axisLabel: {
+        interval: 0,
+        rotate: labels.length > 12 ? 45 : 0,
+      },
+    },
+    yAxis: {
+      type: "value",
+      minInterval: title.includes("Doanh thu") ? undefined : 1,
+      axisLabel: {
+        formatter: (value: number) => {
+          if (title.includes("Doanh thu")) return `${value / 1000000}tr`;
+          return Number.isInteger(value) ? value : "";
+        },
+      },
+    },
+    series: [{ name: title, type, data, smooth: type === "line" }],
+  };
+
+  return (
+    <ReactECharts
+      option={option}
+      notMerge
+      lazyUpdate
+      style={{ width: "100%", height: 350 }}
+    />
+  );
+};
+
+type StatCardProps = {
+  title: string;
+  value: number;
+  isCurrency?: boolean;
+};
+
+const StatCard = ({ title, value, isCurrency }: StatCardProps) => (
+  <Card title={title}>
+    <h2 style={{ margin: 0 }}>
+      {isCurrency ? formatCurrency(value) : value.toLocaleString("vi-VN")}
+    </h2>
+  </Card>
+);
 
 const Dashboard = () => {
+  const { revenueData, ordersByDayOfMonth, stats, loading, months } =
+    useDashboard();
+  const { product } = GetProduct();
+
+  const statisticCards = [
+    { title: "Tổng số đơn hàng", value: stats.totalOrders },
+    { title: "Tổng doanh thu", value: stats.totalRevenue, isCurrency: true },
+    { title: "Tổng khách hàng", value: stats.totalCustomers },
+    { title: "Tổng sản phẩm", value: product.length },
+  ];
+
+  const revenueByMonth = {
+    labels: months.map((m) => m.label),
+    data: revenueData,
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", padding: 100 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
-    <Row className="dashboard-grid" gutter={[16, 16]}>
-      {chartCards.map((chart) => (
-        <Col key={chart.alt} xs={24} md={12}>
-          <Card className="dashboard-card" title={chart.title}>
-            <img className="dashboard-chart" alt={chart.alt} src={chart.src} />
+    <>
+      <Row gutter={[16, 16]}>
+        {statisticCards.map((item) => (
+          <Col xs={24} sm={12} lg={6} key={item.title}>
+            <StatCard {...item} />
+          </Col>
+        ))}
+      </Row>
+
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        <Col xs={24} lg={12}>
+          <Card>
+            <Chart
+              title="Doanh thu theo tháng"
+              type="line"
+              labels={revenueByMonth.labels}
+              data={revenueByMonth.data}
+            />
           </Card>
         </Col>
-      ))}
-    </Row>
+
+        <Col xs={24} lg={12}>
+          <Card>
+            <Chart
+              title={`Số đơn theo ngày trong tháng ${new Date().getMonth() + 1}`}
+              type="line"
+              labels={ordersByDayOfMonth.labels}
+              data={ordersByDayOfMonth.data}
+            />
+          </Card>
+        </Col>
+      </Row>
+    </>
   );
 };
 
