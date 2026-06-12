@@ -47,6 +47,10 @@ const LoginPage = () => {
                 required: true,
                 message: "Vui lòng nhập email!",
               },
+              {
+                max: 50,
+                message: "Email tối đa 50 ký tự",
+              },
               { pattern: EMAIL_REGEX, message: "Email không đúng định dạng!" },
             ]}
           />
@@ -54,7 +58,13 @@ const LoginPage = () => {
           <FormInputPassword
             label="Password"
             name="password"
-            rules={[{ required: true, message: "Vui lòng nhập password!" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập password!" },
+              {
+                max: 50,
+                message: "Password tối đa 50 ký tự",
+              },
+            ]}
           />
 
           <Form.Item<FieldType>
