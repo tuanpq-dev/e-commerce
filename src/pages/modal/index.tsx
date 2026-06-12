@@ -118,13 +118,36 @@ export const ModalProduct = ({
           label="Tên sản phẩm"
           name="name"
           required={true}
-          rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm" }]}
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng nhập tên sản phẩm",
+            },
+            {
+              min: 3,
+              message: "Tên sản phẩm tối thiểu 3 ký tự",
+            },
+            {
+              max: 50,
+              message: "Tên sản phẩm tối đa 50 ký tự",
+            },
+          ]}
         />
         <FormInput
           label="SKU"
           name="sku"
           disabled={isUpdate}
-          rules={[{ required: true, message: "Vui lòng nhập SKU" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập SKU" },
+            {
+              min: 3,
+              message: "SKU tối thiểu 3 ký tự",
+            },
+            {
+              max: 20,
+              message: "SKU tối đa 20 ký tự",
+            },
+          ]}
         />
 
         <FormSelect
@@ -179,21 +202,46 @@ export const ModalProduct = ({
                     {...restField}
                     label="Size"
                     name={[name, "size"]}
-                    rules={[{ required: true, message: "Nhập size" }]}
+                    rules={[
+                      { required: true, message: "Nhập size" },
+                      { required: true, message: "Vui lòng nhập SKU" },
+                      {
+                        min: 1,
+                        message: "Size tối thiểu 1 ký tự",
+                      },
+                      {
+                        max: 5,
+                        message: "Size tối đa 5 ký tự",
+                      },
+                    ]}
                     placeholder="S, M, L..."
                   />
                   <FormInput
                     {...restField}
                     label="Màu"
                     name={[name, "color"]}
-                    rules={[{ required: true, message: "Nhập màu" }]}
+                    rules={[
+                      { required: true, message: "Nhập màu" },
+                      { required: true, message: "Vui lòng nhập SKU" },
+                      {
+                        max: 15,
+                        message: "Màu tối đa 15 ký tự",
+                      },
+                    ]}
                     placeholder="Đen, trắng..."
                   />
                   <FormInput
                     {...restField}
                     label="Giá"
                     name={[name, "price"]}
-                    rules={[{ required: true, message: "Nhập giá" }]}
+                    rules={[
+                      { required: true, message: "Nhập giá" },
+                      { required: true, message: "Vui lòng nhập SKU" },
+                      {
+                        max: 10,
+                        message: "Giá tối đa 10 ký tự",
+                      },
+                    ]}
                     type="number"
                     min={0}
                   />
@@ -201,7 +249,14 @@ export const ModalProduct = ({
                     {...restField}
                     label="Tồn kho"
                     name={[name, "stock"]}
-                    rules={[{ required: true, message: "Nhập tồn kho" }]}
+                    rules={[
+                      { required: true, message: "Nhập tồn kho" },
+                      { required: true, message: "Vui lòng nhập SKU" },
+                      {
+                        max: 5,
+                        message: "Tồn kho tối đa 5 ký tự",
+                      },
+                    ]}
                     type="number"
                     min={0}
                   />
@@ -272,7 +327,17 @@ export const ModalCategory = ({
         <FormInput
           label="Tên danh mục"
           name="name"
-          rules={[{ required: true, message: "Vui lòng nhập tên danh mục" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập tên danh mục" },
+            {
+              min: 1,
+              message: "Tên danh mục tối thiểu 1 ký tự",
+            },
+            {
+              max: 30,
+              message: "Tên danh mục tối đa 30 ký tự",
+            },
+          ]}
         />
       </Form>
     </Modal>
@@ -322,9 +387,19 @@ export const ModalCategoryChild = ({
     >
       <Form form={form} layout="vertical">
         <FormInput
-          label="Tên danh mục"
+          label="Tên danh mục con"
           name="name"
-          rules={[{ required: true, message: "Vui lòng nhập tên danh mục" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập tên danh mục con" },
+            {
+              min: 1,
+              message: "Tên danh mục con tối thiểu 1 ký tự",
+            },
+            {
+              max: 30,
+              message: "Tên danh mục con tối đa 30 ký tự",
+            },
+          ]}
         />
 
         {!isUpdate && (
