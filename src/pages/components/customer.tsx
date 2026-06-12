@@ -1,4 +1,4 @@
-import { Flex, Input, Space, Table, type TableProps } from "antd";
+import { Flex, Grid, Input, Space, Table, type TableProps } from "antd";
 import type React from "react";
 import type { CustomerType, OrderType } from "../../types/domain";
 import { EyeOutlined } from "@ant-design/icons";
@@ -12,6 +12,8 @@ import formatCurrency from "../../utils/formatCurrecy";
 import useDebounce from "../../@crema/core/hook/useDebounce";
 
 const Customer: React.FC = () => {
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const { Search } = Input;
   const [dataCustomer, setDataCustomer] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,14 +72,14 @@ const Customer: React.FC = () => {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
       width: 50,
     },
     {
       title: "Họ tên",
       dataIndex: "fullname",
       key: "fullname",
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
       width: 100,
     },
     {
@@ -110,7 +112,7 @@ const Customer: React.FC = () => {
     {
       title: "Action",
       key: "action",
-      fixed: "end",
+      fixed: !isMobile ? "end" : false,
       width: 100,
       align: "center",
       render: (_, record) => {
@@ -134,16 +136,16 @@ const Customer: React.FC = () => {
   ];
 
   return (
-    <Flex gap="medium" vertical>
-      <Flex align="center" gap="medium" justify="space-between">
+    <Flex className="page-stack" gap="medium" vertical>
+      <div className="page-toolbar">
         <Search
           allowClear={true}
           onChange={(event) => handleSearch(event.target.value)}
           placeholder="Tìm kiếm khách hàng"
-          style={{ width: "20%" }}
+          className="page-search"
         />
-      </Flex>
-      <div style={{ border: "1px solid #f3f5f7" }}>
+      </div>
+      <div className="table-shell">
         <Table<CustomerType>
           rowKey="id"
           columns={columns}

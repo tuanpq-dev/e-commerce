@@ -52,8 +52,8 @@ const ActiveLog = () => {
     },
   ];
   return (
-    <Flex gap="medium" vertical>
-      <div style={{ border: "1px solid #f3f5f7" }}>
+    <Flex className="page-stack" gap="medium" vertical>
+      <div className="table-shell">
         <Table<ActiveLogType>
           rowKey="id"
           columns={columns}

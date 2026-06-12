@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Flex, Image, Input, Select, Space, Table, Tag } from "antd";
+import { Flex, Grid, Image, Input, Select, Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
 import {
   CheckCircleOutlined,
@@ -120,6 +120,8 @@ const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
     .filter((item): item is string | number => item !== undefined);
 
 const Product: React.FC = () => {
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
   const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
@@ -243,7 +245,7 @@ const Product: React.FC = () => {
       dataIndex: "image",
       key: "image",
       width: 50,
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
       render: () => <Image width={50} alt="image" />,
     },
     {
@@ -251,14 +253,14 @@ const Product: React.FC = () => {
       dataIndex: "sku",
       key: "sku",
       width: 100,
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
     },
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
       width: 100,
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
     },
     {
       title: "Category",
@@ -315,7 +317,7 @@ const Product: React.FC = () => {
     {
       title: "Action",
       key: "action",
-      fixed: "end",
+      fixed: !isMobile ? "end" : false,
       width: 100,
       hidden: !isAdmin,
       align: "center",
@@ -401,14 +403,14 @@ const Product: React.FC = () => {
 
   return (
     <>
-      <Flex gap="medium" vertical>
-        <Flex align="center" gap="medium" justify="space-between" wrap>
-          <Flex align="center" gap="small" wrap>
+      <Flex className="page-stack" gap="medium" vertical>
+        <div className="page-toolbar">
+          <div className="page-toolbar-controls">
             <Search
               allowClear={true}
               placeholder="Tìm kiếm sản phẩm"
               onChange={(event) => handleSearch(event.target.value)}
-              style={{ width: 260 }}
+              className="page-search"
             />
             <Select
               allowClear
@@ -416,7 +418,7 @@ const Product: React.FC = () => {
               options={categoryOptions}
               value={selectedCategory}
               onChange={setSelectedCategory}
-              style={{ width: 180 }}
+              className="page-control"
             />
             <Select
               allowClear
@@ -424,7 +426,7 @@ const Product: React.FC = () => {
               options={STATUS_OPTIONS}
               value={selectedStatus}
               onChange={setSelectedStatus}
-              style={{ width: 150 }}
+              className="page-control"
             />
             <Select
               allowClear
@@ -432,16 +434,16 @@ const Product: React.FC = () => {
               options={RANGE_PRICE}
               value={selectedPrice}
               onChange={setSelectedPrice}
-              style={{ width: 150 }}
+              className="page-control"
             />
-          </Flex>
+          </div>
           {isAdmin && (
             <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
               Add
             </AntButton>
           )}
-        </Flex>
-        <div style={{ border: "1px solid #f3f5f7" }}>
+        </div>
+        <div className="table-shell">
           <Table<DataType>
             rowKey="sku"
             columns={columns}

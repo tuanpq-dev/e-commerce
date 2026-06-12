@@ -60,3 +60,142 @@ h5,
 h6 {
   margin: 0;
 }
+
+.app-content {
+  padding: 24px;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.page-stack {
+  width: 100%;
+}
+
+.page-toolbar {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.page-toolbar-controls,
+.page-toolbar-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.page-control {
+  min-width: 150px;
+  width: 180px;
+}
+
+.page-search {
+  min-width: 220px;
+  width: 260px;
+}
+
+.table-shell {
+  border: 1px solid #f3f5f7;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.table-shell .ant-table-wrapper,
+.table-shell .ant-spin-nested-loading,
+.table-shell .ant-spin-container {
+  min-width: 0;
+}
+
+.profile-layout {
+  align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.profile-card {
+  text-align: center;
+  width: 240px;
+}
+
+.dashboard-grid {
+  width: 100%;
+}
+
+.dashboard-card {
+  height: 100%;
+}
+
+.dashboard-card .ant-card-body {
+  display: flex;
+  min-height: 280px;
+}
+
+.dashboard-chart {
+  aspect-ratio: 5 / 3;
+  height: auto;
+  margin: auto;
+  object-fit: contain;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .app-content {
+    padding: 12px;
+  }
+
+  .app-header {
+    padding-inline: 12px !important;
+  }
+
+  .page-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .page-toolbar-controls,
+  .page-toolbar-actions {
+    width: 100%;
+  }
+
+  .page-toolbar > .ant-btn,
+  .page-toolbar-actions .ant-btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .page-control,
+  .page-search,
+  .page-toolbar-controls .ant-input-search,
+  .page-toolbar-controls .ant-select {
+    width: 100% !important;
+  }
+
+  .ant-pagination {
+    justify-content: center;
+  }
+
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .profile-layout > div,
+  .profile-card {
+    width: 100% !important;
+  }
+
+  .ant-card-body {
+    padding: 16px !important;
+  }
+
+  .dashboard-card .ant-card-body {
+    min-height: 220px;
+  }
+}

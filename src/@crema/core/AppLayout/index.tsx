@@ -1,4 +1,4 @@
-import { Button, Flex, Layout, Menu, type MenuProps } from "antd";
+import { Button, Drawer, Grid, Layout, Menu, type MenuProps } from "antd";
 import React, { useState } from "react";
 import AppHeader from "./Default/AppHeader";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -41,12 +41,14 @@ const contentStyle: React.CSSProperties = {
   minHeight: "calc(100vh - 64px)",
   overflowY: "auto",
   overflowX: "hidden",
-  padding: 24,
   border: "1px solid #f3f5f7",
 };
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const navigate = useNavigate();
   const location = useLocation();
   const selectedKey = location.pathname.split("/")[1];
@@ -54,64 +56,93 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   const handleRedirect = (key: string) => {
     navigate(`/${key}`);
+    setDrawerOpen(false);
   };
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
 
+  const sidebarContent = (
+    <div style={siderContentStyle}>
+      <div>
+        <div
+          style={{
+            height: 64,
+            background: "#f3f5f7",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={() => navigate("/dashboard")}
+        >
+          <img
+            src="/favicon.svg"
+            alt="E-commerce logo"
+            style={{ width: 40, height: 40, objectFit: "contain" }}
+          />
+        </div>
+        <Menu
+          theme="light"
+          mode="inline"
+          selectedKeys={[selectedKey]}
+          items={MenuHorizontal}
+          onClick={({ key }) => handleRedirect(key)}
+          style={menuStyle}
+          inlineCollapsed={!isMobile && collapsed}
+        />
+      </div>
+
+      {!isMobile && (
+        <Button
+          onClick={toggleCollapsed}
+          style={{ marginBottom: 16, background: "#f3f5f7" }}
+        >
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </Button>
+      )}
+    </div>
+  );
+
   return (
-    <Flex gap="medium">
-      <Layout style={{ minHeight: "100vh" }}>
+    <Layout className="app-shell" style={{ minHeight: "100vh" }}>
+      {!isMobile && (
         <Sider
           width={240}
           style={siderStyle}
           collapsedWidth={80}
           collapsed={collapsed}
         >
-          <div style={siderContentStyle}>
-            <div>
-              <div
-                style={{
-                  height: 64,
-                  background: "#f3f5f7",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                onClick={() => navigate("/dashboard")}
-              >
-                <img
-                  src="/favicon.svg"
-                  alt="E-commerce logo"
-                  style={{ width: 40, height: 40, objectFit: "contain" }}
-                />
-              </div>
-              <Menu
-                theme="light"
-                mode="inline"
-                selectedKeys={[selectedKey]}
-                items={MenuHorizontal}
-                onClick={({ key }) => handleRedirect(key)}
-                style={menuStyle}
-                inlineCollapsed={collapsed}
-              />
-            </div>
-
-            <Button
-              onClick={toggleCollapsed}
-              style={{ marginBottom: 16, background: "#f3f5f7" }}
-            >
-              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </Button>
-          </div>
+          {sidebarContent}
         </Sider>
-        <Layout style={{ height: "100vh", overflow: "hidden" }}>
-          <AppHeader />
-          <Layout.Content style={contentStyle}>{children}</Layout.Content>
-        </Layout>
+      )}
+
+      <Drawer
+        open={isMobile && drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        placement="left"
+        width={280}
+        styles={{ body: { padding: 0, background: "#f3f5f7" } }}
+      >
+        {sidebarContent}
+      </Drawer>
+
+      <Layout style={{ height: "100vh", overflow: "hidden" }}>
+        <AppHeader
+          menuButton={
+            isMobile ? (
+              <Button
+                icon={<MenuUnfoldOutlined />}
+                onClick={() => setDrawerOpen(true)}
+              />
+            ) : undefined
+          }
+        />
+        <Layout.Content className="app-content" style={contentStyle}>
+          {children}
+        </Layout.Content>
       </Layout>
-    </Flex>
+    </Layout>
   );
 };
 

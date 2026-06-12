@@ -181,7 +181,7 @@ const DetailOrder = () => {
   return (
     <Form form={form}>
       <Card title={`Chi tiết đơn hàng ${data.order_code}`} loading={loading}>
-        <Descriptions column={2} bordered>
+        <Descriptions column={{ xs: 1, sm: 1, md: 2 }} bordered>
           <Descriptions.Item label="Mã đơn">
             {data.order_code}
           </Descriptions.Item>
@@ -228,12 +228,15 @@ const DetailOrder = () => {
             marginTop: 24,
           }}
         >
-          <Table
-            rowKey="id"
-            columns={columns}
-            dataSource={data.items}
-            pagination={false}
-          />
+          <div className="table-shell">
+            <Table
+              rowKey="id"
+              columns={columns}
+              dataSource={data.items}
+              pagination={false}
+              scroll={{ x: "max-content" }}
+            />
+          </div>
         </Card>
 
         <Card
