@@ -111,16 +111,16 @@ const CategoryChild = () => {
 
   return (
     <>
-      <Flex gap="medium" vertical>
-        <Flex align="center" gap="medium" justify="space-between">
+      <Flex className="page-stack" gap="medium" vertical>
+        <div className="page-toolbar">
           <Search
             allowClear={true}
             onChange={(event) => handleSearch(event.target.value)}
             placeholder="Tìm kiếm danh mục"
-            style={{ width: "20%" }}
+            className="page-search"
           />
-        </Flex>
-        <div style={{ border: "1px solid #f3f5f7" }}>
+        </div>
+        <div className="table-shell">
           <Table<CategoryType>
             rowKey="id"
             columns={columns}

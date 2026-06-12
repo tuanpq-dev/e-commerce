@@ -95,7 +95,7 @@ export const ModalProduct = ({
   return (
     <Modal
       title={isUpdate ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
-      width={960}
+      width="min(960px, calc(100vw - 24px))"
       open={open}
       onOk={async () => {
         const values = await form.validateFields();
@@ -162,7 +162,7 @@ export const ModalProduct = ({
         >
           {(fields, { add, remove }, { errors }) => (
             <Flex vertical gap="small">
-              <Flex align="center" justify="space-between">
+              <div className="product-variant-header">
                 <strong>Biến thể sản phẩm</strong>
                 <AntButton
                   type="dashed"
@@ -171,19 +171,10 @@ export const ModalProduct = ({
                 >
                   Thêm biến thể
                 </AntButton>
-              </Flex>
+              </div>
 
               {fields.map(({ key, name, ...restField }) => (
-                <div
-                  key={key}
-                  style={{
-                    alignItems: "start",
-                    display: "grid",
-                    gap: 10,
-                    gridTemplateColumns:
-                      "80px 100px 120px 130px 150px 1fr 40px",
-                  }}
-                >
+                <div key={key} className="product-variant-row">
                   <FormInput
                     {...restField}
                     label="Size"

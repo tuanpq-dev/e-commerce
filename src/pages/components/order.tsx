@@ -1,4 +1,13 @@
-import { Flex, Input, Select, Space, Table, Tag, type TableProps } from "antd";
+import {
+  Flex,
+  Grid,
+  Input,
+  Select,
+  Space,
+  Table,
+  Tag,
+  type TableProps,
+} from "antd";
 import type React from "react";
 import type { OrderType } from "../../types/domain";
 import { useEffect, useState } from "react";
@@ -56,6 +65,8 @@ const STATUS_OPTIONS = Object.entries(statusOrder).map(
 );
 
 const Order: React.FC = () => {
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const { Search } = Input;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
@@ -93,13 +104,13 @@ const Order: React.FC = () => {
       title: "Mã đơn",
       dataIndex: "order_code",
       key: "order_code",
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
     },
     {
       title: "Khách hàng",
       dataIndex: "customer_name",
       key: "customer_name",
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
     },
     {
       title: "Ngày tạo",
@@ -116,7 +127,6 @@ const Order: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      fixed: "end",
       render: (status: string) => {
         const item = statusOrder.find((item) => item.status === status);
         if (!item) return <Tag>{status}</Tag>;
@@ -131,7 +141,7 @@ const Order: React.FC = () => {
     {
       title: "Action",
       key: "action",
-      fixed: "end",
+      fixed: !isMobile ? "end" : false,
       width: 100,
       align: "center",
       render: (_, record) => {
@@ -155,14 +165,14 @@ const Order: React.FC = () => {
   ];
   return (
     <>
-      <Flex gap="medium" vertical>
-        <Flex align="center" gap="medium" justify="space-between">
-          <Flex align="center" gap="small" wrap>
+      <Flex className="page-stack" gap="medium" vertical>
+        <div className="page-toolbar">
+          <div className="page-toolbar-controls">
             <Search
               allowClear={true}
               onChange={(event) => handleSearch(event.target.value)}
               placeholder="Tìm kiếm đơn hàng"
-              style={{ width: 260 }}
+              className="page-search"
             />
             <Select
               allowClear
@@ -170,11 +180,11 @@ const Order: React.FC = () => {
               options={STATUS_OPTIONS}
               value={selectedStatus}
               onChange={setSelectedStatus}
-              style={{ width: 180 }}
+              className="page-control"
             />
-          </Flex>
-        </Flex>
-        <div style={{ border: "1px solid #f3f5f7" }}>
+          </div>
+        </div>
+        <div className="table-shell">
           <Table<OrderType>
             rowKey="order_code"
             columns={columns}

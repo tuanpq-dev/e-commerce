@@ -124,7 +124,7 @@ const DetailCustomer = () => {
 
   return (
     <Card title="Chi tiết khách hàng">
-      <Descriptions column={2} bordered>
+      <Descriptions column={{ xs: 1, sm: 1, md: 2 }} bordered>
         <Descriptions.Item label="Tên">{customer.fullname}</Descriptions.Item>
         <Descriptions.Item label="Email">{customer.email}</Descriptions.Item>
         <Descriptions.Item label="Số điện thoại">
@@ -144,12 +144,15 @@ const DetailCustomer = () => {
           marginTop: 24,
         }}
       >
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={orders}
-          pagination={false}
-        />
+        <div className="table-shell">
+          <Table
+            rowKey="id"
+            columns={columns}
+            dataSource={orders}
+            pagination={false}
+            scroll={{ x: "max-content" }}
+          />
+        </div>
       </Card>
     </Card>
   );

@@ -3,12 +3,17 @@ import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../../../../api/mockApi";
 import { useEffect } from "react";
+import type { ReactNode } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import config from "../../../../config";
 import { LogoutApi } from "../../../../services/auth.service";
 import { useAuth } from "../../../../contexts/AuthContext";
 
-const AppHeader = () => {
+type AppHeaderProps = {
+  menuButton?: ReactNode;
+};
+
+const AppHeader = ({ menuButton }: AppHeaderProps) => {
   const token = getAccessToken();
   const { Header } = Layout;
   const navigate = useNavigate();
@@ -21,7 +26,7 @@ const AppHeader = () => {
     display: "flex",
     gap: 24,
     height: 64,
-    justifyContent: "flex-end",
+    justifyContent: menuButton ? "space-between" : "flex-end",
     paddingInline: 48,
     border: "1px solid #f3f5f7",
   };
@@ -57,7 +62,8 @@ const AppHeader = () => {
   }
 
   return (
-    <Header style={headerStyle}>
+    <Header className="app-header" style={headerStyle}>
+      {menuButton}
       <Dropdown
         menu={{
           items: userMenuItems,

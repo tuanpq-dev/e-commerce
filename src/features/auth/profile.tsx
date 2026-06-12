@@ -84,14 +84,7 @@ const Profile = () => {
         title="Thông tin cá nhân"
         extra={<button onClick={handleUpdateProfile}>Chỉnh sửa</button>}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 24,
-            alignItems: "flex-start",
-          }}
-        >
+        <div className="profile-layout">
           <div style={{ flex: 1 }}>
             <Descriptions column={1} bordered>
               <Descriptions.Item label="Tên">{userInfo.name}</Descriptions.Item>
@@ -102,7 +95,7 @@ const Profile = () => {
             </Descriptions>
           </div>
 
-          <Card style={{ width: 240, textAlign: "center" }}>
+          <Card className="profile-card">
             <Space vertical size={16}>
               <Avatar size={96} icon={<UserOutlined />} src={userInfo.avatar} />
 

@@ -1,4 +1,4 @@
-import { Flex, Input, Space, Table } from "antd";
+import { Flex, Grid, Input, Space, Table } from "antd";
 import type React from "react";
 import type { TableProps } from "antd";
 import type { CategoryType } from "../../types/domain";
@@ -23,6 +23,8 @@ import { UserPermission } from "../../api/userPermission";
 import useDebounce from "../../@crema/core/hook/useDebounce";
 
 const Category: React.FC = () => {
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
   const navigate = useNavigate();
@@ -90,7 +92,7 @@ const Category: React.FC = () => {
       dataIndex: "name",
       key: "name",
       width: 100,
-      fixed: "start",
+      fixed: !isMobile ? "start" : false,
     },
     {
       title: "Số danh mục con",
@@ -110,7 +112,7 @@ const Category: React.FC = () => {
     {
       title: "Action",
       key: "action",
-      fixed: "end",
+      fixed: !isMobile ? "end" : false,
       width: 100,
       align: "center",
       render: (_, record) => {
@@ -226,16 +228,16 @@ const Category: React.FC = () => {
 
   return (
     <>
-      <Flex gap="medium" vertical>
-        <Flex align="center" gap="medium" justify="space-between">
+      <Flex className="page-stack" gap="medium" vertical>
+        <div className="page-toolbar">
           <Search
             allowClear={true}
             placeholder="Tìm kiếm danh mục"
             onChange={(event) => handleSearch(event.target.value)}
-            style={{ width: "20%" }}
+            className="page-search"
           />
           {isAdmin && (
-            <div style={{ display: "flex", gap: 10 }}>
+            <div className="page-toolbar-actions">
               <AntButton
                 tooltip="Thêm mới"
                 type="primary"
@@ -248,8 +250,8 @@ const Category: React.FC = () => {
               </AntButton>
             </div>
           )}
-        </Flex>
-        <div style={{ border: "1px solid #f3f5f7" }}>
+        </div>
+        <div className="table-shell">
           <Table<CategoryType>
             rowKey="id"
             columns={columns}
