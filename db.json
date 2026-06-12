@@ -49,9 +49,7 @@
       "stock": 1,
       "description": "qqqqqq",
       "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "category_child": [
-        "e53fa783-6076-4456-9bb5-6b00f7469fe9"
-      ],
+      "category_child": ["e53fa783-6076-4456-9bb5-6b00f7469fe9"],
       "id": "rGRfKH8FgTo",
       "status": "pending"
     },
@@ -62,9 +60,7 @@
       "price": 123,
       "stock": 10,
       "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-      "category_child": [
-        "3f77cd0c-52cd-4862-97f1-3a910e3a1b64"
-      ],
+      "category_child": ["3f77cd0c-52cd-4862-97f1-3a910e3a1b64"],
       "id": "l-r3d8GDdqc",
       "status": "pending"
     },
@@ -171,9 +167,7 @@
           "id": "a0993f7e-dcb3-4ac0-b0d7-d085903f7e8e"
         }
       ],
-      "category_child": [
-        "1a0c1568-3fe8-4e2a-984c-c80423fa592f"
-      ],
+      "category_child": ["1a0c1568-3fe8-4e2a-984c-c80423fa592f"],
       "id": "JQAexFpfw1w",
       "price": 100,
       "stock": 10,
@@ -562,7 +556,7 @@
       "customer_id": "1",
       "customer_name": "Quang Tuấn",
       "customer_email": "ptuan25941@gmail.com",
-      "created_at": "2026-06-04",
+      "created_at": "2026-05-04",
       "total_price": 1375000,
       "payment_method": "VNPay",
       "payment_status": "paid",
@@ -642,7 +636,7 @@
       "customer_id": "2",
       "customer_name": "Quang Tuấn 2",
       "customer_email": "ptuan25942@gmail.com",
-      "created_at": "2026-06-03",
+      "created_at": "2026-04-03",
       "total_price": 1229000,
       "payment_method": "COD",
       "payment_status": "unpaid",
