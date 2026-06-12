@@ -52,6 +52,73 @@ const RANGE_PRICE = [
   { label: "Trên 3000", value: "above-3000" },
 ];
 
+const getProductVariants = (record: DataType) => record.variants ?? [];
+
+const getProductPrice = (record: DataType) => {
+  const variants = getProductVariants(record);
+
+  if (!variants.length) {
+    return Number(record.price);
+  }
+
+  return Math.min(...variants.map((variant) => Number(variant.price)));
+};
+
+const getProductStock = (record: DataType) => {
+  const variants = getProductVariants(record);
+
+  if (!variants.length) {
+    return Number(record.stock);
+  }
+
+  return variants.reduce((total, variant) => total + Number(variant.stock), 0);
+};
+
+const formatProductPrice = (record: DataType) => {
+  const variants = getProductVariants(record);
+
+  if (!variants.length) {
+    return formatCurrency(record.price);
+  }
+
+  const prices = variants.map((variant) => Number(variant.price));
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+
+  if (minPrice === maxPrice) {
+    return formatCurrency(minPrice);
+  }
+
+  return `${formatCurrency(minPrice)} - ${formatCurrency(maxPrice)}`;
+};
+
+const formatProductVariants = (record: DataType) => {
+  const variants = getProductVariants(record);
+
+  if (!variants.length) {
+    return "Default";
+  }
+
+  if (variants.length > 3) {
+    return `${variants.length} variants`;
+  }
+
+  return variants
+    .map((variant) => `${variant.size}/${variant.color}`)
+    .join(", ");
+};
+
+const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
+  (categoryChild ?? [])
+    .map((item) => {
+      if (typeof item === "object") {
+        return item.id;
+      }
+
+      return item;
+    })
+    .filter((item): item is string | number => item !== undefined);
+
 const Product: React.FC = () => {
   const { Search } = Input;
   const { userInfo } = useAuth();
@@ -92,8 +159,8 @@ const Product: React.FC = () => {
       const matchesPrice =
         !selectedPrice ||
         (selectedPrice === "above-3000"
-          ? item.price > 3000
-          : item.price <= Number(selectedPrice));
+          ? getProductPrice(item) > 3000
+          : getProductPrice(item) <= Number(selectedPrice));
 
       return matchesSearch && matchesCategory && matchesStatus && matchesPrice;
     });
@@ -161,14 +228,11 @@ const Product: React.FC = () => {
       name: values.name,
       sku: values.sku,
       category: values.category,
+      category_child: getCategoryChildIds(values.category_child),
       price: values.price,
       stock: values.stock,
+      variants: values.variants,
       status: "pending",
-      image: Array.isArray(values.image)
-        ? values.image
-        : values.image
-          ? [String(values.image)]
-          : [],
       description: values.description || "",
     });
   };
@@ -180,7 +244,7 @@ const Product: React.FC = () => {
       key: "image",
       width: 50,
       fixed: "start",
-      render: (image: string) => <Image width={50} alt="image" src={image} />,
+      render: () => <Image width={50} alt="image" />,
     },
     {
       title: "SKU",
@@ -208,13 +272,21 @@ const Product: React.FC = () => {
       dataIndex: "price",
       key: "price",
       width: 100,
-      render: (price) => formatCurrency(price),
+      render: (_, record) => formatProductPrice(record),
     },
     {
       title: "Stock",
       dataIndex: "stock",
       key: "stock",
       width: 100,
+      render: (_, record) => getProductStock(record),
+    },
+    {
+      title: "Variants",
+      dataIndex: "variants",
+      key: "variants",
+      width: 160,
+      render: (_, record) => formatProductVariants(record),
     },
     {
       title: "Status",
@@ -237,7 +309,7 @@ const Product: React.FC = () => {
       key: "created_at",
       width: 100,
       render: (_, record) => {
-        return formatDate(record?.created_at);
+        return record.created_at ? formatDate(record.created_at) : "";
       },
     },
     {
@@ -285,7 +357,6 @@ const Product: React.FC = () => {
       const { ...updateValues } = values;
 
       delete updateValues.id;
-      delete updateValues.stock;
 
       await Promise.all([
         UpdateProduct({ ...updateValues, id: rowData.id }),

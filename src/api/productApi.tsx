@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import type { DataType, ProductInitialValues } from "../types/domain";
+import type {
+  DataType,
+  ProductInitialValues,
+  ProductVariant,
+} from "../types/domain";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
 import { IncreaseCategoryProductTotal } from "./categoryApi";
@@ -30,17 +34,63 @@ export const GetProduct = () => {
   return { product, isLoading, refetch: fetchProduct };
 };
 
+const createVariantSku = (
+  productSku: ProductInitialValues["sku"],
+  productName: ProductInitialValues["name"],
+  variant: ProductVariant,
+) =>
+  [productSku, productName, variant.size, variant.color]
+    .filter(Boolean)
+    .map((item) => String(item).trim().replace(/\s+/g, "-").toUpperCase())
+    .join("-");
+
+const normalizeVariants = (values: ProductInitialValues) => {
+  const variants = values.variants ?? [];
+
+  return variants
+    .filter((variant) => variant.size || variant.color)
+    .map((variant) => ({
+      ...variant,
+      id: variant.id ?? crypto.randomUUID(),
+      price: Number(variant.price),
+      stock: Number(variant.stock),
+      sku: variant.sku || createVariantSku(values.sku, values.name, variant),
+    }));
+};
+
+const getProductSummary = (values: ProductInitialValues) => {
+  const variants = normalizeVariants(values);
+
+  if (!variants.length) {
+    return {
+      price: Number(values.price),
+      stock: Number(values.stock),
+      variants,
+    };
+  }
+
+  return {
+    price: Math.min(...variants.map((variant) => Number(variant.price))),
+    stock: variants.reduce(
+      (total, variant) => total + Number(variant.stock),
+      0,
+    ),
+    variants,
+  };
+};
+
 export const CreateProduct = async (values: ProductInitialValues) => {
   try {
+    const productSummary = getProductSummary(values);
+
     const payload = {
       ...values,
       id: Date.now(),
       sku: `${values.sku} ${Date.now()}`,
-      price: Number(values.price),
-      stock: Number(values.stock),
+      price: productSummary.price,
+      stock: productSummary.stock,
+      variants: productSummary.variants,
       status: "pending",
-      image:
-        "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
       category_child: values?.category_child || [],
       created_at: Date.now(),
     };
@@ -59,16 +109,18 @@ export const CreateProduct = async (values: ProductInitialValues) => {
   }
 };
 
-type UpdateProductValues = Omit<ProductInitialValues, "id" | "stock"> & {
+type UpdateProductValues = Omit<ProductInitialValues, "id"> & {
   id: string | number;
 };
 
 export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
   try {
+    const productSummary = getProductSummary(values);
+
     const payload = {
-      price: Number(values.price),
-      image:
-        "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      price: productSummary.price,
+      stock: productSummary.stock,
+      variants: productSummary.variants,
       name: values.name,
       category: values.category,
       category_child: values.category_child || [],

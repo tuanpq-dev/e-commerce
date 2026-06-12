@@ -87,16 +87,104 @@
       "price": 986,
       "stock": 24,
       "description": "hehehe",
-      "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
+      "image": "",
       "category_child": [],
       "id": "6VzdY2huFcg",
-      "status": "pending"
+      "status": "pending",
+      "variants": [
+        {
+          "size": "Default",
+          "color": "Default",
+          "price": 986,
+          "stock": 24,
+          "sku": "SPQUAN 1780990740155",
+          "id": "664fdb1e-0399-45cb-af59-210cef52f021"
+        }
+      ]
+    },
+    {
+      "name": "Test sản phẩm",
+      "sku": "SKU 1781173632565",
+      "category": "DoSf-yUiv4c",
+      "variants": [
+        {
+          "size": "S",
+          "color": "Đen",
+          "price": 2000,
+          "stock": 20,
+          "sku": "SKU-S-ĐEN",
+          "id": "67a1ca03-d4c5-48b2-acf7-ecc6f119a064"
+        },
+        {
+          "size": "S",
+          "color": "Trắng",
+          "price": 2000,
+          "stock": 10,
+          "sku": "SKU-S-TRẮNG",
+          "id": "2e6cc714-3104-479a-bad4-8a22d54c33ee"
+        },
+        {
+          "size": "L",
+          "color": "Đen",
+          "price": 2100,
+          "stock": 30,
+          "sku": "SKU-L-ĐEN",
+          "id": "eddf18b9-497d-4688-9df8-21569deb4d6d"
+        },
+        {
+          "size": "L ",
+          "color": "Đỏ",
+          "price": 2100,
+          "stock": 15,
+          "sku": "SKU-L-ĐỎ",
+          "id": "0a4cbf1b-0a7f-4a61-8362-7270b167eb0d"
+        },
+        {
+          "size": "XL",
+          "color": "Hồng",
+          "price": 2500,
+          "stock": 10,
+          "sku": "SKU-XL-HỒNG",
+          "id": "6e2de106-dc55-4512-a9b1-6fc7be7c1d3c"
+        }
+      ],
+      "image": "",
+      "category_child": [],
+      "id": "dbIQAU0FPaU",
+      "price": 2000,
+      "stock": 85,
+      "status": "pending",
+      "created_at": 1781173632565,
+      "description": ""
+    },
+    {
+      "name": "SP Demo",
+      "sku": "SPQUAN 1781236735502",
+      "category": "sFGTOuTS9OA",
+      "variants": [
+        {
+          "size": "S",
+          "color": "Đen",
+          "price": 100,
+          "stock": 10,
+          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
+          "id": "a0993f7e-dcb3-4ac0-b0d7-d085903f7e8e"
+        }
+      ],
+      "category_child": [
+        "1a0c1568-3fe8-4e2a-984c-c80423fa592f"
+      ],
+      "id": "JQAexFpfw1w",
+      "price": 100,
+      "stock": 10,
+      "status": "pending",
+      "created_at": 1781236735502
     }
   ],
   "category": [
     {
       "name": "Áo",
-      "total": 5,
+      "total": 6,
       "child": [
         {
           "id": "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
@@ -108,7 +196,7 @@
           "id": "e53fa783-6076-4456-9bb5-6b00f7469fe9",
           "name": "Áo thun",
           "parentId": "DoSf-yUiv4c",
-          "total": 4
+          "total": 5
         },
         {
           "id": "e75dc3cb-3508-4570-b398-bc563dc85ceb",
@@ -120,7 +208,7 @@
           "id": "741f8b33-a995-4bb4-a295-960cf56e8ed4",
           "name": "Áo sơ mi",
           "parentId": "DoSf-yUiv4c",
-          "total": 1
+          "total": 2
         },
         {
           "id": "7f09306f-5e31-4abd-ae12-31ebd500cd0c",
@@ -133,7 +221,7 @@
     },
     {
       "name": "Quần",
-      "total": 1,
+      "total": 5,
       "child": [
         {
           "id": "3f77cd0c-52cd-4862-97f1-3a910e3a1b64",
@@ -145,7 +233,7 @@
           "id": "1a0c1568-3fe8-4e2a-984c-c80423fa592f",
           "name": "Quần jeans",
           "parentId": "sFGTOuTS9OA",
-          "total": 0
+          "total": 4
         },
         {
           "id": "fda303da-0e1d-4ab0-a319-44e5f652bfa9",
@@ -875,6 +963,76 @@
       "user": "Phạm Quang Tuấn",
       "created_at": "2026-06-11T04:09:37.388Z",
       "id": "OH25QzmjWdA"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-11T10:27:12.569Z",
+      "id": "mtLSaV_8GZk"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-11T10:49:17.299Z",
+      "id": "joQOkLCqBOw"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-11T10:53:29.517Z",
+      "id": "9O6kyoDf7FY"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-11T10:54:10.602Z",
+      "id": "ubMnbk2Z3Ac"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-11T10:58:29.877Z",
+      "id": "y07CRjFbcUs"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-11T10:58:55.489Z",
+      "id": "-FxQbQC1ZiQ"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-12T03:05:31.312Z",
+      "id": "EZUYakqRn10"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-12T03:06:19.630Z",
+      "id": "9H0fDpKDLQU"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-12T03:09:14.442Z",
+      "id": "RMHDVOE3MzM"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-12T03:58:55.504Z",
+      "id": "QRVh0ajgbzA"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
