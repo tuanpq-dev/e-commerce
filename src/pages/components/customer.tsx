@@ -1,8 +1,12 @@
 import { Flex, Grid, Input, Space, Table, type TableProps } from "antd";
 import type React from "react";
-import type { CustomerType, OrderType } from "../../types/domain";
+import type {
+  CreateCustomerValues,
+  CustomerType,
+  OrderType,
+} from "../../types/domain";
 import { EyeOutlined } from "@ant-design/icons";
-import { GetCustomers } from "../../api/customerApi";
+import { CreateCustomer, GetCustomers } from "../../api/customerApi";
 import { GetOrders } from "../../api/orderApi";
 import { useEffect, useState } from "react";
 import AntButton from "../../@crema/component/AntButton";
@@ -10,13 +14,22 @@ import { useNavigate } from "react-router-dom";
 import config from "../../config";
 import formatCurrency from "../../utils/formatCurrecy";
 import useDebounce from "../../@crema/core/hook/useDebounce";
+import { UserPermission } from "../../api/userPermission";
+import { ModalCustomer } from "../modal";
+import openNotification from "../../@crema/core/Notification";
+import { CreateActiveLog } from "../../api/activeLogApi";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Customer: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.md;
   const { Search } = Input;
+  const { isAdmin } = UserPermission();
+  const { userInfo } = useAuth();
   const [dataCustomer, setDataCustomer] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
@@ -55,7 +68,7 @@ const Customer: React.FC = () => {
         };
       });
 
-      setDataCustomer(data);
+      setDataCustomer(data.reverse());
     } catch (err) {
       console.log(err);
     } finally {
@@ -66,6 +79,53 @@ const Customer: React.FC = () => {
   useEffect(() => {
     fetchCustomer();
   }, []);
+
+  const handleAdd = () => {
+    setIsOpenModal(true);
+  };
+
+  const handleCancel = () => {
+    setIsOpenModal(false);
+  };
+
+  const getCreateErrorMessage = (err: unknown) => {
+    if (err instanceof Error && err.message === "EMAIL_EXISTS") {
+      return "Email đã tồn tại";
+    }
+
+    if (err instanceof Error && err.message === "PHONE_EXISTS") {
+      return "Số điện thoại đã tồn tại";
+    }
+
+    return "Không thể thêm mới khách hàng";
+  };
+
+  const handleCreateCustomer = async (values: CreateCustomerValues) => {
+    try {
+      setIsCreating(true);
+      await CreateCustomer(values);
+      await CreateActiveLog({
+        module: "Customer",
+        action: "CREATE",
+        user: userInfo?.name,
+      });
+
+      await fetchCustomer();
+      setIsOpenModal(false);
+      openNotification("success", {
+        message: "Thành công",
+        description: "Thêm mới khách hàng thành công",
+      });
+    } catch (err) {
+      console.log(err);
+      openNotification("error", {
+        message: "Thất bại",
+        description: getCreateErrorMessage(err),
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const columns: TableProps<CustomerType>["columns"] = [
     {
@@ -87,6 +147,12 @@ const Customer: React.FC = () => {
       dataIndex: "email",
       key: "email",
       width: 80,
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "address",
+      width: 100,
     },
     {
       title: "Số điện thoại",
@@ -144,6 +210,11 @@ const Customer: React.FC = () => {
           placeholder="Tìm kiếm khách hàng"
           className="page-search"
         />
+        {isAdmin && (
+          <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
+            Add
+          </AntButton>
+        )}
       </div>
       <div className="table-shell">
         <Table<CustomerType>
@@ -155,6 +226,12 @@ const Customer: React.FC = () => {
           scroll={{ x: "max-content" }}
         />
       </div>
+      <ModalCustomer
+        open={isOpenModal}
+        loading={isCreating}
+        onCancel={handleCancel}
+        onOk={handleCreateCustomer}
+      />
     </Flex>
   );
 };

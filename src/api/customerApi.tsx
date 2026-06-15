@@ -1,5 +1,24 @@
+import type { CreateCustomerValues, CustomerType } from "../types/domain";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
+
+const normalizeText = (value?: string | number) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
+
+const getNextCustomerId = (customers: CustomerType[]) => {
+  const nextId =
+    Math.max(
+      0,
+      ...customers.map((customer) => {
+        const id = Number(customer.id);
+        return Number.isFinite(id) ? id : 0;
+      }),
+    ) + 1;
+
+  return String(nextId);
+};
 
 export const GetCustomers = async () => {
   try {
@@ -22,6 +41,41 @@ export const DeleteCustomer = async (id: string | number) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const CreateCustomer = async (values: CreateCustomerValues) => {
+  const customers: CustomerType[] = (await GetCustomers()) ?? [];
+  const email = normalizeText(values.email);
+  const phone = normalizeText(values.phone);
+
+  const existedEmail = customers.some(
+    (customer) => normalizeText(customer.email) === email,
+  );
+  const existedPhone = customers.some(
+    (customer) => normalizeText(customer.phone) === phone,
+  );
+
+  if (existedEmail) {
+    throw new Error("EMAIL_EXISTS");
+  }
+
+  if (existedPhone) {
+    throw new Error("PHONE_EXISTS");
+  }
+
+  const payload: CustomerType = {
+    id: getNextCustomerId(customers),
+    fullname: values.fullname.trim(),
+    email: values.email.trim(),
+    phone: values.phone.trim(),
+    address: values.address?.trim(),
+    total_orders: 0,
+    total_expend: 0,
+  };
+
+  const res = await axiosClient.post("/customers", payload);
+
+  return res.data;
 };
 
 export const GetCustomerById = async (id: number | string) => {

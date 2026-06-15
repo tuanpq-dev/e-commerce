@@ -60,16 +60,65 @@ export type OrderType = {
   customer_email?: string;
   created_at?: string;
   total_price?: number | string;
+  payment_method?: string;
+  payment_status?: "paid" | "unpaid";
+  shipping_status?: "pending" | "shipping" | "delivered";
   status?: string;
+  shipping_address?: string;
+  note?: string;
+  items?: {
+    id: string | number;
+    product_id?: string | number;
+    product_name?: string;
+    size?: string;
+    color?: string;
+    sku?: string;
+    image?: string | string[];
+    quantity: number;
+    price: number;
+  }[];
+  historyDetailOrder?: {
+    status: string;
+    message: string;
+    createdAt: string;
+    updatedBy?: {
+      id?: string | number;
+      name?: string;
+      email?: string;
+    };
+  }[];
+};
+
+export type CreateOrderItemValues = {
+  product_id: string | number;
+  size?: string;
+  color?: string;
+  quantity: number | string;
+};
+
+export type CreateOrderValues = {
+  customer_id: string | number;
+  items: CreateOrderItemValues[];
+  payment_method: string;
+  shipping_address: string;
+  note?: string;
 };
 
 export type CustomerType = {
   id?: number | string;
   fullname?: string;
   email?: string;
+  address?: string;
   phone?: number | string;
   total_orders?: number | string;
   total_expend?: number | string;
+};
+
+export type CreateCustomerValues = {
+  fullname: string;
+  email: string;
+  phone: string;
+  address?: string;
 };
 
 export type ActiveLogType = {

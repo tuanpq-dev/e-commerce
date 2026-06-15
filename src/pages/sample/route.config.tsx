@@ -14,6 +14,7 @@ const DetailCustomer = React.lazy(
 );
 const DetailOrder = React.lazy(() => import("../components/detail-order"));
 const CategoryChild = React.lazy(() => import("../components/category-child"));
+const ShopCart = React.lazy(() => import("../components/shop-cart"));
 
 export const routeConfig = [
   {
@@ -55,5 +56,9 @@ export const routeConfig = [
   {
     path: config.routes.CATEGORY_CHILD(":id"),
     element: <CategoryChild />,
+  },
+  {
+    path: config.routes.SHOP_CART,
+    element: <ShopCart />,
   },
 ];

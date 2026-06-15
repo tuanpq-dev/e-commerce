@@ -1,6 +1,7 @@
 import { Button, Drawer, Grid, Layout, Menu, type MenuProps } from "antd";
 import React, { useState } from "react";
 import AppHeader from "./Default/AppHeader";
+import AppBreadcrumb from "./Default/AppBreadcrumb";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { menuConfig } from "../../../pages/sample/menu.config";
@@ -139,6 +140,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           }
         />
         <Layout.Content className="app-content" style={contentStyle}>
+          <AppBreadcrumb />
           {children}
         </Layout.Content>
       </Layout>

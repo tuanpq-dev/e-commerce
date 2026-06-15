@@ -23,6 +23,8 @@ type OrderItemType = {
   product_id: string;
   product_name: string;
   image: string;
+  size?: string;
+  color?: string;
   quantity: number;
   price: number;
 };
@@ -31,7 +33,7 @@ type OrderHistoryType = {
   status: string;
   message: string;
   createdAt: string;
-  updatedBy: {
+  updatedBy?: {
     id?: string | number;
     name?: string;
     email?: string;
@@ -49,7 +51,7 @@ type OrderType = {
   payment_method: string;
   payment_status: "paid" | "unpaid";
   shipping_status: "pending" | "shipping" | "delivered";
-  status: "success" | "processing" | "cancelled";
+  status: "pending" | "processing" | "shipping" | "completed" | "cancelled";
   shipping_address: string;
   items: OrderItemType[];
   histories?: OrderHistoryType[];
@@ -65,7 +67,9 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
   cancelled: [],
 };
 
-const ALL_STATUSES = Object.keys(STATUS_TRANSITIONS);
+const ALL_STATUSES = Object.keys(STATUS_TRANSITIONS) as Array<
+  keyof typeof STATUS_CONFIG
+>;
 
 const STATUS_CONFIG = {
   pending: { label: "Chờ xử lý", color: "#d46b08", bg: "#fff7e6" },
@@ -131,6 +135,18 @@ const DetailOrder = () => {
       title: "Tên sản phẩm",
       dataIndex: "product_name",
       key: "product_name",
+    },
+    {
+      title: "Size",
+      dataIndex: "size",
+      key: "size",
+      width: 80,
+    },
+    {
+      title: "Màu",
+      dataIndex: "color",
+      key: "color",
+      width: 100,
     },
     {
       title: "Số lượng",
@@ -251,7 +267,8 @@ const DetailOrder = () => {
               children: (
                 <div>
                   <div>
-                    {item.updatedBy.name}, {item.message.toLowerCase()}
+                    {item.updatedBy?.name ?? "System"},{" "}
+                    {item.message.toLowerCase()}
                   </div>
                   <div style={{ color: "#999", fontSize: 13 }}>
                     {formatDate(item.createdAt)}

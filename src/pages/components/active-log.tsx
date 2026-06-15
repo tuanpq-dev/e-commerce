@@ -12,7 +12,7 @@ const ActiveLog = () => {
     setIsLoading(true);
     try {
       const data = await GetActiveLogs();
-      setDataActiveLog(data);
+      setDataActiveLog(data ?? []);
     } catch (err) {
       console.log(err);
     } finally {
@@ -30,7 +30,8 @@ const ActiveLog = () => {
       dataIndex: "created_at",
       key: "created_at",
       width: 100,
-      render: (_, record) => formatDate(record.created_at),
+      render: (_, record) =>
+        record.created_at ? formatDate(record.created_at) : "",
     },
     {
       title: "User",
