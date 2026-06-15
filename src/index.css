@@ -71,6 +71,26 @@ h6 {
   z-index: 10;
 }
 
+.app-breadcrumb {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  min-height: 32px;
+}
+
+.breadcrumb-link {
+  background: transparent;
+  border: 0;
+  color: #1677ff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.breadcrumb-link:hover {
+  color: #0958d9;
+}
+
 .page-stack {
   width: 100%;
 }

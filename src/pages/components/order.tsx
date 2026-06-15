@@ -9,9 +9,14 @@ import {
   type TableProps,
 } from "antd";
 import type React from "react";
-import type { OrderType } from "../../types/domain";
+import type {
+  CreateOrderValues,
+  CustomerType,
+  DataType,
+  OrderType,
+} from "../../types/domain";
 import { useEffect, useState } from "react";
-import { GetOrders } from "../../api/orderApi";
+import { CreateOrder, GetOrders } from "../../api/orderApi";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -23,6 +28,13 @@ import AntButton from "../../@crema/component/AntButton";
 import { useNavigate } from "react-router-dom";
 import config from "../../config";
 import useDebounce from "../../@crema/core/hook/useDebounce";
+import { UserPermission } from "../../api/userPermission";
+import { ModalCart } from "../modal";
+import { GetCustomers } from "../../api/customerApi";
+import { CreateActiveLog } from "../../api/activeLogApi";
+import { useAuth } from "../../contexts/AuthContext";
+import openNotification from "../../@crema/core/Notification";
+import callApiWithRetries from "../../api/callApiWithRetries";
 
 const statusOrder = [
   {
@@ -68,16 +80,25 @@ const Order: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.md;
   const { Search } = Input;
-  const [data, setData] = useState([]);
+  const { isAdmin } = UserPermission();
+  const { userInfo } = useAuth();
+  const [data, setData] = useState<OrderType[]>([]);
+  const [customers, setCustomers] = useState<CustomerType[]>([]);
+  const [products, setProducts] = useState<DataType[]>([]);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
+  const [isModalAdd, setIsModalAdd] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
   const filterDataOrder = data.filter((item) => {
     const matchesStatus = !selectedStatus || item.status === selectedStatus;
     const matchesSearch =
       !keyword ||
-      item.order_code?.toLowerCase().includes(keyword) ||
+      String(item.order_code ?? "")
+        .toLowerCase()
+        .includes(keyword) ||
       item.customer_name?.toLowerCase().includes(keyword);
     return matchesStatus && matchesSearch;
   });
@@ -89,9 +110,39 @@ const Order: React.FC = () => {
   const fetchDataOrder = async () => {
     try {
       const dataOrder = await GetOrders();
-      setData(dataOrder);
+      setData([...dataOrder].reverse());
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const dataCustomer = (await GetCustomers()) ?? [];
+      setCustomers([...dataCustomer].reverse());
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const dataProduct: DataType[] =
+        (await callApiWithRetries({
+          url: "/products",
+        })) ?? [];
+      setProducts([...dataProduct].reverse());
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchOrderOptions = async () => {
+    setIsLoadingOptions(true);
+    try {
+      await Promise.all([fetchCustomers(), fetchProducts()]);
+    } finally {
+      setIsLoadingOptions(false);
     }
   };
 
@@ -152,7 +203,7 @@ const Order: React.FC = () => {
                 tooltip="Xem chi tiết"
                 icon={<EyeOutlined />}
                 onClick={() => {
-                  if (!record.order_code) return;
+                  if (!record.id) return;
 
                   navigate(`/${config.routes.DETAIL_ORDER(record.id)}`);
                 }}
@@ -163,6 +214,51 @@ const Order: React.FC = () => {
       },
     },
   ];
+
+  const handleAdd = async () => {
+    setIsModalAdd(true);
+    await fetchOrderOptions();
+  };
+
+  const handleCancel = () => {
+    setIsModalAdd(false);
+  };
+
+  const getCreateOrderErrorMessage = (err: unknown) => {
+    if (err instanceof Error && err.message) {
+      return err.message;
+    }
+
+    return "Không thể thêm mới đơn hàng";
+  };
+
+  const handleCreateOrder = async (values: CreateOrderValues) => {
+    try {
+      setIsCreating(true);
+      await CreateOrder(values, customers, products);
+      await CreateActiveLog({
+        module: "Order",
+        action: "CREATE",
+        user: userInfo?.name,
+      });
+
+      await Promise.all([fetchDataOrder(), fetchOrderOptions()]);
+      setIsModalAdd(false);
+      openNotification("success", {
+        message: "Thành công",
+        description: "Thêm mới đơn hàng thành công",
+      });
+    } catch (err) {
+      console.log(err);
+      openNotification("error", {
+        message: "Thất bại",
+        description: getCreateOrderErrorMessage(err),
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
     <>
       <Flex className="page-stack" gap="medium" vertical>
@@ -183,6 +279,11 @@ const Order: React.FC = () => {
               className="page-control"
             />
           </div>
+          {isAdmin && (
+            <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
+              Add
+            </AntButton>
+          )}
         </div>
         <div className="table-shell">
           <Table<OrderType>
@@ -194,6 +295,16 @@ const Order: React.FC = () => {
           />
         </div>
       </Flex>
+
+      <ModalCart
+        open={isModalAdd}
+        loading={isCreating}
+        optionsLoading={isLoadingOptions}
+        customers={customers}
+        products={products}
+        onCancel={handleCancel}
+        onOk={handleCreateOrder}
+      />
     </>
   );
 };

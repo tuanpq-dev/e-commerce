@@ -1,4 +1,4 @@
-import { Form } from "antd";
+import { Form, type FormItemProps } from "antd";
 import type { Rule } from "antd/es/form";
 import type { SelectProps } from "antd";
 import AntSelect from "../../../component/AntSelect";
@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 type FormSelectProps = SelectProps & {
   label?: string;
-  name?: string;
+  name?: FormItemProps["name"];
   options: (CategoryType & {
     value?: string | number;
     label?: ReactNode;
