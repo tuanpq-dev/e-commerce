@@ -1,0 +1,121 @@
+{
+  "common": {
+    "add": "Thêm mới",
+    "update": "Chỉnh sửa",
+    "delete": "Xóa",
+    "search": "Tìm kiếm",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "confirm": "Xác nhận",
+    "success": "Thành công"
+  },
+  "product": {
+    "columns": {
+      "image": "Hình ảnh",
+      "sku": "SKU",
+      "name": "Tên sản phẩm",
+      "category": "Danh mục",
+      "price": "Giá",
+      "stock": "Kho hàng",
+      "variants": "Biến thể",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "action": "Thao tác"
+    },
+    "placeholder": {
+      "search": "Tìm kiếm sản phẩm",
+      "category": "Danh mục",
+      "status": "Trạng thái",
+      "price": "Giá cả"
+    },
+    "status": {
+      "active": "Đang bán",
+      "pending": "Chưa bán"
+    },
+    "priceRange": {
+      "under100": "Dưới 100",
+      "under1000": "Dưới 1000",
+      "under1500": "Dưới 1500",
+      "under2000": "Dưới 2000",
+      "under2500": "Dưới 2500",
+      "above3000": "Trên 3000"
+    },
+    "notification": {
+      "deleteSuccess": "Xóa thành công sản phẩm",
+      "updateSuccess": "Chỉnh sửa sản phẩm thành công",
+      "createSuccess": "Thêm mới sản phẩm thành công"
+    },
+    "titleCreate": "Thêm mới sản phẩm",
+    "titleUpdate": "Chỉnh sửa sản phẩm",
+    "name": "Tên sản phẩm",
+    "sku": "SKU",
+    "category": "Danh mục",
+    "categoryChild": "Danh mục con",
+    "variant": "Biến thể sản phẩm",
+    "addVariant": "Thêm biến thể",
+    "size": "Size",
+    "color": "Màu",
+    "price": "Giá",
+    "stock": "Tồn kho",
+    "description": "Mô tả",
+    "image": "Ảnh",
+    "selectCategory": "Chọn danh mục",
+    "selectCategoryChild": "Chọn danh mục con",
+    "validation": {
+      "nameRequired": "Vui lòng nhập tên sản phẩm",
+      "nameMin": "Tên sản phẩm tối thiểu 3 ký tự",
+      "nameMax": "Tên sản phẩm tối đa 50 ký tự",
+      "skuRequired": "Vui lòng nhập SKU",
+      "skuMin": "SKU tối thiểu 3 ký tự",
+      "skuMax": "SKU tối đa 20 ký tự",
+      "categoryRequired": "Vui lòng chọn danh mục",
+      "variantsRequired": "Vui lòng thêm ít nhất một biến thể",
+      "sizeRequired": "Nhập size",
+      "sizeMin": "Size tối thiểu 1 ký tự",
+      "sizeMax": "Size tối đa 5 ký tự",
+      "colorRequired": "Nhập màu",
+      "colorMax": "Màu tối đa 15 ký tự",
+      "priceRequired": "Nhập giá",
+      "stockRequired": "Nhập tồn kho",
+      "placeholderSize": "S, M, L...",
+      "placeholderColor": "Đen, trắng...",
+      "placeholderSku": "Tự sinh nếu trống",
+      "placeholderDescription": "Nhập mô tả"
+    }
+  },
+  "order": {
+    "title": "Thêm mới đơn hàng",
+    "customer": "Khách hàng",
+    "productsInOrder": "Sản phẩm trong đơn",
+    "addProduct": "Thêm sản phẩm",
+    "product": "Sản phẩm",
+    "size": "Size",
+    "color": "Màu",
+    "quantity": "Số lượng",
+    "unitPrice": "Đơn giá",
+    "stock": "Tồn kho",
+    "subtotal": "Tạm tính",
+    "paymentMethod": "Phương thức thanh toán",
+    "shippingAddress": "Địa chỉ giao hàng",
+    "note": "Ghi chú",
+    "totalPrice": "Tổng tiền đơn hàng",
+    "info": "Thông tin",
+    "placeholder": {
+      "note": "Nhập ghi chú"
+    },
+    "validation": {
+      "customerRequired": "Vui lòng chọn khách hàng",
+      "productRequired": "Vui lòng chọn sản phẩm",
+      "sizeRequired": "Vui lòng chọn size",
+      "colorRequired": "Vui lòng chọn màu",
+      "quantityRequired": "Vui lòng nhập số lượng",
+      "quantityMin": "Số lượng tối thiểu là 1",
+      "stockLimit": "Tồn kho còn {{stock}}",
+      "paymentRequired": "Vui lòng chọn phương thức thanh toán",
+      "addressRequired": "Vui lòng nhập địa chỉ",
+      "addressMax": "Tối đa 100 ký tự",
+      "noteMax": "Tối đa 200 ký tự",
+      "min1Product": "Vui lòng thêm ít nhất một sản phẩm"
+    }
+  }
+}
