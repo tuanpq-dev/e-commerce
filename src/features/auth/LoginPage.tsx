@@ -6,6 +6,7 @@ import FormInput from "../../@crema/core/Form/FormInput";
 import { EMAIL_REGEX } from "../../shared/constant/Regex";
 import FormInputPassword from "../../@crema/core/Form/FormInputPassword";
 import { useAuth } from "../../contexts/AuthContext";
+import ThemeToggle from "../../@crema/component/ThemeToggle";
 
 type LoginType = {
   email: string;
@@ -27,6 +28,9 @@ const LoginPage = () => {
   };
   return (
     <div className="login-page">
+      <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
       <div className="login-panel">
         <div className="login-header">
           <h1>Sign in</h1>

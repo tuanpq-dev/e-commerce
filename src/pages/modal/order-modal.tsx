@@ -11,6 +11,7 @@ import FormInput from "../../@crema/core/Form/FormInput";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import AntButton from "../../@crema/component/AntButton";
 import formatCurrency from "../../utils/formatCurrecy";
+import { useTranslation } from "react-i18next";
 
 type ModalCartProps = {
   open: boolean;
@@ -110,6 +111,7 @@ const OrderItemField = ({
   canRemove,
   onRemove,
 }: OrderItemFieldProps) => {
+  const { t } = useTranslation();
   const productId = Form.useWatch(["items", fieldName, "product_id"], form);
   const selectedSize = Form.useWatch(["items", fieldName, "size"], form);
   const color = Form.useWatch(["items", fieldName, "color"], form);
@@ -130,7 +132,7 @@ const OrderItemField = ({
   const colorOptions = variants
     .filter((item) => !selectedSize || item.size === selectedSize)
     .map((item) => ({
-      label: `${item.color} - tồn ${item.stock}`,
+      label: `${item.color} - ${t("order.stock")} ${item.stock}`,
       value: item.color,
       disabled: Number(item.stock) <= 0,
     }));
@@ -140,7 +142,7 @@ const OrderItemField = ({
     <div className="order-item-row">
       <FormSelect
         {...restField}
-        label="Sản phẩm"
+        label={t("order.product")}
         name={[fieldName, "product_id"]}
         showSearch
         loading={optionsLoading}
@@ -159,11 +161,11 @@ const OrderItemField = ({
           };
           form.setFieldsValue({ items });
         }}
-        rules={[{ required: true, message: "Vui lòng chọn sản phẩm" }]}
+        rules={[{ required: true, message: t("order.validation.productRequired") }]}
       />
       <FormSelect
         {...restField}
-        label="Size"
+        label={t("order.size")}
         name={[fieldName, "size"]}
         disabled={!productId || optionsLoading}
         options={sizeOptions}
@@ -175,51 +177,55 @@ const OrderItemField = ({
           };
           form.setFieldsValue({ items });
         }}
-        rules={[{ required: true, message: "Vui lòng chọn size" }]}
+        rules={[{ required: true, message: t("order.validation.sizeRequired") }]}
       />
       <FormSelect
         {...restField}
-        label="Màu"
+        label={t("order.color")}
         name={[fieldName, "color"]}
         disabled={!productId || !selectedSize || optionsLoading}
         options={colorOptions}
-        rules={[{ required: true, message: "Vui lòng chọn màu" }]}
+        rules={[{ required: true, message: t("order.validation.colorRequired") }]}
       />
       <FormInput
         {...restField}
-        label="Số lượng"
+        label={t("order.quantity")}
         name={[fieldName, "quantity"]}
         type="number"
         min={1}
         rules={[
-          { required: true, message: "Vui lòng nhập số lượng" },
+          { required: true, message: t("order.validation.quantityRequired") },
           {
             validator: async (_, value) => {
               const currentQuantity = Number(value);
 
               if (currentQuantity < 1) {
-                throw new Error("Số lượng tối thiểu là 1");
+                throw new Error(t("order.validation.quantityMin"));
               }
 
               if (variant && currentQuantity > Number(variant.stock)) {
-                throw new Error(`Tồn kho còn ${variant.stock}`);
+                throw new Error(t("order.validation.stockLimit", { stock: variant.stock }));
               }
             },
           },
         ]}
       />
-      <div className="order-item-summary">
-        <span>Đơn giá: {formatCurrency(Number(variant?.price ?? 0))}</span>
-        <span>Tồn kho: {variant?.stock ?? 0}</span>
-        <strong>Tạm tính: {formatCurrency(rowTotal)}</strong>
-      </div>
-      <AntButton
-        danger
-        icon={<DeleteOutlined />}
-        disabled={!canRemove}
-        onClick={onRemove}
-        className="order-item-remove"
-      />
+      <Form.Item label={t("order.info")}>
+        <div className="order-item-summary">
+          <span>{t("order.unitPrice")}: {formatCurrency(Number(variant?.price ?? 0))}</span>
+          <span>{t("order.stock")}: {variant?.stock ?? 0}</span>
+          <strong>{t("order.subtotal")}: {formatCurrency(rowTotal)}</strong>
+        </div>
+      </Form.Item>
+      <Form.Item label=" ">
+        <AntButton
+          danger
+          icon={<DeleteOutlined />}
+          disabled={!canRemove}
+          onClick={onRemove}
+          className="order-item-remove"
+        />
+      </Form.Item>
     </div>
   );
 };
@@ -233,6 +239,7 @@ export const ModalCart = ({
   onCancel,
   onOk,
 }: ModalCartProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const orderItems = Form.useWatch("items", form);
   const orderTotal = useMemo(
@@ -242,7 +249,7 @@ export const ModalCart = ({
 
   return (
     <Modal
-      title="Thêm mới đơn hàng"
+      title={t("order.title")}
       width="min(1120px, calc(100vw - 24px))"
       open={open}
       confirmLoading={loading}
@@ -261,14 +268,14 @@ export const ModalCart = ({
         });
       }}
       afterClose={() => form.resetFields()}
-      okText="Thêm mới"
-      cancelText="Hủy"
+      okText={t("common.add")}
+      cancelText={t("common.cancel")}
       destroyOnHidden
       className="product-modal"
     >
       <Form form={form} layout="vertical">
         <FormSelect
-          label="Khách hàng"
+          label={t("order.customer")}
           name="customer_id"
           showSearch
           loading={optionsLoading}
@@ -286,7 +293,7 @@ export const ModalCart = ({
               ),
             });
           }}
-          rules={[{ required: true, message: "Vui lòng chọn khách hàng" }]}
+          rules={[{ required: true, message: t("order.validation.customerRequired") }]}
         />
         <Form.List
           name="items"
@@ -294,7 +301,7 @@ export const ModalCart = ({
             {
               validator: async (_, items) => {
                 if (!items?.length) {
-                  throw new Error("Vui lòng thêm ít nhất một sản phẩm");
+                  throw new Error(t("order.validation.min1Product"));
                 }
               },
             },
@@ -303,13 +310,13 @@ export const ModalCart = ({
           {(fields, { add, remove }, { errors }) => (
             <Flex vertical gap="small">
               <div className="order-items-header">
-                <strong>Sản phẩm trong đơn</strong>
+                <strong>{t("order.productsInOrder")}</strong>
                 <AntButton
                   type="dashed"
                   icon={<PlusOutlined />}
                   onClick={() => add({ quantity: 1 })}
                 >
-                  Thêm sản phẩm
+                  {t("order.addProduct")}
                 </AntButton>
               </div>
               {fields.map(({ key, name, ...restField }) => (
@@ -329,7 +336,7 @@ export const ModalCart = ({
           )}
         </Form.List>
         <FormSelect
-          label="Phương thức thanh toán"
+          label={t("order.paymentMethod")}
           name="payment_method"
           options={[
             { label: "Momo", value: "momo" },
@@ -339,26 +346,26 @@ export const ModalCart = ({
           rules={[
             {
               required: true,
-              message: "Vui lòng chọn phương thức thanh toán",
+              message: t("order.validation.paymentRequired"),
             },
           ]}
         />
         <FormInput
-          label="Địa chỉ giao hàng"
+          label={t("order.shippingAddress")}
           name="shipping_address"
           rules={[
-            { required: true, message: "Vui lòng nhập địa chỉ" },
-            { max: 100, message: "Tối đa 100 ký tự" },
+            { required: true, message: t("order.validation.addressRequired") },
+            { max: 100, message: t("order.validation.addressMax") },
           ]}
         />
         <FormInput
-          label="Ghi chú"
+          label={t("order.note")}
           name="note"
           textarea
-          rules={[{ max: 200, message: "Tối đa 200 ký tự" }]}
+          rules={[{ max: 200, message: t("order.validation.noteMax") }]}
         />
         <div className="order-total-row">
-          <span>Tổng tiền đơn hàng</span>
+          <span>{t("order.totalPrice")}</span>
           <strong>{formatCurrency(orderTotal)}</strong>
         </div>
       </Form>

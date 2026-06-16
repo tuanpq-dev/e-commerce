@@ -5,6 +5,7 @@ import AppBreadcrumb from "./Default/AppBreadcrumb";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { menuConfig } from "../../../pages/sample/menu.config";
+import { useThemeMode } from "../../../contexts/ThemeContext";
 
 type AppLayoutProps = React.PropsWithChildren;
 
@@ -12,7 +13,7 @@ const siderStyle: React.CSSProperties = {
   textAlign: "center",
   lineHeight: "120px",
   color: "#fff",
-  backgroundColor: "#f3f5f7",
+  backgroundColor: "var(--app-surface-muted)",
 };
 
 const MenuHorizontal: MenuProps["items"] = menuConfig.map((item) => ({
@@ -24,7 +25,7 @@ const MenuHorizontal: MenuProps["items"] = menuConfig.map((item) => ({
 const menuStyle: React.CSSProperties = {
   minWidth: 0,
   textAlign: "left",
-  backgroundColor: "#f3f5f7",
+  backgroundColor: "var(--app-surface-muted)",
   border: "none",
 };
 
@@ -34,15 +35,15 @@ const siderContentStyle: React.CSSProperties = {
   flexDirection: "column",
   justifyContent: "space-between",
   fontWeight: 500,
-  border: "1px solid #f3f5f7",
+  border: "1px solid var(--app-border)",
 };
 
 const contentStyle: React.CSSProperties = {
-  background: "#fff",
+  background: "var(--app-content-bg)",
   minHeight: "calc(100vh - 64px)",
   overflowY: "auto",
   overflowX: "hidden",
-  border: "1px solid #f3f5f7",
+  border: "1px solid var(--app-border)",
 };
 
 const AppLayout = ({ children }: AppLayoutProps) => {
@@ -54,6 +55,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const selectedKey = location.pathname.split("/")[1];
   const { Sider } = Layout;
+  const { mode } = useThemeMode();
 
   const handleRedirect = (key: string) => {
     navigate(`/${key}`);
@@ -70,7 +72,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         <div
           style={{
             height: 64,
-            background: "#f3f5f7",
+            background: "var(--app-surface-muted)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -84,7 +86,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           />
         </div>
         <Menu
-          theme="light"
+          theme={mode}
           mode="inline"
           selectedKeys={[selectedKey]}
           items={MenuHorizontal}
@@ -97,7 +99,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       {!isMobile && (
         <Button
           onClick={toggleCollapsed}
-          style={{ marginBottom: 16, background: "#f3f5f7" }}
+          style={{
+            marginBottom: 16,
+            background: "var(--app-surface-muted)",
+          }}
         >
           {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </Button>
@@ -123,7 +128,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         onClose={() => setDrawerOpen(false)}
         placement="left"
         width={280}
-        styles={{ body: { padding: 0, background: "#f3f5f7" } }}
+        styles={{
+          body: { padding: 0, background: "var(--app-surface-muted)" },
+        }}
       >
         {sidebarContent}
       </Drawer>

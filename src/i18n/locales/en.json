@@ -1,0 +1,121 @@
+{
+  "common": {
+    "add": "Add",
+    "update": "Update",
+    "delete": "Delete",
+    "search": "Search",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "success": "Success"
+  },
+  "product": {
+    "columns": {
+      "image": "Image",
+      "sku": "SKU",
+      "name": "Product Name",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "variants": "Variants",
+      "status": "Status",
+      "createdAt": "Created At",
+      "action": "Action"
+    },
+    "placeholder": {
+      "search": "Search product",
+      "category": "Category",
+      "status": "Status",
+      "price": "Price"
+    },
+    "status": {
+      "active": "Active",
+      "pending": "Pending"
+    },
+    "priceRange": {
+      "under100": "Under 100",
+      "under1000": "Under 1000",
+      "under1500": "Under 1500",
+      "under2000": "Under 2000",
+      "under2500": "Under 2500",
+      "above3000": "Above 3000"
+    },
+    "notification": {
+      "deleteSuccess": "Product deleted successfully",
+      "updateSuccess": "Product updated successfully",
+      "createSuccess": "Product created successfully"
+    },
+    "titleCreate": "Add Product",
+    "titleUpdate": "Update Product",
+    "name": "Product Name",
+    "sku": "SKU",
+    "category": "Category",
+    "categoryChild": "Subcategory",
+    "variant": "Product Variant",
+    "addVariant": "Add Variant",
+    "size": "Size",
+    "color": "Color",
+    "price": "Price",
+    "stock": "Stock",
+    "description": "Description",
+    "image": "Image",
+    "selectCategory": "Select category",
+    "selectCategoryChild": "Select subcategory",
+    "validation": {
+      "nameRequired": "Please enter product name",
+      "nameMin": "Product name must be at least 3 characters",
+      "nameMax": "Product name must be at most 50 characters",
+      "skuRequired": "Please enter SKU",
+      "skuMin": "SKU must be at least 3 characters",
+      "skuMax": "SKU must be at most 20 characters",
+      "categoryRequired": "Please select category",
+      "variantsRequired": "Please add at least one variant",
+      "sizeRequired": "Enter size",
+      "sizeMin": "Size must be at least 1 character",
+      "sizeMax": "Size must be at most 5 characters",
+      "colorRequired": "Enter color",
+      "colorMax": "Color must be at most 15 characters",
+      "priceRequired": "Enter price",
+      "stockRequired": "Enter stock",
+      "placeholderSize": "S, M, L...",
+      "placeholderColor": "Black, white...",
+      "placeholderSku": "Auto-generated if empty",
+      "placeholderDescription": "Enter description"
+    }
+  },
+  "order": {
+    "title": "Create Order",
+    "customer": "Customer",
+    "productsInOrder": "Products in Order",
+    "addProduct": "Add Product",
+    "product": "Product",
+    "size": "Size",
+    "color": "Color",
+    "quantity": "Quantity",
+    "unitPrice": "Unit Price",
+    "stock": "Stock",
+    "subtotal": "Subtotal",
+    "paymentMethod": "Payment Method",
+    "shippingAddress": "Shipping Address",
+    "note": "Note",
+    "totalPrice": "Total Order Price",
+    "info": "Info",
+    "placeholder": {
+      "note": "Enter note"
+    },
+    "validation": {
+      "customerRequired": "Please select a customer",
+      "productRequired": "Please select a product",
+      "sizeRequired": "Please select a size",
+      "colorRequired": "Please select a color",
+      "quantityRequired": "Please enter quantity",
+      "quantityMin": "Minimum quantity is 1",
+      "stockLimit": "Only {{stock}} items in stock",
+      "paymentRequired": "Please select a payment method",
+      "addressRequired": "Please enter shipping address",
+      "addressMax": "Maximum 100 characters",
+      "noteMax": "Maximum 200 characters",
+      "min1Product": "Please add at least one product"
+    }
+  }
+}

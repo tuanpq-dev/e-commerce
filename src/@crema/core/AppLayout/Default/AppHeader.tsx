@@ -8,6 +8,8 @@ import { DownOutlined } from "@ant-design/icons";
 import config from "../../../../config";
 import { LogoutApi } from "../../../../services/auth.service";
 import { useAuth } from "../../../../contexts/AuthContext";
+import ThemeToggle from "../../../component/ThemeToggle";
+import LanguageToggle from "../../../component/LanguageToggle";
 
 type AppHeaderProps = {
   menuButton?: ReactNode;
@@ -22,13 +24,13 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
 
   const headerStyle = {
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "var(--app-header-bg)",
     display: "flex",
     gap: 24,
     height: 64,
     justifyContent: menuButton ? "space-between" : "flex-end",
     paddingInline: 48,
-    border: "1px solid #f3f5f7",
+    border: "1px solid var(--app-border)",
   };
 
   const userMenuItems: MenuProps["items"] = [
@@ -68,16 +70,20 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
   return (
     <Header className="app-header" style={headerStyle}>
       {menuButton}
-      <Dropdown
-        menu={{
-          items: userMenuItems,
-          onClick: handleUserMenuClick,
-        }}
-      >
-        <Button type="text">
-          {userName} <DownOutlined />
-        </Button>
-      </Dropdown>
+      <div className="app-header-actions">
+        <LanguageToggle />
+        <ThemeToggle />
+        <Dropdown
+          menu={{
+            items: userMenuItems,
+            onClick: handleUserMenuClick,
+          }}
+        >
+          <Button type="text">
+            {userName} <DownOutlined />
+          </Button>
+        </Dropdown>
+      </div>
     </Header>
   );
 };

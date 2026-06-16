@@ -5,6 +5,7 @@ import FormInput from "../../@crema/core/Form/FormInput";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import AntButton from "../../@crema/component/AntButton";
 import AntUpload from "../../@crema/component/AntUpload";
+import { useTranslation } from "react-i18next";
 
 type ModalProductProps = {
   isUpdate?: boolean;
@@ -23,6 +24,7 @@ export const ModalProduct = ({
   onOk,
   options,
 }: ModalProductProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const selectedCategoryId = Form.useWatch("category", form);
 
@@ -75,7 +77,7 @@ export const ModalProduct = ({
 
   return (
     <Modal
-      title={isUpdate ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
+      title={isUpdate ? t("product.titleUpdate") : t("product.titleCreate")}
       width="min(960px, calc(100vw - 24px))"
       open={open}
       onOk={async () => {
@@ -90,65 +92,65 @@ export const ModalProduct = ({
       }}
       afterClose={() => form.resetFields()}
       destroyOnHidden
-      okText={isUpdate ? "Lưu" : "Thêm mới"}
-      cancelText="Hủy"
+      okText={isUpdate ? t("common.save") : t("common.add")}
+      cancelText={t("common.cancel")}
       className="product-modal"
     >
       <Form form={form} layout="vertical">
         <FormInput
-          label="Tên sản phẩm"
+          label={t("product.name")}
           name="name"
           required={true}
           rules={[
             {
               required: true,
-              message: "Vui lòng nhập tên sản phẩm",
+              message: t("product.validation.nameRequired"),
             },
             {
               min: 3,
-              message: "Tên sản phẩm tối thiểu 3 ký tự",
+              message: t("product.validation.nameMin"),
             },
             {
               max: 50,
-              message: "Tên sản phẩm tối đa 50 ký tự",
+              message: t("product.validation.nameMax"),
             },
           ]}
         />
         <FormInput
-          label="SKU"
+          label={t("product.sku")}
           name="sku"
           disabled={isUpdate}
           rules={[
-            { required: true, message: "Vui lòng nhập SKU" },
+            { required: true, message: t("product.validation.skuRequired") },
             {
               min: 3,
-              message: "SKU tối thiểu 3 ký tự",
+              message: t("product.validation.skuMin"),
             },
             {
               max: 20,
-              message: "SKU tối đa 20 ký tự",
+              message: t("product.validation.skuMax"),
             },
           ]}
         />
 
         <FormSelect
-          label="Danh mục"
+          label={t("product.category")}
           name="category"
           fieldNames={{ value: "id", label: "name" }}
           options={options}
-          placeholder="Chọn danh mục"
-          rules={[{ required: true, message: "Vui lòng chọn danh mục" }]}
+          placeholder={t("product.selectCategory")}
+          rules={[{ required: true, message: t("product.validation.categoryRequired") }]}
         />
 
         {selectedCategoryId && (
           <FormSelect
-            label="Danh mục con"
+            label={t("product.categoryChild")}
             name="category_child"
             allowClear={true}
             fieldNames={{ value: "id", label: "name" }}
             mode="multiple"
             options={optionsChild}
-            placeholder="Chọn danh mục con"
+            placeholder={t("product.selectCategoryChild")}
           />
         )}
 
@@ -158,7 +160,7 @@ export const ModalProduct = ({
             {
               validator: async (_, variants) => {
                 if (!variants?.length) {
-                  throw new Error("Vui lòng thêm ít nhất một biến thể");
+                  throw new Error(t("product.validation.variantsRequired"));
                 }
               },
             },
@@ -167,13 +169,13 @@ export const ModalProduct = ({
           {(fields, { add, remove }, { errors }) => (
             <Flex vertical gap="small">
               <div className="product-variant-header">
-                <strong>Biến thể sản phẩm</strong>
+                <strong>{t("product.variant")}</strong>
                 <AntButton
                   type="dashed"
                   icon={<PlusOutlined />}
                   onClick={() => add()}
                 >
-                  Thêm biến thể
+                  {t("product.addVariant")}
                 </AntButton>
               </div>
 
@@ -181,64 +183,68 @@ export const ModalProduct = ({
                 <div key={key} className="product-variant-row">
                   <FormInput
                     {...restField}
-                    label="Size"
+                    label={t("product.size")}
                     name={[name, "size"]}
                     rules={[
-                      { required: true, message: "Nhập size" },
+                      { required: true, message: t("product.validation.sizeRequired") },
                       {
                         min: 1,
-                        message: "Size tối thiểu 1 ký tự",
+                        message: t("product.validation.sizeMin"),
                       },
                       {
                         max: 5,
-                        message: "Size tối đa 5 ký tự",
+                        message: t("product.validation.sizeMax"),
                       },
                     ]}
-                    placeholder="S, M, L..."
+                    placeholder={t("product.validation.placeholderSize")}
                   />
                   <FormInput
                     {...restField}
-                    label="Màu"
+                    label={t("product.color")}
                     name={[name, "color"]}
                     rules={[
-                      { required: true, message: "Nhập màu" },
+                      { required: true, message: t("product.validation.colorRequired") },
                       {
                         max: 15,
-                        message: "Màu tối đa 15 ký tự",
+                        message: t("product.validation.colorMax"),
                       },
                     ]}
-                    placeholder="Đen, trắng..."
+                    placeholder={t("product.validation.placeholderColor")}
                   />
                   <FormInput
                     {...restField}
-                    label="Giá"
+                    label={t("product.price")}
                     name={[name, "price"]}
-                    rules={[{ required: true, message: "Nhập giá" }]}
+                    rules={[{ required: true, message: t("product.validation.priceRequired") }]}
                     type="number"
                     min={0}
                   />
                   <FormInput
                     {...restField}
-                    label="Tồn kho"
+                    label={t("product.stock")}
                     name={[name, "stock"]}
-                    rules={[{ required: true, message: "Nhập tồn kho" }]}
+                    rules={[{ required: true, message: t("product.validation.stockRequired") }]}
                     type="number"
                     min={0}
                   />
                   <FormInput
                     {...restField}
-                    label="SKU"
+                    label={t("product.sku")}
                     name={[name, "sku"]}
-                    placeholder="Tự sinh nếu trống"
+                    placeholder={t("product.validation.placeholderSku")}
                   />
-                  <AntUpload />
-                  <AntButton
-                    danger
-                    icon={<DeleteOutlined />}
-                    disabled={fields.length === 1}
-                    onClick={() => remove(name)}
-                    style={{ marginTop: 30 }}
+                  <AntUpload
+                    {...restField}
+                    name={[name, "image"]}
                   />
+                  <Form.Item label=" ">
+                    <AntButton
+                      danger
+                      icon={<DeleteOutlined />}
+                      disabled={fields.length === 1}
+                      onClick={() => remove(name)}
+                    />
+                  </Form.Item>
                 </div>
               ))}
 
@@ -247,7 +253,7 @@ export const ModalProduct = ({
           )}
         </Form.List>
 
-        <FormInput label="Mô tả" name="description" textarea />
+        <FormInput label={t("product.description")} name="description" textarea />
       </Form>
     </Modal>
   );

@@ -25,32 +25,18 @@ import { useAuth } from "../../contexts/AuthContext";
 import formatDate from "../../utils/formatDate";
 import { UserPermission } from "../../api/userPermission";
 import useDebounce from "../../@crema/core/hook/useDebounce";
+import { useTranslation } from "react-i18next";
 
 const STATUS_MAP: Record<
   string,
-  { icon: React.ReactNode; title: string; color: string }
+  { icon: React.ReactNode; color: string }
 > = {
-  active: { icon: <CheckCircleOutlined />, title: "Đang bán", color: "green" },
+  active: { icon: <CheckCircleOutlined />, color: "green" },
   pending: {
     icon: <CloseCircleOutlined />,
-    title: "Chưa bán",
     color: "yellow",
   },
 };
-
-const STATUS_OPTIONS = Object.entries(STATUS_MAP).map(([value, { title }]) => ({
-  label: title,
-  value,
-}));
-
-const RANGE_PRICE = [
-  { label: "Dưới 100", value: "100" },
-  { label: "Dưới 1000", value: "1000" },
-  { label: "Dưới 1500", value: "1500" },
-  { label: "Dưới 2000", value: "2000" },
-  { label: "Dưới 2500", value: "2500" },
-  { label: "Trên 3000", value: "above-3000" },
-];
 
 const getProductVariants = (record: DataType) => record.variants ?? [];
 
@@ -121,6 +107,7 @@ const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
 
 const Product: React.FC = () => {
   const screens = Grid.useBreakpoint();
+  const { t } = useTranslation();
   const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
@@ -184,6 +171,26 @@ const Product: React.FC = () => {
     [categoryMap],
   );
 
+  const statusOptions = useMemo(
+    () => [
+      { label: t("product.status.active"), value: "active" },
+      { label: t("product.status.pending"), value: "pending" },
+    ],
+    [t],
+  );
+
+  const rangePriceOptions = useMemo(
+    () => [
+      { label: t("product.priceRange.under100"), value: "100" },
+      { label: t("product.priceRange.under1000"), value: "1000" },
+      { label: t("product.priceRange.under1500"), value: "1500" },
+      { label: t("product.priceRange.under2000"), value: "2000" },
+      { label: t("product.priceRange.under2500"), value: "2500" },
+      { label: t("product.priceRange.above3000"), value: "above-3000" },
+    ],
+    [t],
+  );
+
   const handleAdd = () => {
     setIsOpenModal(true);
     setIsUpdate(false);
@@ -219,8 +226,8 @@ const Product: React.FC = () => {
     setRowData(null);
 
     openNotification("success", {
-      message: "Thành công",
-      description: "Xóa thành công sản phẩm",
+      message: t("common.success"),
+      description: t("product.notification.deleteSuccess"),
     });
   };
 
@@ -241,7 +248,7 @@ const Product: React.FC = () => {
 
   const columns: TableProps<DataType>["columns"] = [
     {
-      title: "Image",
+      title: t("product.columns.image"),
       dataIndex: "image",
       key: "image",
       width: 50,
@@ -249,49 +256,49 @@ const Product: React.FC = () => {
       render: () => <Image width={50} alt="image" />,
     },
     {
-      title: "SKU",
+      title: t("product.columns.sku"),
       dataIndex: "sku",
       key: "sku",
       width: 100,
       fixed: !isMobile ? "start" : false,
     },
     {
-      title: "Name",
+      title: t("product.columns.name"),
       dataIndex: "name",
       key: "name",
       width: 100,
       fixed: !isMobile ? "start" : false,
     },
     {
-      title: "Category",
+      title: t("product.columns.category"),
       dataIndex: "category",
       width: 50,
       render: (categoryId: string) =>
         categoryMap.get(String(categoryId)) ?? categoryId,
     },
     {
-      title: "Price",
+      title: t("product.columns.price"),
       dataIndex: "price",
       key: "price",
       width: 100,
       render: (_, record) => formatProductPrice(record),
     },
     {
-      title: "Stock",
+      title: t("product.columns.stock"),
       dataIndex: "stock",
       key: "stock",
       width: 100,
       render: (_, record) => getProductStock(record),
     },
     {
-      title: "Variants",
+      title: t("product.columns.variants"),
       dataIndex: "variants",
       key: "variants",
       width: 160,
       render: (_, record) => formatProductVariants(record),
     },
     {
-      title: "Status",
+      title: t("product.columns.status"),
       dataIndex: "status",
       key: "status",
       width: 50,
@@ -300,13 +307,13 @@ const Product: React.FC = () => {
         if (!item) return <Tag>{status}</Tag>;
         return (
           <Tag icon={item.icon} color={item.color}>
-            {item.title}
+            {t(`product.status.${status}`)}
           </Tag>
         );
       },
     },
     {
-      title: "Created At",
+      title: t("product.columns.createdAt"),
       dataIndex: "created_at",
       key: "created_at",
       width: 100,
@@ -315,7 +322,7 @@ const Product: React.FC = () => {
       },
     },
     {
-      title: "Action",
+      title: t("product.columns.action"),
       key: "action",
       fixed: !isMobile ? "end" : false,
       width: 100,
@@ -326,7 +333,7 @@ const Product: React.FC = () => {
           <>
             <Space size="medium">
               <AntButton
-                tooltip="Chỉnh sửa"
+                tooltip={t("common.update")}
                 icon={<EditOutlined />}
                 onClick={() => {
                   handleUpdate(record);
@@ -336,7 +343,7 @@ const Product: React.FC = () => {
               />
               <AntButton
                 danger
-                tooltip="Xóa"
+                tooltip={t("common.delete")}
                 icon={<DeleteOutlined />}
                 onClick={() => {
                   setIsDeleteModal(true);
@@ -375,8 +382,8 @@ const Product: React.FC = () => {
       setRowData(null);
 
       openNotification("success", {
-        message: "Thành công",
-        description: "Chỉnh sửa sản phẩm thành công",
+        message: t("common.success"),
+        description: t("product.notification.updateSuccess"),
       });
     } else {
       await Promise.all([
@@ -391,8 +398,8 @@ const Product: React.FC = () => {
       await refetch();
       setIsOpenModal(false);
       openNotification("success", {
-        message: "Thành công",
-        description: "Thêm mới sản phẩm thành công",
+        message: t("common.success"),
+        description: t("product.notification.createSuccess"),
       });
     }
   };
@@ -408,13 +415,13 @@ const Product: React.FC = () => {
           <div className="page-toolbar-controls">
             <Search
               allowClear={true}
-              placeholder="Tìm kiếm sản phẩm"
+              placeholder={t("product.placeholder.search")}
               onChange={(event) => handleSearch(event.target.value)}
               className="page-search"
             />
             <Select
               allowClear
-              placeholder="Category"
+              placeholder={t("product.placeholder.category")}
               options={categoryOptions}
               value={selectedCategory}
               onChange={setSelectedCategory}
@@ -422,24 +429,24 @@ const Product: React.FC = () => {
             />
             <Select
               allowClear
-              placeholder="Status"
-              options={STATUS_OPTIONS}
+              placeholder={t("product.placeholder.status")}
+              options={statusOptions}
               value={selectedStatus}
               onChange={setSelectedStatus}
               className="page-control"
             />
             <Select
               allowClear
-              placeholder="Price"
-              options={RANGE_PRICE}
+              placeholder={t("product.placeholder.price")}
+              options={rangePriceOptions}
               value={selectedPrice}
               onChange={setSelectedPrice}
               className="page-control"
             />
           </div>
           {isAdmin && (
-            <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-              Add
+            <AntButton tooltip={t("common.add")} type="primary" onClick={handleAdd}>
+              {t("common.add")}
             </AntButton>
           )}
         </div>

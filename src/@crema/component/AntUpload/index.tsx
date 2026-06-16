@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 type AntUploadProps = {
   label?: string;
-  name?: string;
+  name?: string | (string | number)[];
   value?: string;
   onChange?: (value: string) => void;
   width?: number;
@@ -30,6 +30,7 @@ const AntUpload = ({
 
   useEffect(() => {
     if (value) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreviewUrl(value);
     }
   }, [value]);
