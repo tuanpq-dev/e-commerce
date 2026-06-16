@@ -166,7 +166,7 @@
           "size": "S",
           "color": "Đen",
           "price": 100,
-          "stock": 9,
+          "stock": 3,
           "sku": "SPQUAN-SP-DEMO-S-ĐEN",
           "id": "a0993f7e-dcb3-4ac0-b0d7-d085903f7e8e"
         }
@@ -176,7 +176,7 @@
       ],
       "id": "JQAexFpfw1w",
       "price": 100,
-      "stock": 9,
+      "stock": 3,
       "status": "pending",
       "created_at": 1781236735502
     },
@@ -197,7 +197,7 @@
           "size": "L",
           "color": "Trắng",
           "price": 2222,
-          "stock": 22,
+          "stock": 17,
           "sku": "SPQUAN-TEST-L-TRẮNG",
           "id": "ee5cf945-1595-483d-96b3-3dde91e7c8ce"
         },
@@ -205,7 +205,7 @@
           "size": "XL",
           "color": "Đen",
           "price": 3333,
-          "stock": 22,
+          "stock": 19,
           "sku": "SPQUAN-TEST-XL-ĐEN",
           "id": "3c483363-cc24-40b5-a929-fa9e325b60da"
         }
@@ -217,7 +217,7 @@
       ],
       "id": "S29TgJTDaNQ",
       "price": 1111,
-      "stock": 52,
+      "stock": 44,
       "status": "pending",
       "created_at": 1781488147017
     }
@@ -423,6 +423,15 @@
       "email": "pdling@gmail.com",
       "phone": "0369585104",
       "address": "Văn Nhân, Phú Xuyên, Hà Nội",
+      "total_orders": 0,
+      "total_expend": 0
+    },
+    {
+      "id": "6",
+      "fullname": "Nguyễn Thanh Tùng",
+      "email": "nttung@gmail.com",
+      "phone": "0987123456",
+      "address": "Thành Phố Thái Bình",
       "total_orders": 0,
       "total_expend": 0
     }
@@ -962,7 +971,7 @@
       "payment_method": "cod",
       "payment_status": "unpaid",
       "shipping_status": "pending",
-      "status": "processing",
+      "status": "shipping",
       "shipping_address": "Văn Nhân, Phú Xuyên, Hà Nội",
       "items": [
         {
@@ -1001,6 +1010,132 @@
           "status": "processing",
           "message": "Đã đổi trạng thái sang processing",
           "createdAt": "2026-06-15T04:31:00.962Z",
+          "updatedBy": {
+            "id": 1,
+            "name": "Phạm Quang Tuấn",
+            "email": "ptuan2594@gmail.com"
+          }
+        },
+        {
+          "status": "shipping",
+          "message": "Đã đổi trạng thái sang shipping",
+          "createdAt": "2026-06-15T04:41:37.073Z",
+          "updatedBy": {
+            "id": 1,
+            "name": "Phạm Quang Tuấn",
+            "email": "ptuan2594@gmail.com"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "order_code": "ORD008",
+      "customer_id": "6",
+      "customer_name": "Nguyễn Thanh Tùng",
+      "customer_email": "nttung@gmail.com",
+      "created_at": "2026-06-15",
+      "total_price": 10599,
+      "payment_method": "cod",
+      "payment_status": "unpaid",
+      "shipping_status": "pending",
+      "status": "pending",
+      "shipping_address": "Thành Phố Thái Bình",
+      "note": "Nothing",
+      "items": [
+        {
+          "id": "366d682b-112e-4c85-93a5-c34dc5811c16",
+          "product_id": "S29TgJTDaNQ",
+          "product_name": "Test",
+          "size": "XL",
+          "color": "Đen",
+          "sku": "SPQUAN-TEST-XL-ĐEN",
+          "image": "",
+          "quantity": 3,
+          "price": 3333
+        },
+        {
+          "id": "a4f31d48-6bd9-4515-b87e-242914b10ec1",
+          "product_id": "JQAexFpfw1w",
+          "product_name": "SP Demo",
+          "size": "S",
+          "color": "Đen",
+          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
+          "image": "",
+          "quantity": 6,
+          "price": 100
+        }
+      ],
+      "historyDetailOrder": [
+        {
+          "status": "pending",
+          "message": "Đã tạo đơn hàng",
+          "createdAt": "2026-06-15T07:26:41.503Z",
+          "updatedBy": {
+            "name": "System"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "order_code": "ORD009",
+      "customer_id": "5",
+      "customer_name": "Phùng Diệu Linh",
+      "customer_email": "pdling@gmail.com",
+      "created_at": "2026-06-15T07:30:58.622Z",
+      "total_price": 11110,
+      "payment_method": "cod",
+      "payment_status": "unpaid",
+      "shipping_status": "pending",
+      "status": "completed",
+      "shipping_address": "Văn Nhân, Phú Xuyên, Hà Nội",
+      "items": [
+        {
+          "id": "b236a0db-0096-4edb-b52c-ff073d6c5c20",
+          "product_id": "S29TgJTDaNQ",
+          "product_name": "Test",
+          "size": "L",
+          "color": "Trắng",
+          "sku": "SPQUAN-TEST-L-TRẮNG",
+          "image": "",
+          "quantity": 5,
+          "price": 2222
+        }
+      ],
+      "historyDetailOrder": [
+        {
+          "status": "pending",
+          "message": "Đã tạo đơn hàng",
+          "createdAt": "2026-06-15T07:30:58.622Z",
+          "updatedBy": {
+            "name": "System"
+          }
+        },
+        {
+          "status": "processing",
+          "message": "Đã đổi trạng thái sang processing",
+          "createdAt": "2026-06-15T07:51:56.311Z",
+          "updatedBy": {
+            "id": 1,
+            "name": "Phạm Quang Tuấn",
+            "email": "ptuan2594@gmail.com"
+          }
+        },
+        {
+          "status": "shipping",
+          "message": "Đã đổi trạng thái sang shipping",
+          "createdAt": "2026-06-15T07:51:59.574Z",
+          "updatedBy": {
+            "id": 1,
+            "name": "Phạm Quang Tuấn",
+            "email": "ptuan2594@gmail.com"
+          }
+        },
+        {
+          "status": "completed",
+          "message": "Đã đổi trạng thái sang completed",
+          "createdAt": "2026-06-15T07:52:01.847Z",
           "updatedBy": {
             "id": 1,
             "name": "Phạm Quang Tuấn",
@@ -1220,6 +1355,55 @@
       "user": "Phạm Quang Tuấn",
       "created_at": "2026-06-15T04:31:00.979Z",
       "id": "-DVwL3FXeRk"
+    },
+    {
+      "module": "Detail Order - Status - 7",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-15T04:41:37.092Z",
+      "id": "6yaXJc7nTZo"
+    },
+    {
+      "module": "Customer",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-15T07:25:47.711Z",
+      "id": "1LYrFLEK01Q"
+    },
+    {
+      "module": "Order",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-15T07:26:41.526Z",
+      "id": "4SZH49SZgq8"
+    },
+    {
+      "module": "Order",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-15T07:30:58.644Z",
+      "id": "yeSzuS5wiEE"
+    },
+    {
+      "module": "Detail Order - Status - 9",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-15T07:51:56.333Z",
+      "id": "E8ZkaG_6XIg"
+    },
+    {
+      "module": "Detail Order - Status - 9",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-15T07:51:59.599Z",
+      "id": "F6OHyaRXxSM"
+    },
+    {
+      "module": "Detail Order - Status - 9",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-15T07:52:01.867Z",
+      "id": "jjJ7PCXOAqM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

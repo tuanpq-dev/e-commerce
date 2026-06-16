@@ -18,6 +18,7 @@ import { GetOrders } from "../../api/orderApi";
 import { GetCustomers } from "../../api/customerApi";
 import type { CustomerType, OrderType } from "../../types/domain";
 import formatCurrency from "../../utils/formatCurrecy";
+import formatDate from "../../utils/formatDate";
 
 const statusOrder = [
   {
@@ -30,12 +31,6 @@ const statusOrder = [
     status: "processing",
     icon: <ClockCircleOutlined />,
     title: "Đang xử lý",
-    color: "blue",
-  },
-  {
-    status: "pending",
-    icon: <ClockCircleOutlined />,
-    title: "Đang xử lý",
     color: "yellow",
   },
   {
@@ -43,6 +38,18 @@ const statusOrder = [
     icon: <CloseCircleOutlined />,
     title: "Đã hủy",
     color: "red",
+  },
+  {
+    status: "pending",
+    icon: <CloseCircleOutlined />,
+    title: "Chờ xử lý",
+    color: "gray",
+  },
+  {
+    status: "shipping",
+    icon: <ClockCircleOutlined />,
+    title: "Đang giao",
+    color: "blue",
   },
 ];
 
@@ -91,6 +98,7 @@ const DetailCustomer = () => {
       title: "Ngày tạo đơn",
       dataIndex: "created_at",
       key: "created_at",
+      render: (created_at) => formatDate(created_at),
     },
     {
       title: "Tổng tiền",
@@ -148,7 +156,7 @@ const DetailCustomer = () => {
           <Table
             rowKey="id"
             columns={columns}
-            dataSource={orders}
+            dataSource={orders.reverse()}
             pagination={false}
             scroll={{ x: "max-content" }}
           />

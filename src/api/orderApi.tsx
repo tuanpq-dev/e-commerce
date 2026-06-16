@@ -67,13 +67,16 @@ const getVariant = (
   );
 
 const getOrderItemKey = (item: CreateOrderItemValues) =>
-  [item.product_id, item.size, item.color].map((value) => String(value)).join("|");
+  [item.product_id, item.size, item.color]
+    .map((value) => String(value))
+    .join("|");
 
 export const GetOrders = async (): Promise<OrderType[]> => {
   try {
-    const data: OrderType[] = (await callApiWithRetries({
-      url: "/orders",
-    })) ?? [];
+    const data: OrderType[] =
+      (await callApiWithRetries({
+        url: "/orders",
+      })) ?? [];
 
     return data;
   } catch (err) {
@@ -180,7 +183,7 @@ export const CreateOrder = async (
     customer_id: customer.id,
     customer_name: customer.fullname,
     customer_email: customer.email,
-    created_at: now.toISOString().slice(0, 10),
+    created_at: new Date().toISOString(),
     total_price: totalPrice,
     payment_method: values.payment_method,
     payment_status: "unpaid",
@@ -271,9 +274,10 @@ export const getTotalOrder = async (params?: {
   year?: number;
 }) => {
   try {
-    const data: OrderType[] = (await callApiWithRetries({
-      url: "/orders",
-    })) ?? [];
+    const data: OrderType[] =
+      (await callApiWithRetries({
+        url: "/orders",
+      })) ?? [];
 
     const filtered =
       params?.month && params?.year
@@ -325,10 +329,7 @@ export const getTotalRevenueFromOrders = (
         })
       : orders;
 
-  return filtered.reduce(
-    (acc, item) => acc + Number(item.total_price ?? 0),
-    0,
-  );
+  return filtered.reduce((acc, item) => acc + Number(item.total_price ?? 0), 0);
 };
 
 export const getOrdersByDayOfMonth = (
