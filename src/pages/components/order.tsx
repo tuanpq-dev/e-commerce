@@ -35,6 +35,8 @@ import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import openNotification from "../../@crema/core/Notification";
 import callApiWithRetries from "../../api/callApiWithRetries";
+import formatDate from "../../utils/formatDate";
+import exportToCSV from "../../@crema/core/ExportToCSV";
 
 const statusOrder = [
   {
@@ -167,6 +169,7 @@ const Order: React.FC = () => {
       title: "Ngày tạo",
       dataIndex: "created_at",
       key: "created_at",
+      render: (created_at) => formatDate(created_at),
     },
     {
       title: "Tổng tiền",
@@ -259,6 +262,10 @@ const Order: React.FC = () => {
     }
   };
 
+  const exportExcel = () => {
+    return exportToCSV(data, "order.csv");
+  };
+
   return (
     <>
       <Flex className="page-stack" gap="medium" vertical>
@@ -279,11 +286,16 @@ const Order: React.FC = () => {
               className="page-control"
             />
           </div>
-          {isAdmin && (
-            <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-              Add
+          <Flex gap={10}>
+            <AntButton tooltip="Xuất Excel" onClick={exportExcel}>
+              Export
             </AntButton>
-          )}
+            {isAdmin && (
+              <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
+                Add
+              </AntButton>
+            )}
+          </Flex>
         </div>
         <div className="table-shell">
           <Table<OrderType>

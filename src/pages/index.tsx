@@ -8,7 +8,7 @@ import { routeConfig } from "./sample/route.config";
 export const routes = [
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
+    element: <Navigate to="/dashboard" replace />,
   },
   {
     path: "/login",

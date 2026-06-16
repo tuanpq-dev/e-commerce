@@ -10,6 +10,7 @@ import type {
 import FormInput from "../../@crema/core/Form/FormInput";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import AntButton from "../../@crema/component/AntButton";
+import formatCurrency from "../../utils/formatCurrecy";
 
 type ModalCartProps = {
   open: boolean;
@@ -32,9 +33,6 @@ type OrderItemFieldProps = {
 };
 
 const DEFAULT_SHIPPING_ADDRESS = "48 - Sơn Thanh - Xã Phú Xuyên - Hà Nội";
-
-const formatOrderCurrency = (value: number) =>
-  `$ ${Number(value || 0).toLocaleString("en")} `;
 
 const getCustomerShippingAddress = (
   customers: CustomerType[],
@@ -147,7 +145,6 @@ const OrderItemField = ({
         showSearch
         loading={optionsLoading}
         disabled={optionsLoading}
-        optionFilterProp="label"
         options={products.map((item) => ({
           label: item.name,
           value: item.id,
@@ -212,9 +209,9 @@ const OrderItemField = ({
         ]}
       />
       <div className="order-item-summary">
-        <span>Đơn giá: {formatOrderCurrency(Number(variant?.price ?? 0))}</span>
+        <span>Đơn giá: {formatCurrency(Number(variant?.price ?? 0))}</span>
         <span>Tồn kho: {variant?.stock ?? 0}</span>
-        <strong>Tạm tính: {formatOrderCurrency(rowTotal)}</strong>
+        <strong>Tạm tính: {formatCurrency(rowTotal)}</strong>
       </div>
       <AntButton
         danger
@@ -349,12 +346,20 @@ export const ModalCart = ({
         <FormInput
           label="Địa chỉ giao hàng"
           name="shipping_address"
-          rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập địa chỉ" },
+            { max: 100, message: "Tối đa 100 ký tự" },
+          ]}
         />
-        <FormInput label="Ghi chú" name="note" textarea />
+        <FormInput
+          label="Ghi chú"
+          name="note"
+          textarea
+          rules={[{ max: 200, message: "Tối đa 200 ký tự" }]}
+        />
         <div className="order-total-row">
           <span>Tổng tiền đơn hàng</span>
-          <strong>{formatOrderCurrency(orderTotal)}</strong>
+          <strong>{formatCurrency(orderTotal)}</strong>
         </div>
       </Form>
     </Modal>
