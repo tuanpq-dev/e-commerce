@@ -267,8 +267,16 @@ const Order: React.FC = () => {
     }
   };
 
+  const exportData = data.map((d) => ({
+    "Mã đơn hàng": d.order_code,
+    "Tên khách hàng": d.customer_name,
+    "Ngày tạo": d.created_at,
+    "Tổng tiền": d.total_price,
+    "Trạng thái": d.status,
+  }));
+
   const exportExcel = () => {
-    return exportToCSV(data, "order.csv");
+    return exportToCSV(exportData, "order.csv");
   };
 
   return (
