@@ -1,12 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { Flex, Grid, Image, Input, Select, Space, Table, Tag } from "antd";
+import { Flex, Grid, Image, Input, Select, Space, Table } from "antd";
 import type { TableProps } from "antd";
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  DeleteOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import type { DataType, ProductInitialValues } from "../../types/domain";
 import { ModalProduct } from "../modal";
 import openNotification from "../../@crema/core/Notification";
@@ -16,6 +11,7 @@ import {
   DeleteProduct,
   GetProduct,
   UpdateProduct,
+  UpdateStatusProduct,
 } from "../../api/productApi";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { GetCategory } from "../../api/categoryApi";
@@ -26,17 +22,6 @@ import formatDate from "../../utils/formatDate";
 import { UserPermission } from "../../api/userPermission";
 import useDebounce from "../../@crema/core/hook/useDebounce";
 import { useTranslation } from "react-i18next";
-
-const STATUS_MAP: Record<
-  string,
-  { icon: React.ReactNode; color: string }
-> = {
-  active: { icon: <CheckCircleOutlined />, color: "green" },
-  pending: {
-    icon: <CloseCircleOutlined />,
-    color: "yellow",
-  },
-};
 
 const getProductVariants = (record: DataType) => record.variants ?? [];
 
@@ -246,6 +231,30 @@ const Product: React.FC = () => {
     });
   };
 
+  const handleChangeStatus = async (status: string, id: number | string) => {
+    try {
+      await Promise.all([
+        UpdateStatusProduct(status, id),
+        CreateActiveLog({
+          module: "Product",
+          action: `UPDATE status - ${id}`,
+          user: userInfo?.name,
+        }),
+      ]);
+      await refetch();
+      openNotification("success", {
+        message: t("common.success"),
+        description: t("product.notification.updateStatus"),
+      });
+    } catch (err) {
+      openNotification("error", {
+        message: t("common.failed"),
+        description: t("product.notification.updateStatus"),
+      });
+      return err;
+    }
+  };
+
   const columns: TableProps<DataType>["columns"] = [
     {
       title: t("product.columns.image"),
@@ -302,15 +311,15 @@ const Product: React.FC = () => {
       dataIndex: "status",
       key: "status",
       width: 50,
-      render: (status: string) => {
-        const item = STATUS_MAP[status];
-        if (!item) return <Tag>{status}</Tag>;
-        return (
-          <Tag icon={item.icon} color={item.color}>
-            {t(`product.status.${status}`)}
-          </Tag>
-        );
-      },
+      render: (status: string, record) => (
+        <Select
+          size="small"
+          value={status}
+          options={statusOptions}
+          style={{ width: 120 }}
+          onChange={(status) => handleChangeStatus(status, record.id)}
+        />
+      ),
     },
     {
       title: t("product.columns.createdAt"),
@@ -366,6 +375,7 @@ const Product: React.FC = () => {
       const { ...updateValues } = values;
 
       delete updateValues.id;
+      delete updateValues.status;
 
       await Promise.all([
         UpdateProduct({ ...updateValues, id: rowData.id }),
@@ -445,7 +455,11 @@ const Product: React.FC = () => {
             />
           </div>
           {isAdmin && (
-            <AntButton tooltip={t("common.add")} type="primary" onClick={handleAdd}>
+            <AntButton
+              tooltip={t("common.add")}
+              type="primary"
+              onClick={handleAdd}
+            >
               {t("common.add")}
             </AntButton>
           )}

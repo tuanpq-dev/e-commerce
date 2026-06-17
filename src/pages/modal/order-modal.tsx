@@ -111,14 +111,17 @@ const OrderItemField = ({
   canRemove,
   onRemove,
 }: OrderItemFieldProps) => {
+  const productCurrent = products.filter(
+    (product) => product.status === "active",
+  );
   const { t } = useTranslation();
   const productId = Form.useWatch(["items", fieldName, "product_id"], form);
   const selectedSize = Form.useWatch(["items", fieldName, "size"], form);
   const color = Form.useWatch(["items", fieldName, "color"], form);
   const quantity = Form.useWatch(["items", fieldName, "quantity"], form);
-  const product = findOrderProduct(products, productId);
+  const product = findOrderProduct(productCurrent, productId);
   const variants = getOrderProductVariants(product);
-  const variant = findOrderVariant(products, {
+  const variant = findOrderVariant(productCurrent, {
     product_id: productId,
     size: selectedSize,
     color,
@@ -147,7 +150,7 @@ const OrderItemField = ({
         showSearch
         loading={optionsLoading}
         disabled={optionsLoading}
-        options={products.map((item) => ({
+        options={productCurrent.map((item) => ({
           label: item.name,
           value: item.id,
         }))}
@@ -161,7 +164,9 @@ const OrderItemField = ({
           };
           form.setFieldsValue({ items });
         }}
-        rules={[{ required: true, message: t("order.validation.productRequired") }]}
+        rules={[
+          { required: true, message: t("order.validation.productRequired") },
+        ]}
       />
       <FormSelect
         {...restField}
@@ -177,7 +182,9 @@ const OrderItemField = ({
           };
           form.setFieldsValue({ items });
         }}
-        rules={[{ required: true, message: t("order.validation.sizeRequired") }]}
+        rules={[
+          { required: true, message: t("order.validation.sizeRequired") },
+        ]}
       />
       <FormSelect
         {...restField}
@@ -185,7 +192,9 @@ const OrderItemField = ({
         name={[fieldName, "color"]}
         disabled={!productId || !selectedSize || optionsLoading}
         options={colorOptions}
-        rules={[{ required: true, message: t("order.validation.colorRequired") }]}
+        rules={[
+          { required: true, message: t("order.validation.colorRequired") },
+        ]}
       />
       <FormInput
         {...restField}
@@ -204,7 +213,9 @@ const OrderItemField = ({
               }
 
               if (variant && currentQuantity > Number(variant.stock)) {
-                throw new Error(t("order.validation.stockLimit", { stock: variant.stock }));
+                throw new Error(
+                  t("order.validation.stockLimit", { stock: variant.stock }),
+                );
               }
             },
           },
@@ -212,9 +223,16 @@ const OrderItemField = ({
       />
       <Form.Item label={t("order.info")}>
         <div className="order-item-summary">
-          <span>{t("order.unitPrice")}: {formatCurrency(Number(variant?.price ?? 0))}</span>
-          <span>{t("order.stock")}: {variant?.stock ?? 0}</span>
-          <strong>{t("order.subtotal")}: {formatCurrency(rowTotal)}</strong>
+          <span>
+            {t("order.unitPrice")}:{" "}
+            {formatCurrency(Number(variant?.price ?? 0))}
+          </span>
+          <span>
+            {t("order.stock")}: {variant?.stock ?? 0}
+          </span>
+          <strong>
+            {t("order.subtotal")}: {formatCurrency(rowTotal)}
+          </strong>
         </div>
       </Form.Item>
       <Form.Item label=" ">
@@ -280,7 +298,6 @@ export const ModalCart = ({
           showSearch
           loading={optionsLoading}
           disabled={optionsLoading}
-          optionFilterProp="label"
           options={customers.map((customer) => ({
             label: `${customer.fullname} - ${customer.email}`,
             value: customer.id,
@@ -293,7 +310,9 @@ export const ModalCart = ({
               ),
             });
           }}
-          rules={[{ required: true, message: t("order.validation.customerRequired") }]}
+          rules={[
+            { required: true, message: t("order.validation.customerRequired") },
+          ]}
         />
         <Form.List
           name="items"

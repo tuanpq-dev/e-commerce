@@ -82,7 +82,17 @@ export const ModalProduct = ({
       open={open}
       onOk={async () => {
         const values = await form.validateFields();
-        onOk(values);
+
+        const formattedValues = {
+          ...values,
+          variants: values.variants.map((item) => ({
+            ...item,
+            size: item.size.trim(),
+            color: item.color.trim(),
+            stock: item.color.trim(),
+          })),
+        };
+        onOk(formattedValues);
       }}
       onCancel={onCancel}
       afterOpenChange={(visible) => {
@@ -139,7 +149,12 @@ export const ModalProduct = ({
           fieldNames={{ value: "id", label: "name" }}
           options={options}
           placeholder={t("product.selectCategory")}
-          rules={[{ required: true, message: t("product.validation.categoryRequired") }]}
+          rules={[
+            {
+              required: true,
+              message: t("product.validation.categoryRequired"),
+            },
+          ]}
         />
 
         {selectedCategoryId && (
@@ -186,7 +201,10 @@ export const ModalProduct = ({
                     label={t("product.size")}
                     name={[name, "size"]}
                     rules={[
-                      { required: true, message: t("product.validation.sizeRequired") },
+                      {
+                        required: true,
+                        message: t("product.validation.sizeRequired"),
+                      },
                       {
                         min: 1,
                         message: t("product.validation.sizeMin"),
@@ -203,7 +221,10 @@ export const ModalProduct = ({
                     label={t("product.color")}
                     name={[name, "color"]}
                     rules={[
-                      { required: true, message: t("product.validation.colorRequired") },
+                      {
+                        required: true,
+                        message: t("product.validation.colorRequired"),
+                      },
                       {
                         max: 15,
                         message: t("product.validation.colorMax"),
@@ -215,7 +236,12 @@ export const ModalProduct = ({
                     {...restField}
                     label={t("product.price")}
                     name={[name, "price"]}
-                    rules={[{ required: true, message: t("product.validation.priceRequired") }]}
+                    rules={[
+                      {
+                        required: true,
+                        message: t("product.validation.priceRequired"),
+                      },
+                    ]}
                     type="number"
                     min={0}
                   />
@@ -223,7 +249,12 @@ export const ModalProduct = ({
                     {...restField}
                     label={t("product.stock")}
                     name={[name, "stock"]}
-                    rules={[{ required: true, message: t("product.validation.stockRequired") }]}
+                    rules={[
+                      {
+                        required: true,
+                        message: t("product.validation.stockRequired"),
+                      },
+                    ]}
                     type="number"
                     min={0}
                   />
@@ -233,10 +264,7 @@ export const ModalProduct = ({
                     name={[name, "sku"]}
                     placeholder={t("product.validation.placeholderSku")}
                   />
-                  <AntUpload
-                    {...restField}
-                    name={[name, "image"]}
-                  />
+                  <AntUpload {...restField} name={[name, "image"]} />
                   <Form.Item label=" ">
                     <AntButton
                       danger
@@ -253,7 +281,11 @@ export const ModalProduct = ({
           )}
         </Form.List>
 
-        <FormInput label={t("product.description")} name="description" textarea />
+        <FormInput
+          label={t("product.description")}
+          name="description"
+          textarea
+        />
       </Form>
     </Modal>
   );
