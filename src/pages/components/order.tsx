@@ -133,7 +133,10 @@ const Order: React.FC = () => {
         (await callApiWithRetries({
           url: "/products",
         })) ?? [];
-      setProducts([...dataProduct].reverse());
+      const productCurrent = dataProduct.filter(
+        (product) => product.status === "active",
+      );
+      setProducts([...productCurrent].reverse());
     } catch (err) {
       console.log(err);
     }
@@ -238,12 +241,14 @@ const Order: React.FC = () => {
   const handleCreateOrder = async (values: CreateOrderValues) => {
     try {
       setIsCreating(true);
-      await CreateOrder(values, customers, products);
-      await CreateActiveLog({
-        module: "Order",
-        action: "CREATE",
-        user: userInfo?.name,
-      });
+      await Promise.all([
+        CreateOrder(values, customers, products),
+        CreateActiveLog({
+          module: "Order",
+          action: "CREATE",
+          user: userInfo?.name,
+        }),
+      ]);
 
       await Promise.all([fetchDataOrder(), fetchOrderOptions()]);
       setIsModalAdd(false);

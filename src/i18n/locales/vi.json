@@ -7,7 +7,8 @@
     "cancel": "Hủy",
     "save": "Lưu",
     "confirm": "Xác nhận",
-    "success": "Thành công"
+    "success": "Thành công",
+    "failed": "Thất bại"
   },
   "product": {
     "columns": {
@@ -43,7 +44,8 @@
     "notification": {
       "deleteSuccess": "Xóa thành công sản phẩm",
       "updateSuccess": "Chỉnh sửa sản phẩm thành công",
-      "createSuccess": "Thêm mới sản phẩm thành công"
+      "createSuccess": "Thêm mới sản phẩm thành công",
+      "updateStatus": "Đổi trạng thái sản phẩm thành công"
     },
     "titleCreate": "Thêm mới sản phẩm",
     "titleUpdate": "Chỉnh sửa sản phẩm",
@@ -102,6 +104,9 @@
     "info": "Thông tin",
     "placeholder": {
       "note": "Nhập ghi chú"
+    },
+    "notification": {
+      "updateStatus": "Update trạng thái đơn hàng thành công"
     },
     "validation": {
       "customerRequired": "Vui lòng chọn khách hàng",

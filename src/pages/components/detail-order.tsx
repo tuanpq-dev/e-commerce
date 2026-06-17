@@ -17,6 +17,8 @@ import formatCurrency from "../../utils/formatCurrecy";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import formatDate from "../../utils/formatDate";
 import { useAuth } from "../../contexts/AuthContext";
+import openNotification from "../../@crema/core/Notification";
+import { useTranslation } from "react-i18next";
 
 type OrderItemType = {
   id: string;
@@ -99,6 +101,7 @@ const StatusBadge = ({ value }: { value: string }) => {
 };
 
 const DetailOrder = () => {
+  const { t } = useTranslation();
   const { userInfo } = useAuth();
   const { id } = useParams();
   const [form] = Form.useForm();
@@ -180,6 +183,11 @@ const DetailOrder = () => {
         name: userInfo?.name,
         email: userInfo?.email,
       },
+    });
+
+    openNotification("success", {
+      message: t("common.success"),
+      description: t("order.notification.updateStatus"),
     });
 
     await CreateActiveLog({

@@ -125,7 +125,6 @@ export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
       category: values.category,
       category_child: values.category_child || [],
       description: values.description,
-      status: "pending",
     };
 
     const res = await axiosClient.patch(`/products/${id}`, payload);
@@ -146,4 +145,17 @@ export const DeleteProduct = async (id: number | string) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const UpdateStatusProduct = async (
+  status: string,
+  id: number | string,
+) => {
+  const payload = {
+    status,
+  };
+
+  const res = await axiosClient.patch(`/products/${id}`, payload);
+
+  return res.data;
 };
