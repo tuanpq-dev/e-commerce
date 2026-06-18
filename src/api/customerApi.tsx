@@ -7,19 +7,6 @@ const normalizeText = (value?: string | number) =>
     .trim()
     .toLowerCase();
 
-const getNextCustomerId = (customers: CustomerType[]) => {
-  const nextId =
-    Math.max(
-      0,
-      ...customers.map((customer) => {
-        const id = Number(customer.id);
-        return Number.isFinite(id) ? id : 0;
-      }),
-    ) + 1;
-
-  return String(nextId);
-};
-
 export const GetCustomers = async () => {
   try {
     const data = await callApiWithRetries({
@@ -64,7 +51,6 @@ export const CreateCustomer = async (values: CreateCustomerValues) => {
   }
 
   const payload: CustomerType = {
-    id: getNextCustomerId(customers),
     fullname: values.fullname.trim(),
     email: values.email.trim(),
     phone: values.phone.trim(),

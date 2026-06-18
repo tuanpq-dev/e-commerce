@@ -89,7 +89,7 @@ export const ModalProduct = ({
             ...item,
             size: item.size.trim(),
             color: item.color.trim(),
-            stock: item.color.trim(),
+            stock: item.stock.trim(),
           })),
         };
         onOk(formattedValues);

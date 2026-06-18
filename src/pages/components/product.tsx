@@ -25,16 +25,6 @@ import { useTranslation } from "react-i18next";
 
 const getProductVariants = (record: DataType) => record.variants ?? [];
 
-const getProductPrice = (record: DataType) => {
-  const variants = getProductVariants(record);
-
-  if (!variants.length) {
-    return Number(record.price);
-  }
-
-  return Math.min(...variants.map((variant) => Number(variant.price)));
-};
-
 const getProductStock = (record: DataType) => {
   const variants = getProductVariants(record);
 
@@ -117,8 +107,18 @@ const Product: React.FC = () => {
   const keyword = useDebounce(searchText.trim().toLowerCase());
   const filteredProduct = useMemo(() => {
     return product.filter((item) => {
+      const variants = item.variants ?? [];
+
+      const prices = variants
+        .map((variant) => Number(variant.price))
+        .filter((price) => !Number.isNaN(price));
+
+      const minPrice = prices.length ? Math.min(...prices) : 0;
+      const maxPrice = prices.length ? Math.max(...prices) : 0;
+
       const categoryId =
         typeof item.category === "object" ? item.category?.id : item.category;
+
       const categoryName = categoryMap.get(String(categoryId)) ?? "";
 
       const matchesSearch =
@@ -129,12 +129,14 @@ const Product: React.FC = () => {
 
       const matchesCategory =
         !selectedCategory || String(categoryId) === selectedCategory;
+
       const matchesStatus = !selectedStatus || item.status === selectedStatus;
+
       const matchesPrice =
         !selectedPrice ||
         (selectedPrice === "above-3000"
-          ? getProductPrice(item) > 3000
-          : getProductPrice(item) <= Number(selectedPrice));
+          ? maxPrice > 3000
+          : minPrice < Number(selectedPrice));
 
       return matchesSearch && matchesCategory && matchesStatus && matchesPrice;
     });
@@ -256,6 +258,12 @@ const Product: React.FC = () => {
   };
 
   const columns: TableProps<DataType>["columns"] = [
+    {
+      title: "STT",
+      fixed: !isMobile ? "start" : false,
+      width: 20,
+      render: (_value, _record, index) => index + 1,
+    },
     {
       title: t("product.columns.image"),
       dataIndex: "image",

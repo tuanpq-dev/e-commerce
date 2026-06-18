@@ -5,8 +5,12 @@ import type {
   CustomerType,
   OrderType,
 } from "../../types/domain";
-import { EyeOutlined } from "@ant-design/icons";
-import { CreateCustomer, GetCustomers } from "../../api/customerApi";
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  CreateCustomer,
+  DeleteCustomer,
+  GetCustomers,
+} from "../../api/customerApi";
 import { GetOrders } from "../../api/orderApi";
 import { useEffect, useState } from "react";
 import AntButton from "../../@crema/component/AntButton";
@@ -19,6 +23,7 @@ import { ModalCustomer } from "../modal";
 import openNotification from "../../@crema/core/Notification";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
+import ModalConfirm from "../../@crema/core/ModalConfirm";
 
 const Customer: React.FC = () => {
   const screens = Grid.useBreakpoint();
@@ -26,10 +31,12 @@ const Customer: React.FC = () => {
   const { Search } = Input;
   const { isAdmin } = UserPermission();
   const { userInfo } = useAuth();
+  const [rowData, setRowData] = useState([]);
   const [dataCustomer, setDataCustomer] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isDeleteModal, setIsDeleteModal] = useState(false);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
@@ -127,13 +134,48 @@ const Customer: React.FC = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      if (rowData?.total_orders > 0) {
+        openNotification("error", {
+          message: "Thất bại",
+          description: "Không thể xóa khách hàng vì đã có đơn",
+        });
+        return;
+      }
+      await Promise.all([
+        DeleteCustomer(rowData.id),
+        CreateActiveLog({
+          module: "Customer",
+          action: "DELETE",
+          user: userInfo?.name,
+        }),
+      ]);
+      await fetchCustomer();
+      setIsDeleteModal(false);
+      openNotification("success", {
+        message: "Thành công",
+        description: "Xóa khách hàng thành công",
+      });
+    } catch (err) {
+      console.log(err);
+      openNotification("error", {
+        message: "Thất bại",
+        description: "Xóa khách hàng thất bại",
+      });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModal(false);
+  };
+
   const columns: TableProps<CustomerType>["columns"] = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "STT",
       fixed: !isMobile ? "start" : false,
-      width: 50,
+      width: 20,
+      render: (_value, _record, index) => index + 1,
     },
     {
       title: "Họ tên",
@@ -194,6 +236,13 @@ const Customer: React.FC = () => {
                   navigate(`/${config.routes.DETAIL_CUSTOMER(record.id)}`);
                 }}
               />
+              <AntButton
+                tooltip="Xóa"
+                icon={<DeleteOutlined />}
+                onClick={() => {
+                  (setIsDeleteModal(true), setRowData(record));
+                }}
+              />
             </Space>
           </>
         );
@@ -231,6 +280,13 @@ const Customer: React.FC = () => {
         loading={isCreating}
         onCancel={handleCancel}
         onOk={handleCreateCustomer}
+      />
+
+      <ModalConfirm
+        open={isDeleteModal}
+        onOk={handleDelete}
+        onCancel={handleCancelDelete}
+        targetName={rowData.fullname}
       />
     </Flex>
   );
