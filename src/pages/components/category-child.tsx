@@ -1,5 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Flex, Input, Space, Table, type TableProps } from "antd";
+import { Flex, Grid, Input, Space, Table, type TableProps } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import AntButton from "../../@crema/component/AntButton";
@@ -10,6 +10,8 @@ import type { CategoryType } from "../../types/domain";
 import { ModalCategoryChild } from "../modal";
 
 const CategoryChild = () => {
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const { id } = useParams();
   const { Search } = Input;
   const [data, setData] = useState<CategoryType[]>([]);
@@ -75,6 +77,12 @@ const CategoryChild = () => {
   };
 
   const columns: TableProps<CategoryType>["columns"] = [
+    {
+      title: "STT",
+      fixed: !isMobile ? "start" : false,
+      width: 20,
+      render: (_value, _record, index) => index + 1,
+    },
     {
       title: "Tên danh mục con",
       dataIndex: "name",

@@ -157,6 +157,12 @@ const Order: React.FC = () => {
 
   const columns: TableProps<OrderType>["columns"] = [
     {
+      title: "STT",
+      fixed: !isMobile ? "start" : false,
+      width: 20,
+      render: (_value, _record, index) => index + 1,
+    },
+    {
       title: "Mã đơn",
       dataIndex: "order_code",
       key: "order_code",
@@ -267,12 +273,26 @@ const Order: React.FC = () => {
     }
   };
 
-  const exportData = data.map((d) => ({
+  const formatStatus = (status: string) => {
+    const statusMap: Record<string, string> = {
+      pending: "Chờ xác nhận",
+      cancel: "Đã hủy",
+      processing: "Đang xử lý",
+      shipping: "Đang giao hàng",
+      completed: "Hoàn thành",
+    };
+    return statusMap[status];
+  };
+
+  const exportData = data.map((d, index) => ({
+    "Số thứ tự": index + 1,
     "Mã đơn hàng": d.order_code,
     "Tên khách hàng": d.customer_name,
-    "Ngày tạo": d.created_at,
-    "Tổng tiền": d.total_price,
-    "Trạng thái": d.status,
+    "Email": d.customer_email,
+    "Địa chỉ": d.shipping_address,
+    "Ngày tạo": d.created_at ? formatDate(d.created_at) : "",
+    "Tổng tiền": formatCurrency(d.total_price),
+    "Trạng thái": d.status ? formatStatus(d.status) : "",
   }));
 
   const exportExcel = () => {

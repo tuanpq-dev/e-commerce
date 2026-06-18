@@ -84,12 +84,14 @@ export const CreateProduct = async (values: ProductInitialValues) => {
     const productSummary = getProductSummary(values);
 
     const payload = {
-      ...values,
       id: Date.now(),
       sku: `${values.sku} ${Date.now()}`,
+      name: values.name,
       price: productSummary.price,
       stock: productSummary.stock,
       variants: productSummary.variants,
+      category: values.category,
+      description: values.description || "",
       status: "pending",
       category_child: values?.category_child || [],
       created_at: Date.now(),

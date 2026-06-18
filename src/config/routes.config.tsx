@@ -10,7 +10,6 @@ const routes = {
   DETAIL_ORDER: (order_code: string | number) =>
     `order-management/${order_code}`,
   CATEGORY_CHILD: (id: number | string) => `category-management/${id}`,
-  SHOP_CART: "shop-cart",
 };
 
 export default routes;

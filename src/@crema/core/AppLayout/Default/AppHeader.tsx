@@ -39,10 +39,6 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
       label: "Profile",
     },
     {
-      key: config.routes.SHOP_CART,
-      label: "Shop Cart",
-    },
-    {
       key: "logout",
       label: "Logout",
     },

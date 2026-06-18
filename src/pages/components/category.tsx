@@ -61,25 +61,41 @@ const Category: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    if (!rowData?.id) {
+    if (!rowData?.id) return;
+
+    if (rowData?.child && rowData.child.length > 0) {
+      openNotification("error", {
+        message: "Thất bại",
+        description: "Không thể xóa danh mục cha khi còn danh mục con",
+      });
       return;
     }
 
-    await Promise.all([
-      DeleteCategory(rowData?.id),
-      CreateActiveLog({
+    try {
+      await DeleteCategory(rowData.id);
+
+      await CreateActiveLog({
         module: "Category",
         action: "DELETE",
-        user: userInfo?.name,
-      }),
-    ]);
-    await refetch();
+        user: userInfo?.name ?? "Unknown",
+      });
 
-    setIsOpenModalDelete(false);
-    openNotification("success", {
-      message: "Thành công",
-      description: "Xóa thành công danh mục",
-    });
+      await refetch();
+
+      setIsOpenModalDelete(false);
+
+      openNotification("success", {
+        message: "Thành công",
+        description: "Xóa thành công danh mục",
+      });
+    } catch (error) {
+      console.log(error);
+
+      openNotification("error", {
+        message: "Thất bại",
+        description: "Xóa danh mục thất bại",
+      });
+    }
   };
 
   const handleUpdate = (values: CategoryType) => {
@@ -87,6 +103,12 @@ const Category: React.FC = () => {
   };
 
   const columns: TableProps<CategoryType>["columns"] = [
+    {
+      title: "STT",
+      fixed: !isMobile ? "start" : false,
+      width: 20,
+      render: (_value, _record, index) => index + 1,
+    },
     {
       title: "Tên danh mục",
       dataIndex: "name",
@@ -149,7 +171,11 @@ const Category: React.FC = () => {
                   icon={<DeleteOutlined />}
                   onClick={() => {
                     setIsOpenModalDelete(true);
-                    setRowData({ id: record.id, name: record.name });
+                    setRowData({
+                      id: record.id,
+                      name: record.name,
+                      child: record.child,
+                    });
                   }}
                 />
               )}
@@ -255,7 +281,7 @@ const Category: React.FC = () => {
           <Table<CategoryType>
             rowKey="id"
             columns={columns}
-            dataSource={filterData}
+            dataSource={filterData.reverse()}
             loading={isLoading}
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
