@@ -21,9 +21,11 @@ import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserPermission } from "../../api/userPermission";
 import useDebounce from "../../@crema/core/hook/useDebounce";
+import { useTranslation } from "react-i18next";
 
 const Category: React.FC = () => {
   const screens = Grid.useBreakpoint();
+  const { t } = useTranslation();
   const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
@@ -65,8 +67,8 @@ const Category: React.FC = () => {
 
     if (rowData?.child && rowData.child.length > 0) {
       openNotification("error", {
-        message: "Thất bại",
-        description: "Không thể xóa danh mục cha khi còn danh mục con",
+        message: t("common.failed"),
+        description: t("category.notification.deleteParentHasChildren"),
       });
       return;
     }
@@ -85,15 +87,15 @@ const Category: React.FC = () => {
       setIsOpenModalDelete(false);
 
       openNotification("success", {
-        message: "Thành công",
-        description: "Xóa thành công danh mục",
+        message: t("common.success"),
+        description: t("category.notification.deleteSuccess"),
       });
     } catch (error) {
       console.log(error);
 
       openNotification("error", {
-        message: "Thất bại",
-        description: "Xóa danh mục thất bại",
+        message: t("common.failed"),
+        description: t("category.notification.deleteFailed"),
       });
     }
   };
@@ -104,20 +106,20 @@ const Category: React.FC = () => {
 
   const columns: TableProps<CategoryType>["columns"] = [
     {
-      title: "STT",
+      title: t("category.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
       render: (_value, _record, index) => index + 1,
     },
     {
-      title: "Tên danh mục",
+      title: t("category.columns.name"),
       dataIndex: "name",
       key: "name",
       width: 100,
       fixed: !isMobile ? "start" : false,
     },
     {
-      title: "Số danh mục con",
+      title: t("category.columns.childCount"),
       dataIndex: "category_child",
       key: "category_child",
       width: 100,
@@ -126,13 +128,13 @@ const Category: React.FC = () => {
       },
     },
     {
-      title: "Tổng sản phẩm",
+      title: t("category.columns.totalProduct"),
       dataIndex: "total",
       key: "total",
       width: 100,
     },
     {
-      title: "Action",
+      title: t("category.columns.action"),
       key: "action",
       fixed: !isMobile ? "end" : false,
       width: 100,
@@ -142,7 +144,7 @@ const Category: React.FC = () => {
           <>
             <Space size="medium">
               <AntButton
-                tooltip="Xem danh mục con"
+                tooltip={t("category.tooltip.viewChildren")}
                 icon={<EyeOutlined />}
                 onClick={() => {
                   if (!record.id) {
@@ -154,7 +156,7 @@ const Category: React.FC = () => {
               />
               {isAdmin && (
                 <AntButton
-                  tooltip="Chỉnh sửa"
+                  tooltip={t("common.update")}
                   icon={<EditOutlined />}
                   onClick={() => {
                     handleUpdate(record);
@@ -167,7 +169,7 @@ const Category: React.FC = () => {
               {isAdmin && (
                 <AntButton
                   danger
-                  tooltip="Xóa"
+                  tooltip={t("common.delete")}
                   icon={<DeleteOutlined />}
                   onClick={() => {
                     setIsOpenModalDelete(true);
@@ -209,8 +211,8 @@ const Category: React.FC = () => {
       setRowData({});
 
       openNotification("success", {
-        message: "Thành công",
-        description: "Chỉnh sửa danh mục cha thành công",
+        message: t("common.success"),
+        description: t("category.notification.updateParentSuccess"),
       });
     } else {
       await Promise.all([
@@ -225,8 +227,8 @@ const Category: React.FC = () => {
 
       setIsOpenModal(false);
       openNotification("success", {
-        message: "Thành công",
-        description: "Thêm mới danh mục cha thành công",
+        message: t("common.success"),
+        description: t("category.notification.createParentSuccess"),
       });
     }
   };
@@ -243,8 +245,8 @@ const Category: React.FC = () => {
     await refetch();
     setIsOpenModalChild(false);
     openNotification("success", {
-      message: "Thành công",
-      description: "Thêm mới danh mục con thành công",
+      message: t("common.success"),
+      description: t("category.notification.createChildSuccess"),
     });
   };
 
@@ -258,21 +260,21 @@ const Category: React.FC = () => {
         <div className="page-toolbar">
           <Search
             allowClear={true}
-            placeholder="Tìm kiếm danh mục"
+            placeholder={t("category.placeholder.search")}
             onChange={(event) => handleSearch(event.target.value)}
             className="page-search"
           />
           {isAdmin && (
             <div className="page-toolbar-actions">
               <AntButton
-                tooltip="Thêm mới"
+                tooltip={t("common.add")}
                 type="primary"
                 onClick={handleAddChild}
               >
-                Thêm danh mục con
+                {t("category.addChild")}
               </AntButton>
-              <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-                Thêm danh mục cha
+              <AntButton tooltip={t("common.add")} type="primary" onClick={handleAdd}>
+                {t("category.addParent")}
               </AntButton>
             </div>
           )}

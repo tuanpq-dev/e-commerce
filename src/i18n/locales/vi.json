@@ -87,6 +87,15 @@
   },
   "order": {
     "title": "Thêm mới đơn hàng",
+    "columns": {
+      "no": "STT",
+      "code": "Mã đơn",
+      "customer": "Khách hàng",
+      "createdAt": "Ngày tạo",
+      "totalPrice": "Tổng tiền",
+      "status": "Trạng thái",
+      "action": "Thao tác"
+    },
     "customer": "Khách hàng",
     "productsInOrder": "Sản phẩm trong đơn",
     "addProduct": "Thêm sản phẩm",
@@ -102,11 +111,38 @@
     "note": "Ghi chú",
     "totalPrice": "Tổng tiền đơn hàng",
     "info": "Thông tin",
+    "export": "Xuất",
+    "tooltip": {
+      "viewDetail": "Xem chi tiết",
+      "exportExcel": "Xuất Excel"
+    },
     "placeholder": {
+      "search": "Tìm kiếm đơn hàng",
+      "status": "Trạng thái",
       "note": "Nhập ghi chú"
     },
+    "status": {
+      "pending": "Chờ xác nhận",
+      "cancel": "Đã hủy",
+      "cancelled": "Đã hủy",
+      "processing": "Đang xử lý",
+      "shipping": "Đang giao hàng",
+      "completed": "Hoàn thành"
+    },
     "notification": {
+      "createSuccess": "Thêm mới đơn hàng thành công",
+      "createFailed": "Không thể thêm mới đơn hàng",
       "updateStatus": "Update trạng thái đơn hàng thành công"
+    },
+    "exportColumns": {
+      "no": "Số thứ tự",
+      "orderCode": "Mã đơn hàng",
+      "customerName": "Tên khách hàng",
+      "email": "Email",
+      "address": "Địa chỉ",
+      "createdAt": "Ngày tạo",
+      "totalPrice": "Tổng tiền",
+      "status": "Trạng thái"
     },
     "validation": {
       "customerRequired": "Vui lòng chọn khách hàng",
@@ -121,6 +157,96 @@
       "addressMax": "Tối đa 100 ký tự",
       "noteMax": "Tối đa 200 ký tự",
       "min1Product": "Vui lòng thêm ít nhất một sản phẩm"
+    }
+  },
+  "customer": {
+    "titleCreate": "Thêm mới khách hàng",
+    "fullname": "Họ tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ",
+    "columns": {
+      "no": "STT",
+      "fullname": "Họ tên",
+      "email": "Email",
+      "address": "Địa chỉ",
+      "phone": "Số điện thoại",
+      "totalOrders": "Tổng số đơn",
+      "totalExpend": "Tổng chi tiêu",
+      "action": "Thao tác"
+    },
+    "placeholder": {
+      "search": "Tìm kiếm khách hàng"
+    },
+    "tooltip": {
+      "viewDetail": "Xem chi tiết"
+    },
+    "notification": {
+      "emailExists": "Email đã tồn tại",
+      "phoneExists": "Số điện thoại đã tồn tại",
+      "createFailed": "Không thể thêm mới khách hàng",
+      "createSuccess": "Thêm mới khách hàng thành công",
+      "deleteHasOrders": "Không thể xóa khách hàng vì đã có đơn",
+      "deleteSuccess": "Xóa khách hàng thành công",
+      "deleteFailed": "Xóa khách hàng thất bại"
+    },
+    "validation": {
+      "fullnameRequired": "Vui lòng nhập họ tên",
+      "fullnameMin": "Họ tên tối thiểu 2 ký tự",
+      "fullnameMax": "Họ tên tối đa 60 ký tự",
+      "emailRequired": "Vui lòng nhập email",
+      "emailInvalid": "Email không hợp lệ",
+      "phoneRequired": "Vui lòng nhập số điện thoại",
+      "phonePattern": "Số điện thoại phải có 9-11 chữ số"
+    },
+    "detail": {
+      "title": "Chi tiết khách hàng",
+      "notFound": "Không tìm thấy khách hàng",
+      "orderCreatedAt": "Ngày tạo đơn",
+      "orderList": "Danh sách đơn hàng"
+    }
+  },
+  "category": {
+    "titleCreateParent": "Thêm mới danh mục cha",
+    "titleUpdateParent": "Chỉnh sửa danh mục cha",
+    "titleCreateChild": "Thêm mới danh mục con",
+    "titleUpdateChild": "Chỉnh sửa danh mục con",
+    "addParent": "Thêm danh mục cha",
+    "addChild": "Thêm danh mục con",
+    "name": "Tên danh mục",
+    "childName": "Tên danh mục con",
+    "columns": {
+      "no": "STT",
+      "name": "Tên danh mục",
+      "childName": "Tên danh mục con",
+      "childCount": "Số danh mục con",
+      "totalProduct": "Tổng sản phẩm",
+      "action": "Thao tác"
+    },
+    "placeholder": {
+      "search": "Tìm kiếm danh mục",
+      "selectParent": "Chọn danh mục"
+    },
+    "tooltip": {
+      "viewChildren": "Xem danh mục con"
+    },
+    "notification": {
+      "deleteParentHasChildren": "Không thể xóa danh mục cha khi còn danh mục con",
+      "deleteSuccess": "Xóa thành công danh mục",
+      "deleteFailed": "Xóa danh mục thất bại",
+      "updateParentSuccess": "Chỉnh sửa danh mục cha thành công",
+      "createParentSuccess": "Thêm mới danh mục cha thành công",
+      "createChildSuccess": "Thêm mới danh mục con thành công",
+      "updateChildSuccess": "Chỉnh sửa danh mục con thành công"
+    },
+    "validation": {
+      "nameRequired": "Vui lòng nhập tên danh mục",
+      "nameMin": "Tên danh mục tối thiểu 1 ký tự",
+      "nameMax": "Tên danh mục tối đa 30 ký tự",
+      "childNameRequired": "Vui lòng nhập tên danh mục con",
+      "childNameMin": "Tên danh mục con tối thiểu 1 ký tự",
+      "childNameMax": "Tên danh mục con tối đa 30 ký tự",
+      "parentRequired": "Vui lòng chọn danh mục cha"
     }
   }
 }

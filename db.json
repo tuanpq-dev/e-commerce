@@ -90,7 +90,7 @@
           "size": "S",
           "color": "Đen",
           "price": 1001,
-          "stock": 90,
+          "stock": 70,
           "sku": "SPQUAN-SP-DEMO-S-ĐEN",
           "id": "002ac883-f82b-44bf-82e5-84718429354c"
         }
@@ -100,7 +100,7 @@
       ],
       "id": "JQAexFpfw1w",
       "price": 1001,
-      "stock": 90,
+      "stock": 70,
       "status": "active",
       "created_at": 1781236735502,
       "description": ""
@@ -1477,7 +1477,7 @@
       "payment_method": "cod",
       "payment_status": "unpaid",
       "shipping_status": "pending",
-      "status": "pending",
+      "status": "completed",
       "shipping_address": "Sơn Thanh, Xã Phú Xuyên, Hà Nội",
       "items": [
         {
@@ -1519,6 +1519,73 @@
           "status": "pending",
           "message": "Đã tạo đơn hàng",
           "createdAt": "2026-06-18T08:30:28.112Z",
+          "updatedBy": {
+            "name": "System"
+          }
+        },
+        {
+          "status": "processing",
+          "message": "Đã đổi trạng thái sang processing",
+          "createdAt": "2026-06-19T04:57:28.649Z",
+          "updatedBy": {
+            "id": 1,
+            "name": "Phạm Quang Tuấn",
+            "email": "ptuan2594@gmail.com"
+          }
+        },
+        {
+          "status": "shipping",
+          "message": "Đã đổi trạng thái sang shipping",
+          "createdAt": "2026-06-19T04:57:31.567Z",
+          "updatedBy": {
+            "id": 1,
+            "name": "Phạm Quang Tuấn",
+            "email": "ptuan2594@gmail.com"
+          }
+        },
+        {
+          "status": "completed",
+          "message": "Đã đổi trạng thái sang completed",
+          "createdAt": "2026-06-19T04:57:32.951Z",
+          "updatedBy": {
+            "id": 1,
+            "name": "Phạm Quang Tuấn",
+            "email": "ptuan2594@gmail.com"
+          }
+        }
+      ]
+    },
+    {
+      "id": "RZI7C5SZ6dY",
+      "order_code": "ORD016",
+      "customer_id": "KWDRTdrkSnQ",
+      "customer_name": "Phạm Quang Tuấn",
+      "customer_email": "phamquangtuan.contact@gmail.com",
+      "created_at": "2026-06-19T04:58:20.407Z",
+      "total_price": 20020,
+      "payment_method": "cod",
+      "payment_status": "unpaid",
+      "shipping_status": "pending",
+      "status": "pending",
+      "shipping_address": "Sơn Thanh, Xã Phú Xuyên, Hà Nội",
+      "items": [
+        {
+          "id": "d818a83d-8526-42cc-b9f9-26fec2d69547",
+          "product_id": "JQAexFpfw1w",
+          "product_name": "Sản phẩm Quần 2",
+          "size": "S",
+          "color": "Đen",
+          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
+          "image": "",
+          "quantity": 20,
+          "price": 1001
+        }
+      ],
+      "historyDetailOrder": [
+        {
+          "status": "pending",
+          "message": "Đã tạo đơn hàng",
+          "createdAt": "2026-06-19T04:58:20.406Z",
           "updatedBy": {
             "name": "System"
           }
@@ -2261,6 +2328,34 @@
       "user": "Phạm Quang Tuấn",
       "created_at": "2026-06-18T09:44:38.432Z",
       "id": "cyhxBYzxJAM"
+    },
+    {
+      "module": "Detail Order - Status - pdGDE-hvH-s",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-19T04:57:28.692Z",
+      "id": "CrUd9Gnal2k"
+    },
+    {
+      "module": "Detail Order - Status - pdGDE-hvH-s",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-19T04:57:31.589Z",
+      "id": "Jl4QBjz-ZFI"
+    },
+    {
+      "module": "Detail Order - Status - pdGDE-hvH-s",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-19T04:57:32.983Z",
+      "id": "rfAEs1L3MUA"
+    },
+    {
+      "module": "Order",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-19T04:58:20.331Z",
+      "id": "9rQhk5XGqwk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

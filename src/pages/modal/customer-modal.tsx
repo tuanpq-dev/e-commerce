@@ -1,6 +1,7 @@
 import { Form, Modal } from "antd";
 import type { CreateCustomerValues } from "../../types/domain";
 import FormInput from "../../@crema/core/Form/FormInput";
+import { useTranslation } from "react-i18next";
 
 type ModalCustomerProps = {
   open: boolean;
@@ -15,11 +16,12 @@ export const ModalCustomer = ({
   onCancel,
   onOk,
 }: ModalCustomerProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
 
   return (
     <Modal
-      title="Thêm mới khách hàng"
+      title={t("customer.titleCreate")}
       open={open}
       confirmLoading={loading}
       onOk={async () => {
@@ -33,41 +35,50 @@ export const ModalCustomer = ({
         }
       }}
       afterClose={() => form.resetFields()}
-      okText="Thêm mới"
-      cancelText="Hủy"
+      okText={t("common.add")}
+      cancelText={t("common.cancel")}
       destroyOnHidden
     >
       <Form form={form} layout="vertical">
         <FormInput
-          label="Họ tên"
+          label={t("customer.fullname")}
           name="fullname"
           rules={[
-            { required: true, message: "Vui lòng nhập họ tên" },
-            { min: 2, message: "Họ tên tối thiểu 2 ký tự" },
-            { max: 60, message: "Họ tên tối đa 60 ký tự" },
+            {
+              required: true,
+              message: t("customer.validation.fullnameRequired"),
+            },
+            { min: 2, message: t("customer.validation.fullnameMin") },
+            { max: 60, message: t("customer.validation.fullnameMax") },
           ]}
         />
         <FormInput
-          label="Email"
+          label={t("customer.email")}
           name="email"
           type="email"
           rules={[
-            { required: true, message: "Vui lòng nhập email" },
-            { type: "email", message: "Email không hợp lệ" },
+            {
+              required: true,
+              message: t("customer.validation.emailRequired"),
+            },
+            { type: "email", message: t("customer.validation.emailInvalid") },
           ]}
         />
         <FormInput
-          label="Số điện thoại"
+          label={t("customer.phone")}
           name="phone"
           rules={[
-            { required: true, message: "Vui lòng nhập số điện thoại" },
+            {
+              required: true,
+              message: t("customer.validation.phoneRequired"),
+            },
             {
               pattern: /^[0-9]{9,11}$/,
-              message: "Số điện thoại phải có 9-11 chữ số",
+              message: t("customer.validation.phonePattern"),
             },
           ]}
         />
-        <FormInput label="Địa chỉ" name="address" textarea />
+        <FormInput label={t("customer.address")} name="address" textarea />
       </Form>
     </Modal>
   );

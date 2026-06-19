@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   Descriptions,
@@ -19,41 +19,10 @@ import { GetCustomers } from "../../api/customerApi";
 import type { CustomerType, OrderType } from "../../types/domain";
 import formatCurrency from "../../utils/formatCurrecy";
 import formatDate from "../../utils/formatDate";
-
-const statusOrder = [
-  {
-    status: "completed",
-    icon: <CheckCircleOutlined />,
-    title: "Thành công",
-    color: "green",
-  },
-  {
-    status: "processing",
-    icon: <ClockCircleOutlined />,
-    title: "Đang xử lý",
-    color: "yellow",
-  },
-  {
-    status: "cancelled",
-    icon: <CloseCircleOutlined />,
-    title: "Đã hủy",
-    color: "red",
-  },
-  {
-    status: "pending",
-    icon: <CloseCircleOutlined />,
-    title: "Chờ xử lý",
-    color: "gray",
-  },
-  {
-    status: "shipping",
-    icon: <ClockCircleOutlined />,
-    title: "Đang giao",
-    color: "blue",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const DetailCustomer = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [customer, setCustomer] = useState<CustomerType | null>(null);
   const [orders, setOrders] = useState<OrderType[]>([]);
@@ -85,29 +54,67 @@ const DetailCustomer = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDataDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const statusOrder = useMemo(
+    () => [
+      {
+        status: "completed",
+        icon: <CheckCircleOutlined />,
+        title: t("order.status.completed"),
+        color: "green",
+      },
+      {
+        status: "processing",
+        icon: <ClockCircleOutlined />,
+        title: t("order.status.processing"),
+        color: "yellow",
+      },
+      {
+        status: "cancelled",
+        icon: <CloseCircleOutlined />,
+        title: t("order.status.cancelled"),
+        color: "red",
+      },
+      {
+        status: "pending",
+        icon: <CloseCircleOutlined />,
+        title: t("order.status.pending"),
+        color: "gray",
+      },
+      {
+        status: "shipping",
+        icon: <ClockCircleOutlined />,
+        title: t("order.status.shipping"),
+        color: "blue",
+      },
+    ],
+    [t],
+  );
 
   const columns: TableProps<OrderType>["columns"] = [
     {
-      title: "Mã đơn",
+      title: t("order.columns.code"),
       dataIndex: "order_code",
       key: "order_code",
     },
     {
-      title: "Ngày tạo đơn",
+      title: t("customer.detail.orderCreatedAt"),
       dataIndex: "created_at",
       key: "created_at",
       render: (created_at) => formatDate(created_at),
     },
     {
-      title: "Tổng tiền",
+      title: t("order.columns.totalPrice"),
       dataIndex: "total_price",
       key: "total_price",
       render: (totalPrice) => formatCurrency(Number(totalPrice ?? 0)),
     },
     {
-      title: "Trạng thái",
+      title: t("order.columns.status"),
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
@@ -124,30 +131,34 @@ const DetailCustomer = () => {
   ];
 
   if (loading) return <Spin />;
-  if (!customer) return <Empty description="Không tìm thấy khách hàng" />;
+  if (!customer) return <Empty description={t("customer.detail.notFound")} />;
 
   const totalExpend = orders.reduce((total, order) => {
     return total + Number(order.total_price ?? 0);
   }, 0);
 
   return (
-    <Card title="Chi tiết khách hàng">
+    <Card title={t("customer.detail.title")}>
       <Descriptions column={{ xs: 1, sm: 1, md: 2 }} bordered>
-        <Descriptions.Item label="Tên">{customer.fullname}</Descriptions.Item>
-        <Descriptions.Item label="Email">{customer.email}</Descriptions.Item>
-        <Descriptions.Item label="Số điện thoại">
+        <Descriptions.Item label={t("customer.fullname")}>
+          {customer.fullname}
+        </Descriptions.Item>
+        <Descriptions.Item label={t("customer.email")}>
+          {customer.email}
+        </Descriptions.Item>
+        <Descriptions.Item label={t("customer.phone")}>
           {customer.phone}
         </Descriptions.Item>
-        <Descriptions.Item label="Tổng số đơn">
+        <Descriptions.Item label={t("customer.columns.totalOrders")}>
           {orders.length}
         </Descriptions.Item>
-        <Descriptions.Item label="Tổng chi tiêu">
+        <Descriptions.Item label={t("customer.columns.totalExpend")}>
           {formatCurrency(totalExpend)}
         </Descriptions.Item>
       </Descriptions>
 
       <Card
-        title="Danh sách đơn hàng"
+        title={t("customer.detail.orderList")}
         style={{
           marginTop: 24,
         }}

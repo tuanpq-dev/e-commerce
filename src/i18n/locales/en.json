@@ -87,6 +87,15 @@
   },
   "order": {
     "title": "Create Order",
+    "columns": {
+      "no": "No.",
+      "code": "Order Code",
+      "customer": "Customer",
+      "createdAt": "Created At",
+      "totalPrice": "Total Price",
+      "status": "Status",
+      "action": "Action"
+    },
     "customer": "Customer",
     "productsInOrder": "Products in Order",
     "addProduct": "Add Product",
@@ -102,11 +111,38 @@
     "note": "Note",
     "totalPrice": "Total Order Price",
     "info": "Info",
+    "export": "Export",
+    "tooltip": {
+      "viewDetail": "View detail",
+      "exportExcel": "Export Excel"
+    },
     "placeholder": {
+      "search": "Search order",
+      "status": "Status",
       "note": "Enter note"
     },
+    "status": {
+      "pending": "Pending",
+      "cancel": "Cancelled",
+      "cancelled": "Cancelled",
+      "processing": "Processing",
+      "shipping": "Shipping",
+      "completed": "Completed"
+    },
     "notification": {
+      "createSuccess": "Order created successfully",
+      "createFailed": "Could not create order",
       "updateStatus": "Update status order successfully"
+    },
+    "exportColumns": {
+      "no": "No.",
+      "orderCode": "Order Code",
+      "customerName": "Customer Name",
+      "email": "Email",
+      "address": "Address",
+      "createdAt": "Created At",
+      "totalPrice": "Total Price",
+      "status": "Status"
     },
     "validation": {
       "customerRequired": "Please select a customer",
@@ -121,6 +157,96 @@
       "addressMax": "Maximum 100 characters",
       "noteMax": "Maximum 200 characters",
       "min1Product": "Please add at least one product"
+    }
+  },
+  "customer": {
+    "titleCreate": "Add Customer",
+    "fullname": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "columns": {
+      "no": "No.",
+      "fullname": "Full Name",
+      "email": "Email",
+      "address": "Address",
+      "phone": "Phone",
+      "totalOrders": "Total Orders",
+      "totalExpend": "Total Spend",
+      "action": "Action"
+    },
+    "placeholder": {
+      "search": "Search customer"
+    },
+    "tooltip": {
+      "viewDetail": "View detail"
+    },
+    "notification": {
+      "emailExists": "Email already exists",
+      "phoneExists": "Phone number already exists",
+      "createFailed": "Could not create customer",
+      "createSuccess": "Customer created successfully",
+      "deleteHasOrders": "Cannot delete customer because they already have orders",
+      "deleteSuccess": "Customer deleted successfully",
+      "deleteFailed": "Customer deletion failed"
+    },
+    "validation": {
+      "fullnameRequired": "Please enter full name",
+      "fullnameMin": "Full name must be at least 2 characters",
+      "fullnameMax": "Full name must be at most 60 characters",
+      "emailRequired": "Please enter email",
+      "emailInvalid": "Email is invalid",
+      "phoneRequired": "Please enter phone number",
+      "phonePattern": "Phone number must contain 9-11 digits"
+    },
+    "detail": {
+      "title": "Customer Detail",
+      "notFound": "Customer not found",
+      "orderCreatedAt": "Order Created At",
+      "orderList": "Order List"
+    }
+  },
+  "category": {
+    "titleCreateParent": "Add Parent Category",
+    "titleUpdateParent": "Update Parent Category",
+    "titleCreateChild": "Add Subcategory",
+    "titleUpdateChild": "Update Subcategory",
+    "addParent": "Add Parent Category",
+    "addChild": "Add Subcategory",
+    "name": "Category Name",
+    "childName": "Subcategory Name",
+    "columns": {
+      "no": "No.",
+      "name": "Category Name",
+      "childName": "Subcategory Name",
+      "childCount": "Subcategories",
+      "totalProduct": "Total Products",
+      "action": "Action"
+    },
+    "placeholder": {
+      "search": "Search category",
+      "selectParent": "Select category"
+    },
+    "tooltip": {
+      "viewChildren": "View subcategories"
+    },
+    "notification": {
+      "deleteParentHasChildren": "Cannot delete parent category while it still has subcategories",
+      "deleteSuccess": "Category deleted successfully",
+      "deleteFailed": "Category deletion failed",
+      "updateParentSuccess": "Parent category updated successfully",
+      "createParentSuccess": "Parent category created successfully",
+      "createChildSuccess": "Subcategory created successfully",
+      "updateChildSuccess": "Subcategory updated successfully"
+    },
+    "validation": {
+      "nameRequired": "Please enter category name",
+      "nameMin": "Category name must be at least 1 character",
+      "nameMax": "Category name must be at most 30 characters",
+      "childNameRequired": "Please enter subcategory name",
+      "childNameMin": "Subcategory name must be at least 1 character",
+      "childNameMax": "Subcategory name must be at most 30 characters",
+      "parentRequired": "Please select parent category"
     }
   }
 }
