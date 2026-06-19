@@ -15,7 +15,7 @@ import type {
   DataType,
   OrderType,
 } from "../../types/domain";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CreateOrder, GetOrders } from "../../api/orderApi";
 import {
   CheckCircleOutlined,
@@ -37,49 +37,11 @@ import openNotification from "../../@crema/core/Notification";
 import callApiWithRetries from "../../api/callApiWithRetries";
 import formatDate from "../../utils/formatDate";
 import exportToCSV from "../../@crema/core/ExportToCSV";
-
-const statusOrder = [
-  {
-    status: "completed",
-    icon: <CheckCircleOutlined />,
-    title: "Thành công",
-    color: "green",
-  },
-  {
-    status: "processing",
-    icon: <ClockCircleOutlined />,
-    title: "Đang xử lý",
-    color: "yellow",
-  },
-  {
-    status: "cancelled",
-    icon: <CloseCircleOutlined />,
-    title: "Đã hủy",
-    color: "red",
-  },
-  {
-    status: "pending",
-    icon: <CloseCircleOutlined />,
-    title: "Chờ xử lý",
-    color: "gray",
-  },
-  {
-    status: "shipping",
-    icon: <ClockCircleOutlined />,
-    title: "Đang giao",
-    color: "blue",
-  },
-];
-
-const STATUS_OPTIONS = Object.entries(statusOrder).map(
-  ([_, { title, status }]) => ({
-    label: title,
-    value: status,
-  }),
-);
+import { useTranslation } from "react-i18next";
 
 const Order: React.FC = () => {
   const screens = Grid.useBreakpoint();
+  const { t } = useTranslation();
   const isMobile = !screens.md;
   const { Search } = Input;
   const { isAdmin } = UserPermission();
@@ -94,6 +56,52 @@ const Order: React.FC = () => {
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
+
+  const statusOrder = useMemo(
+    () => [
+      {
+        status: "completed",
+        icon: <CheckCircleOutlined />,
+        title: t("order.status.completed"),
+        color: "green",
+      },
+      {
+        status: "processing",
+        icon: <ClockCircleOutlined />,
+        title: t("order.status.processing"),
+        color: "yellow",
+      },
+      {
+        status: "cancelled",
+        icon: <CloseCircleOutlined />,
+        title: t("order.status.cancelled"),
+        color: "red",
+      },
+      {
+        status: "pending",
+        icon: <CloseCircleOutlined />,
+        title: t("order.status.pending"),
+        color: "gray",
+      },
+      {
+        status: "shipping",
+        icon: <ClockCircleOutlined />,
+        title: t("order.status.shipping"),
+        color: "blue",
+      },
+    ],
+    [t],
+  );
+
+  const statusOptions = useMemo(
+    () =>
+      statusOrder.map(({ title, status }) => ({
+        label: title,
+        value: status,
+      })),
+    [statusOrder],
+  );
+
   const filterDataOrder = data.filter((item) => {
     const matchesStatus = !selectedStatus || item.status === selectedStatus;
     const matchesSearch =
@@ -157,37 +165,37 @@ const Order: React.FC = () => {
 
   const columns: TableProps<OrderType>["columns"] = [
     {
-      title: "STT",
+      title: t("order.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
       render: (_value, _record, index) => index + 1,
     },
     {
-      title: "Mã đơn",
+      title: t("order.columns.code"),
       dataIndex: "order_code",
       key: "order_code",
       fixed: !isMobile ? "start" : false,
     },
     {
-      title: "Khách hàng",
+      title: t("order.columns.customer"),
       dataIndex: "customer_name",
       key: "customer_name",
       fixed: !isMobile ? "start" : false,
     },
     {
-      title: "Ngày tạo",
+      title: t("order.columns.createdAt"),
       dataIndex: "created_at",
       key: "created_at",
       render: (created_at) => formatDate(created_at),
     },
     {
-      title: "Tổng tiền",
+      title: t("order.columns.totalPrice"),
       dataIndex: "total_price",
       key: "total_price",
       render: (_, record) => formatCurrency(Number(record.total_price)),
     },
     {
-      title: "Trạng thái",
+      title: t("order.columns.status"),
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
@@ -202,7 +210,7 @@ const Order: React.FC = () => {
       },
     },
     {
-      title: "Action",
+      title: t("order.columns.action"),
       key: "action",
       fixed: !isMobile ? "end" : false,
       width: 100,
@@ -212,7 +220,7 @@ const Order: React.FC = () => {
           <>
             <Space size="medium">
               <AntButton
-                tooltip="Xem chi tiết"
+                tooltip={t("order.tooltip.viewDetail")}
                 icon={<EyeOutlined />}
                 onClick={() => {
                   if (!record.id) return;
@@ -241,7 +249,7 @@ const Order: React.FC = () => {
       return err.message;
     }
 
-    return "Không thể thêm mới đơn hàng";
+    return t("order.notification.createFailed");
   };
 
   const handleCreateOrder = async (values: CreateOrderValues) => {
@@ -259,13 +267,13 @@ const Order: React.FC = () => {
       await Promise.all([fetchDataOrder(), fetchOrderOptions()]);
       setIsModalAdd(false);
       openNotification("success", {
-        message: "Thành công",
-        description: "Thêm mới đơn hàng thành công",
+        message: t("common.success"),
+        description: t("order.notification.createSuccess"),
       });
     } catch (err) {
       console.log(err);
       openNotification("error", {
-        message: "Thất bại",
+        message: t("common.failed"),
         description: getCreateOrderErrorMessage(err),
       });
     } finally {
@@ -275,24 +283,27 @@ const Order: React.FC = () => {
 
   const formatStatus = (status: string) => {
     const statusMap: Record<string, string> = {
-      pending: "Chờ xác nhận",
-      cancel: "Đã hủy",
-      processing: "Đang xử lý",
-      shipping: "Đang giao hàng",
-      completed: "Hoàn thành",
+      pending: t("order.status.pending"),
+      cancel: t("order.status.cancel"),
+      cancelled: t("order.status.cancelled"),
+      processing: t("order.status.processing"),
+      shipping: t("order.status.shipping"),
+      completed: t("order.status.completed"),
     };
     return statusMap[status];
   };
 
   const exportData = data.map((d, index) => ({
-    "Số thứ tự": index + 1,
-    "Mã đơn hàng": d.order_code,
-    "Tên khách hàng": d.customer_name,
-    "Email": d.customer_email,
-    "Địa chỉ": d.shipping_address,
-    "Ngày tạo": d.created_at ? formatDate(d.created_at) : "",
-    "Tổng tiền": formatCurrency(d.total_price),
-    "Trạng thái": d.status ? formatStatus(d.status) : "",
+    [t("order.exportColumns.no")]: index + 1,
+    [t("order.exportColumns.orderCode")]: d.order_code,
+    [t("order.exportColumns.customerName")]: d.customer_name,
+    [t("order.exportColumns.email")]: d.customer_email,
+    [t("order.exportColumns.address")]: d.shipping_address,
+    [t("order.exportColumns.createdAt")]: d.created_at
+      ? formatDate(d.created_at)
+      : "",
+    [t("order.exportColumns.totalPrice")]: formatCurrency(d.total_price),
+    [t("order.exportColumns.status")]: d.status ? formatStatus(d.status) : "",
   }));
 
   const exportExcel = () => {
@@ -307,25 +318,32 @@ const Order: React.FC = () => {
             <Search
               allowClear={true}
               onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Tìm kiếm đơn hàng"
+              placeholder={t("order.placeholder.search")}
               className="page-search"
             />
             <Select
               allowClear
-              placeholder="Status"
-              options={STATUS_OPTIONS}
+              placeholder={t("order.placeholder.status")}
+              options={statusOptions}
               value={selectedStatus}
               onChange={setSelectedStatus}
               className="page-control"
             />
           </div>
           <Flex gap={10}>
-            <AntButton tooltip="Xuất Excel" onClick={exportExcel}>
-              Export
+            <AntButton
+              tooltip={t("order.tooltip.exportExcel")}
+              onClick={exportExcel}
+            >
+              {t("order.export")}
             </AntButton>
             {isAdmin && (
-              <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-                Add
+              <AntButton
+                tooltip={t("common.add")}
+                type="primary"
+                onClick={handleAdd}
+              >
+                {t("common.add")}
               </AntButton>
             )}
           </Flex>

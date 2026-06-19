@@ -24,14 +24,16 @@ import openNotification from "../../@crema/core/Notification";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
+import { useTranslation } from "react-i18next";
 
 const Customer: React.FC = () => {
   const screens = Grid.useBreakpoint();
+  const { t } = useTranslation();
   const isMobile = !screens.md;
   const { Search } = Input;
   const { isAdmin } = UserPermission();
   const { userInfo } = useAuth();
-  const [rowData, setRowData] = useState([]);
+  const [rowData, setRowData] = useState<CustomerType | null>(null);
   const [dataCustomer, setDataCustomer] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -84,6 +86,7 @@ const Customer: React.FC = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCustomer();
   }, []);
 
@@ -97,14 +100,14 @@ const Customer: React.FC = () => {
 
   const getCreateErrorMessage = (err: unknown) => {
     if (err instanceof Error && err.message === "EMAIL_EXISTS") {
-      return "Email đã tồn tại";
+      return t("customer.notification.emailExists");
     }
 
     if (err instanceof Error && err.message === "PHONE_EXISTS") {
-      return "Số điện thoại đã tồn tại";
+      return t("customer.notification.phoneExists");
     }
 
-    return "Không thể thêm mới khách hàng";
+    return t("customer.notification.createFailed");
   };
 
   const handleCreateCustomer = async (values: CreateCustomerValues) => {
@@ -120,13 +123,13 @@ const Customer: React.FC = () => {
       await fetchCustomer();
       setIsOpenModal(false);
       openNotification("success", {
-        message: "Thành công",
-        description: "Thêm mới khách hàng thành công",
+        message: t("common.success"),
+        description: t("customer.notification.createSuccess"),
       });
     } catch (err) {
       console.log(err);
       openNotification("error", {
-        message: "Thất bại",
+        message: t("common.failed"),
         description: getCreateErrorMessage(err),
       });
     } finally {
@@ -136,13 +139,15 @@ const Customer: React.FC = () => {
 
   const handleDelete = async () => {
     try {
-      if (rowData?.total_orders > 0) {
+      if (Number(rowData?.total_orders ?? 0) > 0) {
         openNotification("error", {
-          message: "Thất bại",
-          description: "Không thể xóa khách hàng vì đã có đơn",
+          message: t("common.failed"),
+          description: t("customer.notification.deleteHasOrders"),
         });
         return;
       }
+      if (!rowData?.id) return;
+
       await Promise.all([
         DeleteCustomer(rowData.id),
         CreateActiveLog({
@@ -154,14 +159,14 @@ const Customer: React.FC = () => {
       await fetchCustomer();
       setIsDeleteModal(false);
       openNotification("success", {
-        message: "Thành công",
-        description: "Xóa khách hàng thành công",
+        message: t("common.success"),
+        description: t("customer.notification.deleteSuccess"),
       });
     } catch (err) {
       console.log(err);
       openNotification("error", {
-        message: "Thất bại",
-        description: "Xóa khách hàng thất bại",
+        message: t("common.failed"),
+        description: t("customer.notification.deleteFailed"),
       });
     }
   };
@@ -172,45 +177,45 @@ const Customer: React.FC = () => {
 
   const columns: TableProps<CustomerType>["columns"] = [
     {
-      title: "STT",
+      title: t("customer.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
       render: (_value, _record, index) => index + 1,
     },
     {
-      title: "Họ tên",
+      title: t("customer.columns.fullname"),
       dataIndex: "fullname",
       key: "fullname",
       fixed: !isMobile ? "start" : false,
       width: 100,
     },
     {
-      title: "Email",
+      title: t("customer.columns.email"),
       dataIndex: "email",
       key: "email",
       width: 80,
     },
     {
-      title: "Địa chỉ",
+      title: t("customer.columns.address"),
       dataIndex: "address",
       key: "address",
       width: 100,
     },
     {
-      title: "Số điện thoại",
+      title: t("customer.columns.phone"),
       dataIndex: "phone",
       key: "phone",
       width: 80,
     },
     {
-      title: "Tổng số đơn",
+      title: t("customer.columns.totalOrders"),
       dataIndex: "total_orders",
       key: "total_orders",
       align: "center",
       width: 100,
     },
     {
-      title: "Tổng chi tiêu",
+      title: t("customer.columns.totalExpend"),
       dataIndex: "total_expend",
       key: "total_expend",
       align: "center",
@@ -218,7 +223,7 @@ const Customer: React.FC = () => {
       render: (totalExpend) => formatCurrency(Number(totalExpend ?? 0)),
     },
     {
-      title: "Action",
+      title: t("customer.columns.action"),
       key: "action",
       fixed: !isMobile ? "end" : false,
       width: 100,
@@ -228,7 +233,7 @@ const Customer: React.FC = () => {
           <>
             <Space size="medium">
               <AntButton
-                tooltip="Xem chi tiết"
+                tooltip={t("customer.tooltip.viewDetail")}
                 icon={<EyeOutlined />}
                 onClick={() => {
                   if (!record.id) return;
@@ -237,10 +242,11 @@ const Customer: React.FC = () => {
                 }}
               />
               <AntButton
-                tooltip="Xóa"
+                tooltip={t("common.delete")}
                 icon={<DeleteOutlined />}
                 onClick={() => {
-                  (setIsDeleteModal(true), setRowData(record));
+                  setIsDeleteModal(true);
+                  setRowData(record);
                 }}
               />
             </Space>
@@ -256,12 +262,12 @@ const Customer: React.FC = () => {
         <Search
           allowClear={true}
           onChange={(event) => handleSearch(event.target.value)}
-          placeholder="Tìm kiếm khách hàng"
+          placeholder={t("customer.placeholder.search")}
           className="page-search"
         />
         {isAdmin && (
-          <AntButton tooltip="Thêm mới" type="primary" onClick={handleAdd}>
-            Add
+          <AntButton tooltip={t("common.add")} type="primary" onClick={handleAdd}>
+            {t("common.add")}
           </AntButton>
         )}
       </div>
@@ -286,7 +292,7 @@ const Customer: React.FC = () => {
         open={isDeleteModal}
         onOk={handleDelete}
         onCancel={handleCancelDelete}
-        targetName={rowData.fullname}
+        targetName={rowData?.fullname}
       />
     </Flex>
   );

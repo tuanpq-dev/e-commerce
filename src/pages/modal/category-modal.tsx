@@ -3,6 +3,7 @@ import { Form, Modal } from "antd";
 import type { CategoryType } from "../../types/domain";
 import FormInput from "../../@crema/core/Form/FormInput";
 import FormSelect from "../../@crema/core/Form/FormSelect";
+import { useTranslation } from "react-i18next";
 
 type ModalCategoryProps = {
   isUpdate?: boolean;
@@ -28,6 +29,7 @@ export const ModalCategory = ({
   onOk,
   onCancel,
 }: ModalCategoryProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -45,7 +47,11 @@ export const ModalCategory = ({
 
   return (
     <Modal
-      title={isUpdate ? "Chỉnh sửa danh mục cha" : "Thêm mới danh mục cha"}
+      title={
+        isUpdate
+          ? t("category.titleUpdateParent")
+          : t("category.titleCreateParent")
+      }
       open={open}
       onOk={async () => {
         const values = await form.validateFields();
@@ -53,22 +59,22 @@ export const ModalCategory = ({
       }}
       onCancel={onCancel}
       afterClose={() => form.resetFields()}
-      okText={isUpdate ? "Lưu" : "Thêm mới"}
-      cancelText="Hủy"
+      okText={isUpdate ? t("common.save") : t("common.add")}
+      cancelText={t("common.cancel")}
     >
       <Form form={form} layout="vertical">
         <FormInput
-          label="Tên danh mục"
+          label={t("category.name")}
           name="name"
           rules={[
-            { required: true, message: "Vui lòng nhập tên danh mục" },
+            { required: true, message: t("category.validation.nameRequired") },
             {
               min: 1,
-              message: "Tên danh mục tối thiểu 1 ký tự",
+              message: t("category.validation.nameMin"),
             },
             {
               max: 30,
-              message: "Tên danh mục tối đa 30 ký tự",
+              message: t("category.validation.nameMax"),
             },
           ]}
         />
@@ -85,6 +91,7 @@ export const ModalCategoryChild = ({
   onCancel,
   options,
 }: ModalCategoryChildProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const parentOptions = (options ?? []).map((option) => ({
     ...option,
@@ -107,7 +114,11 @@ export const ModalCategoryChild = ({
 
   return (
     <Modal
-      title={isUpdate ? "Chỉnh sửa danh mục con" : "Thêm mới danh mục con"}
+      title={
+        isUpdate
+          ? t("category.titleUpdateChild")
+          : t("category.titleCreateChild")
+      }
       open={open}
       onOk={async () => {
         const values = await form.validateFields();
@@ -115,34 +126,40 @@ export const ModalCategoryChild = ({
       }}
       onCancel={onCancel}
       afterClose={() => form.resetFields()}
-      okText={isUpdate ? "Lưu" : "Thêm mới"}
-      cancelText="Hủy"
+      okText={isUpdate ? t("common.save") : t("common.add")}
+      cancelText={t("common.cancel")}
     >
       <Form form={form} layout="vertical">
         <FormInput
-          label="Tên danh mục con"
+          label={t("category.childName")}
           name="name"
           rules={[
-            { required: true, message: "Vui lòng nhập tên danh mục con" },
+            {
+              required: true,
+              message: t("category.validation.childNameRequired"),
+            },
             {
               min: 1,
-              message: "Tên danh mục con tối thiểu 1 ký tự",
+              message: t("category.validation.childNameMin"),
             },
             {
               max: 30,
-              message: "Tên danh mục con tối đa 30 ký tự",
+              message: t("category.validation.childNameMax"),
             },
           ]}
         />
 
         {!isUpdate && (
           <FormSelect
-            label="Danh mục"
+            label={t("category.name")}
             name="id"
             options={parentOptions}
-            placeholder="Chọn danh mục"
+            placeholder={t("category.placeholder.selectParent")}
             rules={[
-              { required: true, message: "Vui lòng chọn danh mục cha" },
+              {
+                required: true,
+                message: t("category.validation.parentRequired"),
+              },
             ]}
           />
         )}

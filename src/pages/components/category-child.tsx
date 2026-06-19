@@ -8,9 +8,11 @@ import { GetCategoryById, updateCategoryChild } from "../../api/categoryApi";
 import { UserPermission } from "../../api/userPermission";
 import type { CategoryType } from "../../types/domain";
 import { ModalCategoryChild } from "../modal";
+import { useTranslation } from "react-i18next";
 
 const CategoryChild = () => {
   const screens = Grid.useBreakpoint();
+  const { t } = useTranslation();
   const isMobile = !screens.md;
   const { id } = useParams();
   const { Search } = Input;
@@ -71,33 +73,33 @@ const CategoryChild = () => {
     setRowData(null);
 
     openNotification("success", {
-      message: "Thành công",
-      description: "Chỉnh sửa danh mục con thành công",
+      message: t("common.success"),
+      description: t("category.notification.updateChildSuccess"),
     });
   };
 
   const columns: TableProps<CategoryType>["columns"] = [
     {
-      title: "STT",
+      title: t("category.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
       render: (_value, _record, index) => index + 1,
     },
     {
-      title: "Tên danh mục con",
+      title: t("category.columns.childName"),
       dataIndex: "name",
       key: "name",
       width: 100,
       fixed: "start",
     },
     {
-      title: "Tổng sản phẩm",
+      title: t("category.columns.totalProduct"),
       dataIndex: "total",
       key: "total",
       width: 100,
     },
     {
-      title: "Action",
+      title: t("category.columns.action"),
       key: "action",
       fixed: "end",
       width: 100,
@@ -107,7 +109,7 @@ const CategoryChild = () => {
         return (
           <Space size="medium">
             <AntButton
-              tooltip="Chỉnh sửa"
+              tooltip={t("common.update")}
               icon={<EditOutlined />}
               onClick={() => handleEdit(record)}
             />
@@ -124,7 +126,7 @@ const CategoryChild = () => {
           <Search
             allowClear={true}
             onChange={(event) => handleSearch(event.target.value)}
-            placeholder="Tìm kiếm danh mục"
+            placeholder={t("category.placeholder.search")}
             className="page-search"
           />
         </div>
