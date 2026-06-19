@@ -17,12 +17,7 @@ import type {
 } from "../../types/domain";
 import { useEffect, useMemo, useState } from "react";
 import { CreateOrder, GetOrders } from "../../api/orderApi";
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import formatCurrency from "../../utils/formatCurrecy";
 import AntButton from "../../@crema/component/AntButton";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +33,7 @@ import callApiWithRetries from "../../api/callApiWithRetries";
 import formatDate from "../../utils/formatDate";
 import exportToCSV from "../../@crema/core/ExportToCSV";
 import { useTranslation } from "react-i18next";
+import { getOrderStatuses } from "../../shared/constant/orderStatus";
 
 const Order: React.FC = () => {
   const screens = Grid.useBreakpoint();
@@ -57,41 +53,7 @@ const Order: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
 
-  const statusOrder = useMemo(
-    () => [
-      {
-        status: "completed",
-        icon: <CheckCircleOutlined />,
-        title: t("order.status.completed"),
-        color: "green",
-      },
-      {
-        status: "processing",
-        icon: <ClockCircleOutlined />,
-        title: t("order.status.processing"),
-        color: "yellow",
-      },
-      {
-        status: "cancelled",
-        icon: <CloseCircleOutlined />,
-        title: t("order.status.cancelled"),
-        color: "red",
-      },
-      {
-        status: "pending",
-        icon: <CloseCircleOutlined />,
-        title: t("order.status.pending"),
-        color: "gray",
-      },
-      {
-        status: "shipping",
-        icon: <ClockCircleOutlined />,
-        title: t("order.status.shipping"),
-        color: "blue",
-      },
-    ],
-    [t],
-  );
+  const statusOrder = useMemo(() => getOrderStatuses(t), [t]);
 
   const statusOptions = useMemo(
     () =>
@@ -282,15 +244,8 @@ const Order: React.FC = () => {
   };
 
   const formatStatus = (status: string) => {
-    const statusMap: Record<string, string> = {
-      pending: t("order.status.pending"),
-      cancel: t("order.status.cancel"),
-      cancelled: t("order.status.cancelled"),
-      processing: t("order.status.processing"),
-      shipping: t("order.status.shipping"),
-      completed: t("order.status.completed"),
-    };
-    return statusMap[status];
+    const found = statusOrder.find((s) => s.status === status);
+    return found?.title ?? status;
   };
 
   const exportData = data.map((d, index) => ({

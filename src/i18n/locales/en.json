@@ -12,6 +12,7 @@
   },
   "product": {
     "columns": {
+      "no": "No.",
       "image": "Image",
       "sku": "SKU",
       "name": "Product Name",
@@ -157,6 +158,25 @@
       "addressMax": "Maximum 100 characters",
       "noteMax": "Maximum 200 characters",
       "min1Product": "Please add at least one product"
+    },
+    "detail": {
+      "title": "Order Detail",
+      "notFound": "Order not found",
+      "orderCode": "Order Code",
+      "purchasedAt": "Purchased At",
+      "customerName": "Customer Name",
+      "orderStatus": "Order Status",
+      "productList": "Product List",
+      "statusHistory": "Status History",
+      "columns": {
+        "image": "Image",
+        "productName": "Product Name",
+        "size": "Size",
+        "color": "Color",
+        "quantity": "Quantity",
+        "price": "Price",
+        "total": "Total"
+      }
     }
   },
   "customer": {
@@ -247,6 +267,26 @@
       "childNameMin": "Subcategory name must be at least 1 character",
       "childNameMax": "Subcategory name must be at most 30 characters",
       "parentRequired": "Please select parent category"
+    }
+  },
+  "activeLog": {
+    "columns": {
+      "time": "Time",
+      "user": "User",
+      "module": "Module",
+      "action": "Action"
+    }
+  },
+  "dashboard": {
+    "stats": {
+      "totalOrders": "Total Orders",
+      "totalRevenue": "Total Revenue",
+      "totalCustomers": "Total Customers",
+      "totalProducts": "Total Products"
+    },
+    "chart": {
+      "revenueByMonth": "Revenue by Month",
+      "ordersByDay": "Orders by Day in Month"
     }
   }
 }

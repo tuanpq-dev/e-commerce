@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from "react";
 import type {
   DataType,
   ProductInitialValues,
@@ -8,30 +7,9 @@ import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
 import { IncreaseCategoryProductTotal } from "./categoryApi";
 
-export const GetProduct = () => {
-  const [product, setProduct] = useState<DataType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchProduct = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await callApiWithRetries({
-        url: "/products",
-      });
-
-      setProduct([...data].reverse());
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchProduct();
-  }, [fetchProduct]);
-
-  return { product, isLoading, refetch: fetchProduct };
+export const GetProducts = async (): Promise<DataType[]> => {
+  const data = await callApiWithRetries<DataType[]>({ url: "/products" });
+  return [...data].reverse();
 };
 
 const createVariantSku = (
@@ -80,35 +58,31 @@ const getProductSummary = (values: ProductInitialValues) => {
 };
 
 export const CreateProduct = async (values: ProductInitialValues) => {
-  try {
-    const productSummary = getProductSummary(values);
+  const productSummary = getProductSummary(values);
 
-    const payload = {
-      id: Date.now(),
-      sku: `${values.sku} ${Date.now()}`,
-      name: values.name,
-      price: productSummary.price,
-      stock: productSummary.stock,
-      variants: productSummary.variants,
+  const payload = {
+    id: Date.now(),
+    sku: `${values.sku} ${Date.now()}`,
+    name: values.name,
+    price: productSummary.price,
+    stock: productSummary.stock,
+    variants: productSummary.variants,
+    category: values.category,
+    description: values.description || "",
+    status: "pending",
+    category_child: values?.category_child || [],
+    created_at: Date.now(),
+  };
+
+  const [res] = await Promise.all([
+    axiosClient.post("/products", payload),
+    IncreaseCategoryProductTotal({
       category: values.category,
-      description: values.description || "",
-      status: "pending",
-      category_child: values?.category_child || [],
-      created_at: Date.now(),
-    };
+      category_child: values.category_child,
+    }),
+  ]);
 
-    const [res] = await Promise.all([
-      axiosClient.post("/products", payload),
-      IncreaseCategoryProductTotal({
-        category: values.category,
-        category_child: values.category_child,
-      }),
-    ]);
-
-    return res.data;
-  } catch (err) {
-    console.log(err);
-  }
+  return res.data;
 };
 
 type UpdateProductValues = Omit<ProductInitialValues, "id"> & {
@@ -116,48 +90,32 @@ type UpdateProductValues = Omit<ProductInitialValues, "id"> & {
 };
 
 export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
-  try {
-    const productSummary = getProductSummary(values);
+  const productSummary = getProductSummary(values);
 
-    const payload = {
-      price: productSummary.price,
-      stock: productSummary.stock,
-      variants: productSummary.variants,
-      name: values.name,
-      category: values.category,
-      category_child: values.category_child || [],
-      description: values.description,
-    };
+  const payload = {
+    price: productSummary.price,
+    stock: productSummary.stock,
+    variants: productSummary.variants,
+    name: values.name,
+    category: values.category,
+    category_child: values.category_child || [],
+    description: values.description,
+  };
 
-    const res = await axiosClient.patch(`/products/${id}`, payload);
-
-    const data = await res.data;
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await axiosClient.patch(`/products/${id}`, payload);
+  return res.data;
 };
 
 export const DeleteProduct = async (id: number | string) => {
-  try {
-    const res = await axiosClient.delete(`/products/${id}`);
-
-    const data = await res.data;
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await axiosClient.delete(`/products/${id}`);
+  return res.data;
 };
 
 export const UpdateStatusProduct = async (
   status: string,
   id: number | string,
 ) => {
-  const payload = {
-    status,
-  };
-
+  const payload = { status };
   const res = await axiosClient.patch(`/products/${id}`, payload);
-
   return res.data;
 };

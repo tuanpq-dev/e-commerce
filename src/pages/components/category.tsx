@@ -6,11 +6,11 @@ import {
   CreateCategory,
   CreateCategoryChild,
   DeleteCategory,
-  GetCategory,
+  GetCategories,
   UpdateCategory,
 } from "../../api/categoryApi";
 import { ModalCategory, ModalCategoryChild } from "../modal";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import openNotification from "../../@crema/core/Notification";
 import AntButton from "../../@crema/component/AntButton";
@@ -34,9 +34,27 @@ const Category: React.FC = () => {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenModalChild, setIsOpenModalChild] = useState(false);
   const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
-  const { category, isLoading, refetch } = GetCategory();
+  const [category, setCategory] = useState<CategoryType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchText, setSearchText] = useState("");
+
+  const fetchCategories = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await GetCategories();
+      setCategory(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchCategories();
+  }, [fetchCategories]);
   const { isAdmin } = UserPermission();
 
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
@@ -82,7 +100,7 @@ const Category: React.FC = () => {
         user: userInfo?.name ?? "Unknown",
       });
 
-      await refetch();
+      await fetchCategories();
 
       setIsOpenModalDelete(false);
 
@@ -205,7 +223,7 @@ const Category: React.FC = () => {
         }),
       ]);
 
-      await refetch();
+      await fetchCategories();
       setIsOpenModal(false);
       setIsUpdate(false);
       setRowData({});
@@ -223,7 +241,7 @@ const Category: React.FC = () => {
           user: userInfo?.name,
         }),
       ]);
-      await refetch();
+      await fetchCategories();
 
       setIsOpenModal(false);
       openNotification("success", {
@@ -242,7 +260,7 @@ const Category: React.FC = () => {
         user: userInfo?.name,
       }),
     ]);
-    await refetch();
+    await fetchCategories();
     setIsOpenModalChild(false);
     openNotification("success", {
       message: t("common.success"),

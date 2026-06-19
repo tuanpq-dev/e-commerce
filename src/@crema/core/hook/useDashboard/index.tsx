@@ -6,6 +6,7 @@ import {
   getOrdersByDayOfMonth,
   getTotalRevenueFromOrders,
 } from "../../../../api/orderApi";
+import { GetProducts } from "../../../../api/productApi";
 
 const getLast6Months = () => {
   const now = new Date();
@@ -27,6 +28,7 @@ type Stats = {
   totalOrders: number;
   totalRevenue: number;
   totalCustomers: number;
+  totalProducts: number;
 };
 
 export const useDashboard = () => {
@@ -42,6 +44,7 @@ export const useDashboard = () => {
     totalOrders: 0,
     totalRevenue: 0,
     totalCustomers: 0,
+    totalProducts: 0,
   });
   const [loading, setLoading] = useState(false);
   const months = getLast6Months();
@@ -51,6 +54,7 @@ export const useDashboard = () => {
       setLoading(true);
       try {
         const orders: OrderType[] = (await GetOrders()) ?? [];
+        const products = await GetProducts();
 
         const results = months.map(({ month, year }) =>
           getTotalRevenueFromOrders(orders, { month, year }),
@@ -66,6 +70,7 @@ export const useDashboard = () => {
             0,
           ),
           totalCustomers: uniqueCustomers,
+          totalProducts: products.length,
         });
       } catch (err) {
         console.log(err);

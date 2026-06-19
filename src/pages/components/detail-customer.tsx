@@ -9,17 +9,14 @@ import {
   Tag,
   type TableProps,
 } from "antd";
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
+
 import { GetOrders } from "../../api/orderApi";
 import { GetCustomers } from "../../api/customerApi";
 import type { CustomerType, OrderType } from "../../types/domain";
 import formatCurrency from "../../utils/formatCurrecy";
 import formatDate from "../../utils/formatDate";
 import { useTranslation } from "react-i18next";
+import { getOrderStatuses } from "../../shared/constant/orderStatus";
 
 const DetailCustomer = () => {
   const { t } = useTranslation();
@@ -59,41 +56,7 @@ const DetailCustomer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const statusOrder = useMemo(
-    () => [
-      {
-        status: "completed",
-        icon: <CheckCircleOutlined />,
-        title: t("order.status.completed"),
-        color: "green",
-      },
-      {
-        status: "processing",
-        icon: <ClockCircleOutlined />,
-        title: t("order.status.processing"),
-        color: "yellow",
-      },
-      {
-        status: "cancelled",
-        icon: <CloseCircleOutlined />,
-        title: t("order.status.cancelled"),
-        color: "red",
-      },
-      {
-        status: "pending",
-        icon: <CloseCircleOutlined />,
-        title: t("order.status.pending"),
-        color: "gray",
-      },
-      {
-        status: "shipping",
-        icon: <ClockCircleOutlined />,
-        title: t("order.status.shipping"),
-        color: "blue",
-      },
-    ],
-    [t],
-  );
+  const statusOrder = useMemo(() => getOrderStatuses(t), [t]);
 
   const columns: TableProps<OrderType>["columns"] = [
     {
