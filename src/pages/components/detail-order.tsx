@@ -9,7 +9,7 @@ import {
   Timeline,
 } from "antd";
 import type { TableProps } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { GetOrderById, UpdateStatusDetailOrder } from "../../api/orderApi";
 import { CreateActiveLog } from "../../api/activeLogApi";
@@ -19,6 +19,12 @@ import formatDate from "../../utils/formatDate";
 import { useAuth } from "../../contexts/AuthContext";
 import openNotification from "../../@crema/core/Notification";
 import { useTranslation } from "react-i18next";
+import {
+  ORDER_STATUS_KEYS,
+  ORDER_STATUS_STYLE,
+  getOrderStatuses,
+  type OrderStatusKey,
+} from "../../shared/constant/orderStatus";
 
 type OrderItemType = {
   id: string;
@@ -60,7 +66,7 @@ type OrderType = {
   historyDetailOrder?: OrderHistoryType[];
 };
 
-// Định nghĩa các transition hợp lệ
+// STATUS_TRANSITIONS: business logic – giữ nguyên
 const STATUS_TRANSITIONS: Record<string, string[]> = {
   pending: ["processing", "cancelled"],
   processing: ["shipping"],
@@ -69,33 +75,21 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
   cancelled: [],
 };
 
-const ALL_STATUSES = Object.keys(STATUS_TRANSITIONS) as Array<
-  keyof typeof STATUS_CONFIG
->;
-
-const STATUS_CONFIG = {
-  pending: { label: "Chờ xử lý", color: "#d46b08", bg: "#fff7e6" },
-  processing: { label: "Đang xử lý", color: "#096dd9", bg: "#e6f4ff" },
-  shipping: { label: "Đang giao", color: "#7c3aed", bg: "#f5f3ff" },
-  completed: { label: "Hoàn thành", color: "#389e0d", bg: "#f6ffed" },
-  cancelled: { label: "Đã hủy", color: "#cf1322", bg: "#fff1f0" },
-};
-
-const StatusBadge = ({ value }: { value: string }) => {
-  const cfg = STATUS_CONFIG[value as keyof typeof STATUS_CONFIG];
+const StatusBadge = ({ value, label }: { value: string; label?: string }) => {
+  const cfg = ORDER_STATUS_STYLE[value as OrderStatusKey];
   if (!cfg) return null;
 
   return (
     <span
       style={{
-        color: cfg.color,
+        color: cfg.colorHex,
         background: cfg.bg,
         padding: "2px 10px",
         borderRadius: 999,
         fontWeight: 600,
       }}
     >
-      ● {cfg.label}
+      ● {label ?? value}
     </span>
   );
 };
@@ -107,6 +101,7 @@ const DetailOrder = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState<OrderType | null>(null);
   const [loading, setLoading] = useState(false);
+  const orderStatuses = useMemo(() => getOrderStatuses(t), [t]);
 
   const fetchData = async () => {
     if (!id) return;
@@ -128,43 +123,43 @@ const DetailOrder = () => {
 
   const columns: TableProps<OrderItemType>["columns"] = [
     {
-      title: "Ảnh",
+      title: t("order.detail.columns.image"),
       dataIndex: "image",
       key: "image",
       width: 80,
       render: (image: string) => <Image width={50} height={50} src={image} />,
     },
     {
-      title: "Tên sản phẩm",
+      title: t("order.detail.columns.productName"),
       dataIndex: "product_name",
       key: "product_name",
     },
     {
-      title: "Size",
+      title: t("order.detail.columns.size"),
       dataIndex: "size",
       key: "size",
       width: 80,
     },
     {
-      title: "Màu",
+      title: t("order.detail.columns.color"),
       dataIndex: "color",
       key: "color",
       width: 100,
     },
     {
-      title: "Số lượng",
+      title: t("order.detail.columns.quantity"),
       dataIndex: "quantity",
       key: "quantity",
       width: 100,
     },
     {
-      title: "Giá",
+      title: t("order.detail.columns.price"),
       dataIndex: "price",
       key: "price",
       render: (price: number) => `${formatCurrency(price)}`,
     },
     {
-      title: "Tổng tiền",
+      title: t("order.detail.columns.total"),
       key: "total",
       render: (_, record) =>
         `${formatCurrency(record.price * record.quantity)}`,
@@ -200,57 +195,68 @@ const DetailOrder = () => {
   };
 
   if (loading) return <Spin />;
-  if (!data) return <Empty description="Không tìm thấy đơn hàng" />;
+  if (!data) return <Empty description={t("order.detail.notFound")} />;
 
   return (
     <Form form={form}>
-      <Card title={`Chi tiết đơn hàng ${data.order_code}`} loading={loading}>
+      <Card title={`${t("order.detail.title")} ${data.order_code}`} loading={loading}>
         <Descriptions column={{ xs: 1, sm: 1, md: 2 }} bordered>
-          <Descriptions.Item label="Mã đơn">
+          <Descriptions.Item label={t("order.detail.orderCode")}>
             {data.order_code}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Ngày mua">
+          <Descriptions.Item label={t("order.detail.purchasedAt")}>
             {data.created_at}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Tên khách hàng">
+          <Descriptions.Item label={t("order.detail.customerName")}>
             {data.customer_name}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Email">
+          <Descriptions.Item label={t("customer.email")}>
             {data.customer_email}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Địa chỉ giao hàng">
+          <Descriptions.Item label={t("order.shippingAddress")}>
             {data.shipping_address}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Trạng thái đơn hàng">
+          <Descriptions.Item label={t("order.detail.orderStatus")}>
             <FormSelect
               name="status"
               onChange={handleUpdateStatus}
-              labelRender={({ value }) => <StatusBadge value={String(value)} />}
-              options={ALL_STATUSES.map((s) => ({
-                label: STATUS_CONFIG[s].label,
-                value: s,
-                disabled:
-                  s !== data.status &&
-                  !STATUS_TRANSITIONS[data.status]?.includes(s),
-              }))}
+              labelRender={({ value }) => {
+                const found = orderStatuses.find(
+                  (s) => s.status === String(value),
+                );
+                return (
+                  <StatusBadge
+                    value={String(value)}
+                    label={found?.title}
+                  />
+                );
+              }}
+              options={ORDER_STATUS_KEYS.map((s) => {
+                const statusInfo = orderStatuses.find((o) => o.status === s);
+                return {
+                  label: statusInfo?.title ?? s,
+                  value: s,
+                  disabled:
+                    s !== data.status &&
+                    !STATUS_TRANSITIONS[data.status]?.includes(s),
+                };
+              })}
             />
           </Descriptions.Item>
 
-          <Descriptions.Item label="Tổng tiền">
+          <Descriptions.Item label={t("order.totalPrice")}>
             {formatCurrency(data.total_price)}
           </Descriptions.Item>
         </Descriptions>
 
         <Card
-          title="Danh sách sản phẩm"
-          style={{
-            marginTop: 24,
-          }}
+          title={t("order.detail.productList")}
+          style={{ marginTop: 24 }}
         >
           <div className="table-shell">
             <Table
@@ -264,10 +270,8 @@ const DetailOrder = () => {
         </Card>
 
         <Card
-          title="Lịch sử trạng thái"
-          style={{
-            marginTop: 24,
-          }}
+          title={t("order.detail.statusHistory")}
+          style={{ marginTop: 24 }}
         >
           <Timeline
             reverse={true}

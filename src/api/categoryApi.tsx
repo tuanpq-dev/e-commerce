@@ -1,32 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
-import { apiUrl } from "./mockApi";
 import type { CategoryType } from "../types/domain";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
 
-export const GetCategory = () => {
-  const [category, setCategory] = useState<CategoryType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchCategory = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await callApiWithRetries({
-        url: "/category",
-      });
-      setCategory(data);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCategory();
-  }, [fetchCategory]);
-
-  return { category, isLoading, refetch: fetchCategory };
+export const GetCategories = async (): Promise<CategoryType[]> => {
+  const data = await callApiWithRetries<CategoryType[]>({ url: "/category" });
+  return data;
 };
 
 export const GetCategoryById = async (id: number | string) => {
@@ -49,33 +27,19 @@ type UpdateCategoryValues = Omit<CategoryType, "id" | "stock"> & {
 };
 
 export const UpdateCategory = async (values: UpdateCategoryValues) => {
-  try {
-    const payload = {
-      name: values.name,
-      total_child: 0,
-    };
+  const payload = {
+    name: values.name,
+    total_child: 0,
+  };
 
-    const res = await axiosClient.patch(`/category/${values.id}`, payload);
-    const data = res.data;
-
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await axiosClient.patch(`/category/${values.id}`, payload);
+  return res.data;
 };
 
+// Nhóm 3 + 4: Bỏ try/catch, dùng axiosClient thay vì fetch
 export const DeleteCategory = async (id: number | string) => {
-  try {
-    const res = await fetch(`${apiUrl}/category/${id}`, {
-      method: "DELETE",
-    });
-
-    const data = await res.json();
-
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await axiosClient.delete(`/category/${id}`);
+  return res.data;
 };
 
 type CreateCategoryChildValues = Pick<CategoryType, "name" | "id">;

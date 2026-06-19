@@ -1,20 +1,20 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Flex, Grid, Image, Input, Select, Space, Table } from "antd";
 import type { TableProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import type { DataType, ProductInitialValues } from "../../types/domain";
+import type { CategoryType, DataType, ProductInitialValues } from "../../types/domain";
 import { ModalProduct } from "../modal";
 import openNotification from "../../@crema/core/Notification";
 import formatCurrency from "../../utils/formatCurrecy";
 import {
   CreateProduct,
   DeleteProduct,
-  GetProduct,
+  GetProducts,
   UpdateProduct,
   UpdateStatusProduct,
 } from "../../api/productApi";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
-import { GetCategory } from "../../api/categoryApi";
+import { GetCategories } from "../../api/categoryApi";
 import AntButton from "../../@crema/component/AntButton";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
@@ -95,9 +95,30 @@ const Product: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>();
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const [selectedPrice, setSelectedPrice] = useState<string>();
-  const { product, isLoading, refetch } = GetProduct();
-  const { category } = GetCategory();
+  const [product, setProduct] = useState<DataType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [category, setCategory] = useState<CategoryType[]>([]);
   const { isAdmin } = UserPermission();
+
+  const fetchProducts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await GetProducts();
+      setProduct(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchProducts();
+    GetCategories()
+      .then(setCategory)
+      .catch(console.error);
+  }, [fetchProducts]);
 
   const categoryMap = useMemo(
     () => new Map(category.map((item) => [String(item.id), item.name])),
@@ -207,7 +228,7 @@ const Product: React.FC = () => {
       }),
     ]);
 
-    await refetch();
+    await fetchProducts();
     setIsDeleting(false);
     setIsDeleteModal(false);
     setRowData(null);
@@ -243,7 +264,7 @@ const Product: React.FC = () => {
           user: userInfo?.name,
         }),
       ]);
-      await refetch();
+      await fetchProducts();
       openNotification("success", {
         message: t("common.success"),
         description: t("product.notification.updateStatus"),
@@ -394,7 +415,7 @@ const Product: React.FC = () => {
         }),
       ]);
 
-      await refetch();
+      await fetchProducts();
       setIsOpenModal(false);
       setIsUpdate(false);
       setRowData(null);
@@ -413,7 +434,7 @@ const Product: React.FC = () => {
         }),
       ]);
 
-      await refetch();
+      await fetchProducts();
       setIsOpenModal(false);
       openNotification("success", {
         message: t("common.success"),

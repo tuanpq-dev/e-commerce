@@ -12,6 +12,7 @@
   },
   "product": {
     "columns": {
+      "no": "STT",
       "image": "Hình ảnh",
       "sku": "SKU",
       "name": "Tên sản phẩm",
@@ -157,6 +158,25 @@
       "addressMax": "Tối đa 100 ký tự",
       "noteMax": "Tối đa 200 ký tự",
       "min1Product": "Vui lòng thêm ít nhất một sản phẩm"
+    },
+    "detail": {
+      "title": "Chi tiết đơn hàng",
+      "notFound": "Không tìm thấy đơn hàng",
+      "orderCode": "Mã đơn",
+      "purchasedAt": "Ngày mua",
+      "customerName": "Tên khách hàng",
+      "orderStatus": "Trạng thái đơn hàng",
+      "productList": "Danh sách sản phẩm",
+      "statusHistory": "Lịch sử trạng thái",
+      "columns": {
+        "image": "Ảnh",
+        "productName": "Tên sản phẩm",
+        "size": "Size",
+        "color": "Màu",
+        "quantity": "Số lượng",
+        "price": "Giá",
+        "total": "Tổng tiền"
+      }
     }
   },
   "customer": {
@@ -247,6 +267,26 @@
       "childNameMin": "Tên danh mục con tối thiểu 1 ký tự",
       "childNameMax": "Tên danh mục con tối đa 30 ký tự",
       "parentRequired": "Vui lòng chọn danh mục cha"
+    }
+  },
+  "activeLog": {
+    "columns": {
+      "time": "Thời gian",
+      "user": "Người dùng",
+      "module": "Phân hệ",
+      "action": "Hành động"
+    }
+  },
+  "dashboard": {
+    "stats": {
+      "totalOrders": "Tổng số đơn hàng",
+      "totalRevenue": "Tổng doanh thu",
+      "totalCustomers": "Tổng khách hàng",
+      "totalProducts": "Tổng sản phẩm"
+    },
+    "chart": {
+      "revenueByMonth": "Doanh thu theo tháng",
+      "ordersByDay": "Số đơn theo ngày tháng"
     }
   }
 }

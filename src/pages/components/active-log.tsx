@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { GetActiveLogs } from "../../api/activeLogApi";
 import type { ActiveLogType } from "../../types/domain";
 import formatDate from "../../utils/formatDate";
+import { useTranslation } from "react-i18next";
 
 const ActiveLog = () => {
+  const { t } = useTranslation();
   const [dataActiveLog, setDataActiveLog] = useState<ActiveLogType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,7 +28,7 @@ const ActiveLog = () => {
 
   const columns: TableProps<ActiveLogType>["columns"] = [
     {
-      title: "Time",
+      title: t("activeLog.columns.time"),
       dataIndex: "created_at",
       key: "created_at",
       width: 100,
@@ -34,19 +36,19 @@ const ActiveLog = () => {
         record.created_at ? formatDate(record.created_at) : "",
     },
     {
-      title: "User",
+      title: t("activeLog.columns.user"),
       dataIndex: "user",
       key: "user",
       width: 100,
     },
     {
-      title: "Module",
+      title: t("activeLog.columns.module"),
       dataIndex: "module",
       key: "module",
       width: 100,
     },
     {
-      title: "Action",
+      title: t("activeLog.columns.action"),
       dataIndex: "action",
       key: "action",
       width: 100,

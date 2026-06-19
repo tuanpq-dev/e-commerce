@@ -3,7 +3,7 @@ import { Card, Col, Row, Spin } from "antd";
 import ReactECharts from "echarts-for-react";
 import formatCurrency from "../../utils/formatCurrecy";
 import { useDashboard } from "../../@crema/core/hook/useDashboard";
-import { GetProduct } from "../../api/productApi";
+import { useTranslation } from "react-i18next";
 
 type ChartProps = {
   title: string;
@@ -72,15 +72,19 @@ const StatCard = ({ title, value, isCurrency }: StatCardProps) => (
 );
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const { revenueData, ordersByDayOfMonth, stats, loading, months } =
     useDashboard();
-  const { product } = GetProduct();
 
   const statisticCards = [
-    { title: "Tổng số đơn hàng", value: stats.totalOrders },
-    { title: "Tổng doanh thu", value: stats.totalRevenue, isCurrency: true },
-    { title: "Tổng khách hàng", value: stats.totalCustomers },
-    { title: "Tổng sản phẩm", value: product.length },
+    { title: t("dashboard.stats.totalOrders"), value: stats.totalOrders },
+    {
+      title: t("dashboard.stats.totalRevenue"),
+      value: stats.totalRevenue,
+      isCurrency: true,
+    },
+    { title: t("dashboard.stats.totalCustomers"), value: stats.totalCustomers },
+    { title: t("dashboard.stats.totalProducts"), value: stats.totalProducts },
   ];
 
   const revenueByMonth = {
@@ -110,7 +114,7 @@ const Dashboard = () => {
         <Col xs={24} lg={12}>
           <Card>
             <Chart
-              title="Doanh thu theo tháng"
+              title={t("dashboard.chart.revenueByMonth")}
               type="line"
               labels={revenueByMonth.labels}
               data={revenueByMonth.data}
@@ -121,7 +125,9 @@ const Dashboard = () => {
         <Col xs={24} lg={12}>
           <Card>
             <Chart
-              title={`Số đơn theo ngày trong tháng ${new Date().getMonth() + 1}`}
+              title={`${t("dashboard.chart.ordersByDay")} ${
+                new Date().getMonth() + 1
+              }`}
               type="line"
               labels={ordersByDayOfMonth.labels}
               data={ordersByDayOfMonth.data}

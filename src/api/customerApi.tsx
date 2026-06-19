@@ -7,27 +7,14 @@ const normalizeText = (value?: string | number) =>
     .trim()
     .toLowerCase();
 
-export const GetCustomers = async () => {
-  try {
-    const data = await callApiWithRetries({
-      url: "/customers",
-    });
-
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+export const GetCustomers = async (): Promise<CustomerType[]> => {
+  const data = await callApiWithRetries<CustomerType[]>({ url: "/customers" });
+  return data;
 };
 
 export const DeleteCustomer = async (id: string | number) => {
-  try {
-    const res = await axiosClient.delete(`/customers/${id}`);
-    const data = res.data;
-
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await axiosClient.delete(`/customers/${id}`);
+  return res.data;
 };
 
 export const CreateCustomer = async (values: CreateCustomerValues) => {
@@ -60,17 +47,10 @@ export const CreateCustomer = async (values: CreateCustomerValues) => {
   };
 
   const res = await axiosClient.post("/customers", payload);
-
   return res.data;
 };
 
 export const GetCustomerById = async (id: number | string) => {
-  try {
-    const data = await callApiWithRetries({
-      url: `/detail_customers/${id}`,
-    });
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+  const data = await callApiWithRetries({ url: `/detail_customers/${id}` });
+  return data;
 };

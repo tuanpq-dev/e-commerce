@@ -72,29 +72,13 @@ const getOrderItemKey = (item: CreateOrderItemValues) =>
     .join("|");
 
 export const GetOrders = async (): Promise<OrderType[]> => {
-  try {
-    const data: OrderType[] =
-      (await callApiWithRetries({
-        url: "/orders",
-      })) ?? [];
-
-    return data;
-  } catch (err) {
-    console.log(err);
-    return [];
-  }
+  const data = await callApiWithRetries<OrderType[]>({ url: "/orders" });
+  return data ?? [];
 };
 
 export const GetOrderById = async (id: string | number) => {
-  try {
-    const data = await callApiWithRetries({
-      url: `/orders/${id}`,
-    });
-
-    return data;
-  } catch (err) {
-    console.log(err);
-  }
+  const data = await callApiWithRetries({ url: `/orders/${id}` });
+  return data;
 };
 
 export const CreateOrder = async (
@@ -273,37 +257,28 @@ export const getTotalOrder = async (params?: {
   month?: number;
   year?: number;
 }) => {
-  try {
-    const data: OrderType[] =
-      (await callApiWithRetries({
-        url: "/orders",
-      })) ?? [];
+  const data = await callApiWithRetries<OrderType[]>({ url: "/orders" });
 
-    const filtered =
-      params?.month && params?.year
-        ? data.filter((item: OrderType) => {
-            if (!item.created_at) {
-              return false;
-            }
+  const filtered =
+    params?.month && params?.year
+      ? (data ?? []).filter((item: OrderType) => {
+          if (!item.created_at) {
+            return false;
+          }
 
-            const date = new Date(item.created_at);
+          const date = new Date(item.created_at);
 
-            return (
-              date.getMonth() + 1 === params.month &&
-              date.getFullYear() === params.year
-            );
-          })
-        : data;
+          return (
+            date.getMonth() + 1 === params.month &&
+            date.getFullYear() === params.year
+          );
+        })
+      : (data ?? []);
 
-    const total = filtered.reduce(
-      (acc: number, item: OrderType) => acc + Number(item.total_price ?? 0),
-      0,
-    );
-    return total;
-  } catch (err) {
-    console.log(err);
-    return 0;
-  }
+  return filtered.reduce(
+    (acc: number, item: OrderType) => acc + Number(item.total_price ?? 0),
+    0,
+  );
 };
 
 export const getTotalRevenueFromOrders = (

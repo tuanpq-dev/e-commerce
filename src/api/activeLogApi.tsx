@@ -2,18 +2,13 @@ import type { ActiveLogType } from "../types/domain";
 import axiosClient from "./axiosClient";
 
 export const GetActiveLogs = async () => {
-  try {
-    const res = await axiosClient.get("/active_logs");
-
-    return [...res.data].sort((current, next) => {
-      return (
-        new Date(next.created_at).getTime() -
-        new Date(current.created_at).getTime()
-      );
-    });
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await axiosClient.get("/active_logs");
+  return [...res.data].sort((current, next) => {
+    return (
+      new Date(next.created_at).getTime() -
+      new Date(current.created_at).getTime()
+    );
+  });
 };
 
 export const CreateActiveLog = async (values: ActiveLogType) => {
@@ -25,6 +20,5 @@ export const CreateActiveLog = async (values: ActiveLogType) => {
   };
 
   const res = await axiosClient.post("/active_logs", payload);
-
   return res.data;
 };
