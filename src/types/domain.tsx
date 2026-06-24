@@ -1,11 +1,15 @@
 export type ProductVariant = {
   id?: string | number;
+  product_id?: string;
   size: string;
   color: string;
   price: number | string;
   stock: number | string;
   sku?: string;
 };
+
+/** Map dạng Record — dùng khi group variants theo product_id ở phía client */
+export type ProductVariantsMap = Record<string, ProductVariant[]>;
 
 export interface DataType {
   id?: string | number;
@@ -16,6 +20,9 @@ export interface DataType {
   category_child?: (string | number | CategoryType)[];
   price: number;
   stock: number;
+  basePrice?: number;
+  selectedSizes?: string[];
+  selectedColors?: string[];
   status?: string;
   description?: string;
   variants?: ProductVariant[];
@@ -36,6 +43,9 @@ export type ProductInitialValues = {
   category_child?: (string | number | CategoryType)[];
   price?: number | string;
   stock?: number | string;
+  basePrice?: number | string;
+  selectedSizes?: string[];
+  selectedColors?: string[];
   description?: string;
   image?: string[];
   status?: string;
@@ -112,6 +122,7 @@ export type CustomerType = {
   phone?: number | string;
   total_orders?: number | string;
   total_expend?: number | string;
+  created_at?: number | string;
 };
 
 export type CreateCustomerValues = {

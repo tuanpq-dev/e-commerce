@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Flex, Grid, Image, Input, Select, Space, Table } from "antd";
 import type { TableProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import type { CategoryType, DataType, ProductInitialValues } from "../../types/domain";
+import type {
+  CategoryType,
+  DataType,
+  ProductInitialValues,
+} from "../../types/domain";
 import { ModalProduct } from "../modal";
 import openNotification from "../../@crema/core/Notification";
 import formatCurrency from "../../utils/formatCurrecy";
@@ -80,6 +85,9 @@ const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
     })
     .filter((item): item is string | number => item !== undefined);
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 5;
+
 const Product: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const { t } = useTranslation();
@@ -100,30 +108,54 @@ const Product: React.FC = () => {
   const [category, setCategory] = useState<CategoryType[]>([]);
   const { isAdmin } = UserPermission();
 
+  // ─── Pagination đồng bộ URL ───────────────────────────
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [totalItems, setTotalItems] = useState(0);
+
+  // Bóc tách _page và _per_page từ URL, fallback về giá trị mặc định
+  const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+
   const fetchProducts = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await GetProducts();
+      const { data, items } = await GetProducts(currentPage, pageSize);
       setProduct(data);
+      setTotalItems(items);
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentPage, pageSize]);
 
+  // Gọi API khi page/pageSize (từ URL) thay đổi
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProducts();
-    GetCategories()
-      .then(setCategory)
-      .catch(console.error);
   }, [fetchProducts]);
 
-  const categoryMap = useMemo(
-    () => new Map(category.map((item) => [String(item.id), item.name])),
-    [category],
-  );
+  useEffect(() => {
+    GetCategories()
+      .then((res) => setCategory(res.data))
+      .catch(console.error);
+  }, []);
+
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, string>();
+    category.forEach((item) => {
+      if (item.id) {
+        map.set(String(item.id), item.name || "");
+      }
+      if (item.child) {
+        item.child.forEach((childItem) => {
+          if (childItem.id) {
+            map.set(String(childItem.id), childItem.name || "");
+          }
+        });
+      }
+    });
+    return map;
+  }, [category]);
 
   const keyword = useDebounce(searchText.trim().toLowerCase());
   const filteredProduct = useMemo(() => {
@@ -140,16 +172,28 @@ const Product: React.FC = () => {
       const categoryId =
         typeof item.category === "object" ? item.category?.id : item.category;
 
-      const categoryName = categoryMap.get(String(categoryId)) ?? "";
+      const parentName = categoryMap.get(String(categoryId)) ?? "";
+
+      const childIds = (item.category_child ?? [])
+        .map((child) => (typeof child === "object" ? child?.id : child))
+        .filter((id): id is string | number => id !== undefined);
+
+      const childNames = childIds
+        .map((id) => categoryMap.get(String(id)))
+        .filter(Boolean)
+        .join(" ");
 
       const matchesSearch =
         !keyword ||
         item.name?.toLowerCase().includes(keyword) ||
         item.sku?.toLowerCase().includes(keyword) ||
-        categoryName.toLowerCase().includes(keyword);
+        parentName.toLowerCase().includes(keyword) ||
+        childNames.toLowerCase().includes(keyword);
 
       const matchesCategory =
-        !selectedCategory || String(categoryId) === selectedCategory;
+        !selectedCategory ||
+        String(categoryId) === selectedCategory ||
+        childIds.some((id) => String(id) === selectedCategory);
 
       const matchesStatus = !selectedStatus || item.status === selectedStatus;
 
@@ -248,6 +292,9 @@ const Product: React.FC = () => {
       category_child: getCategoryChildIds(values.category_child),
       price: values.price,
       stock: values.stock,
+      basePrice: values.basePrice,
+      selectedSizes: values.selectedSizes,
+      selectedColors: values.selectedColors,
       variants: values.variants,
       status: "pending",
       description: values.description || "",
@@ -280,10 +327,11 @@ const Product: React.FC = () => {
 
   const columns: TableProps<DataType>["columns"] = [
     {
-      title: "STT",
+      title: t("category.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
-      render: (_value, _record, index) => index + 1,
+      render: (_value, _record, index) =>
+        (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: t("product.columns.image"),
@@ -310,9 +358,24 @@ const Product: React.FC = () => {
     {
       title: t("product.columns.category"),
       dataIndex: "category",
-      width: 50,
-      render: (categoryId: string) =>
-        categoryMap.get(String(categoryId)) ?? categoryId,
+      width: 150,
+      render: (categoryVal: string | CategoryType, record: DataType) => {
+        const parentId =
+          typeof categoryVal === "object" ? categoryVal?.id : categoryVal;
+        const parentName =
+          categoryMap.get(String(parentId)) ?? String(parentId ?? "");
+
+        const childIds = (record.category_child ?? [])
+          .map((child) => (typeof child === "object" ? child?.id : child))
+          .filter((id): id is string | number => id !== undefined);
+
+        const childNames = childIds
+          .map((id) => categoryMap.get(String(id)))
+          .filter(Boolean)
+          .join(", ");
+
+        return childNames ? `${parentName} > ${childNames}` : parentName;
+      },
     },
     {
       title: t("product.columns.price"),
@@ -346,7 +409,9 @@ const Product: React.FC = () => {
           value={status}
           options={statusOptions}
           style={{ width: 120 }}
-          onChange={(status) => handleChangeStatus(status, record.id)}
+          onChange={(status) =>
+            record.id && handleChangeStatus(status, record.id)
+          }
         />
       ),
     },
@@ -499,7 +564,21 @@ const Product: React.FC = () => {
             columns={columns}
             dataSource={filteredProduct}
             loading={isLoading}
-            pagination={{ pageSize: 5 }}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalItems,
+              showSizeChanger: true,
+              pageSizeOptions: ["5", "10", "20", "50"],
+              showTotal: (total, range) =>
+                `Hiển thị ${range[1] - range[0] + 1} sản phẩm trên tổng số ${total} kết quả`,
+              onChange: (page, size) => {
+                setSearchParams({
+                  _page: String(page),
+                  _per_page: String(size),
+                });
+              },
+            }}
             scroll={{ x: "max-content" }}
           />
         </div>

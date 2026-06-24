@@ -14,7 +14,7 @@ import {
 import { GetOrders } from "../../api/orderApi";
 import { useEffect, useState } from "react";
 import AntButton from "../../@crema/component/AntButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../../config";
 import formatCurrency from "../../utils/formatCurrecy";
 import useDebounce from "../../@crema/core/hook/useDebounce";
@@ -25,6 +25,9 @@ import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { useTranslation } from "react-i18next";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 5;
 
 const Customer: React.FC = () => {
   const screens = Grid.useBreakpoint();
@@ -41,6 +44,10 @@ const Customer: React.FC = () => {
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+  const [totalItems, setTotalItems] = useState(0);
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
   const filterDataOrder = dataCustomer.filter((item) => {
     return (
@@ -58,11 +65,13 @@ const Customer: React.FC = () => {
     setIsLoading(true);
     try {
       const [customers, orders] = await Promise.all([
-        GetCustomers(),
-        GetOrders(),
+        GetCustomers(currentPage, pageSize),
+        GetOrders(1, 99),
       ]);
-      const orderList: OrderType[] = orders ?? [];
-      const data = (customers ?? []).map((customer: CustomerType) => {
+      console.log("customers", customers);
+      console.log("orders", orders);
+      const orderList: OrderType[] = orders.data ?? [];
+      const data = (customers.data ?? []).map((customer: CustomerType) => {
         const customerOrders = orderList.filter(
           (order) => String(order.customer_id) === String(customer.id),
         );
@@ -77,7 +86,8 @@ const Customer: React.FC = () => {
         };
       });
 
-      setDataCustomer(data.reverse());
+      setDataCustomer(data);
+      setTotalItems(customers.items);
     } catch (err) {
       console.log(err);
     } finally {
@@ -88,7 +98,7 @@ const Customer: React.FC = () => {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCustomer();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -180,7 +190,8 @@ const Customer: React.FC = () => {
       title: t("customer.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
-      render: (_value, _record, index) => index + 1,
+      render: (_value, _record, index) =>
+        (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: t("customer.columns.fullname"),
@@ -266,7 +277,11 @@ const Customer: React.FC = () => {
           className="page-search"
         />
         {isAdmin && (
-          <AntButton tooltip={t("common.add")} type="primary" onClick={handleAdd}>
+          <AntButton
+            tooltip={t("common.add")}
+            type="primary"
+            onClick={handleAdd}
+          >
             {t("common.add")}
           </AntButton>
         )}
@@ -277,7 +292,21 @@ const Customer: React.FC = () => {
           columns={columns}
           loading={isLoading}
           dataSource={filterDataOrder}
-          pagination={{ pageSize: 5 }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalItems,
+            showSizeChanger: true,
+            pageSizeOptions: ["5", "10", "20", "50"],
+            showTotal: (total, range) =>
+              `Hiển thị ${range[1] - range[0] + 1} khách hàng trên tổng số ${total} kết quả`,
+            onChange: (page, size) => {
+              setSearchParams({
+                _page: String(page),
+                _per_page: String(size),
+              });
+            },
+          }}
           scroll={{ x: "max-content" }}
         />
       </div>

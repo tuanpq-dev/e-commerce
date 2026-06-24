@@ -71,9 +71,41 @@ const getOrderItemKey = (item: CreateOrderItemValues) =>
     .map((value) => String(value))
     .join("|");
 
-export const GetOrders = async (): Promise<OrderType[]> => {
-  const data = await callApiWithRetries<OrderType[]>({ url: "/orders" });
-  return data ?? [];
+export type PaginatedOrders = {
+  data: OrderType[];
+  items: number;
+};
+
+export const GetOrders = async (
+  page?: number,
+  pageSize?: number,
+): Promise<PaginatedOrders> => {
+  const params: any = {
+    _sort: "-created_at",
+  };
+  if (page !== undefined) {
+    params._page = page;
+  }
+  if (pageSize !== undefined) {
+    params._per_page = pageSize;
+  }
+
+  const response = await callApiWithRetries<any>({
+    url: "/orders",
+    config: {
+      params,
+    },
+  });
+
+  const data: OrderType[] = Array.isArray(response)
+    ? response
+    : (response?.data ?? []);
+
+  const items: number = Array.isArray(response)
+    ? response.length
+    : (response?.items ?? data.length);
+
+  return { data, items };
 };
 
 export const GetOrderById = async (id: string | number) => {
@@ -86,7 +118,7 @@ export const CreateOrder = async (
   customers: CustomerType[],
   products: DataType[],
 ) => {
-  const orders = await GetOrders();
+  const { data: orderList } = await GetOrders(1, 99);
   const customer = customers.find(
     (item) => String(item.id) === String(values.customer_id),
   );
@@ -162,8 +194,8 @@ export const CreateOrder = async (
   const now = new Date();
 
   const payload: OrderType = {
-    id: getNextOrderId(orders),
-    order_code: getNextOrderCode(orders),
+    id: getNextOrderId(orderList),
+    order_code: getNextOrderCode(orderList),
     customer_id: customer.id,
     customer_name: customer.fullname,
     customer_email: customer.email,
