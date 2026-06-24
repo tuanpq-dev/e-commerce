@@ -1,20 +1,30 @@
 import { Flex, Table, type TableProps } from "antd";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { GetActiveLogs } from "../../api/activeLogApi";
 import type { ActiveLogType } from "../../types/domain";
 import formatDate from "../../utils/formatDate";
 import { useTranslation } from "react-i18next";
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 10;
+
 const ActiveLog = () => {
   const { t } = useTranslation();
   const [dataActiveLog, setDataActiveLog] = useState<ActiveLogType[]>([]);
+  console.log("dataActiveLog", dataActiveLog);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+  const [totalItems, setTotalItems] = useState(0);
 
   const fetchLogs = async () => {
     setIsLoading(true);
     try {
-      const data = await GetActiveLogs();
-      setDataActiveLog(data ?? []);
+      const { data, items } = await GetActiveLogs(currentPage, pageSize);
+      setDataActiveLog(data);
+      setTotalItems(items);
     } catch (err) {
       console.log(err);
     } finally {
@@ -24,7 +34,7 @@ const ActiveLog = () => {
 
   useEffect(() => {
     fetchLogs();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const columns: TableProps<ActiveLogType>["columns"] = [
     {
@@ -62,7 +72,21 @@ const ActiveLog = () => {
           columns={columns}
           dataSource={dataActiveLog}
           loading={isLoading}
-          pagination={{ pageSize: 5 }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalItems,
+            showSizeChanger: true,
+            pageSizeOptions: ["5", "10", "20", "50"],
+            showTotal: (total, range) =>
+              `Hiển thị ${range[1] - range[0] + 1} bản ghi trên tổng số ${total} kết quả`,
+            onChange: (page, size) => {
+              setSearchParams({
+                _page: String(page),
+                _per_page: String(size),
+              });
+            },
+          }}
           scroll={{ x: "max-content" }}
         />
       </div>

@@ -7,9 +7,41 @@ const normalizeText = (value?: string | number) =>
     .trim()
     .toLowerCase();
 
-export const GetCustomers = async (): Promise<CustomerType[]> => {
-  const data = await callApiWithRetries<CustomerType[]>({ url: "/customers" });
-  return data;
+export type PaginatedCustomers = {
+  data: CustomerType[];
+  items: number;
+};
+
+export const GetCustomers = async (
+  page?: number,
+  pageSize?: number,
+): Promise<PaginatedCustomers> => {
+  const params: any = {
+    _sort: "-created_at",
+  };
+  if (page !== undefined) {
+    params._page = page;
+  }
+  if (pageSize !== undefined) {
+    params._per_page = pageSize;
+  }
+
+  const response = await callApiWithRetries<any>({
+    url: "/customers",
+    config: {
+      params,
+    },
+  });
+
+  const data: CustomerType[] = Array.isArray(response)
+    ? response
+    : (response?.data ?? []);
+
+  const items: number = Array.isArray(response)
+    ? response.length
+    : (response?.items ?? data.length);
+
+  return { data, items };
 };
 
 export const DeleteCustomer = async (id: string | number) => {
@@ -18,15 +50,16 @@ export const DeleteCustomer = async (id: string | number) => {
 };
 
 export const CreateCustomer = async (values: CreateCustomerValues) => {
-  const customers: CustomerType[] = (await GetCustomers()) ?? [];
+  const { data: dataCustomer }: any = (await GetCustomers(1, 99)) ?? [];
+  console.log("dataCustomer", dataCustomer);
   const email = normalizeText(values.email);
   const phone = normalizeText(values.phone);
 
-  const existedEmail = customers.some(
-    (customer) => normalizeText(customer.email) === email,
+  const existedEmail = dataCustomer.some(
+    (data) => normalizeText(data.email) === email,
   );
-  const existedPhone = customers.some(
-    (customer) => normalizeText(customer.phone) === phone,
+  const existedPhone = dataCustomer.some(
+    (data) => normalizeText(data.phone) === phone,
   );
 
   if (existedEmail) {
@@ -44,6 +77,7 @@ export const CreateCustomer = async (values: CreateCustomerValues) => {
     address: values.address?.trim(),
     total_orders: 0,
     total_expend: 0,
+    created_at: Date.now(),
   };
 
   const res = await axiosClient.post("/customers", payload);

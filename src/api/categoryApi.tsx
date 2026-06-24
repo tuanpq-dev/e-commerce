@@ -2,9 +2,41 @@ import type { CategoryType } from "../types/domain";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
 
-export const GetCategories = async (): Promise<CategoryType[]> => {
-  const data = await callApiWithRetries<CategoryType[]>({ url: "/category" });
-  return data;
+export type PaginatedCategories = {
+  data: CategoryType[];
+  items: number;
+};
+
+export const GetCategories = async (
+  page?: number,
+  perPage?: number,
+): Promise<PaginatedCategories> => {
+  const params: any = {
+    _sort: "-created_at",
+  };
+  if (page !== undefined) {
+    params._page = page;
+  }
+  if (perPage !== undefined) {
+    params._per_page = perPage;
+  }
+
+  const response = await callApiWithRetries<any>({
+    url: "/category",
+    config: {
+      params,
+    },
+  });
+
+  const data: CategoryType[] = Array.isArray(response)
+    ? response
+    : (response?.data ?? []);
+
+  const items: number = Array.isArray(response)
+    ? response.length
+    : (response?.items ?? data.length);
+
+  return { data, items };
 };
 
 export const GetCategoryById = async (id: number | string) => {

@@ -1,14 +1,19 @@
 import type { ActiveLogType } from "../types/domain";
 import axiosClient from "./axiosClient";
+import callApiWithRetries from "./callApiWithRetries";
 
-export const GetActiveLogs = async () => {
-  const res = await axiosClient.get("/active_logs");
-  return [...res.data].sort((current, next) => {
-    return (
-      new Date(next.created_at).getTime() -
-      new Date(current.created_at).getTime()
-    );
+export const GetActiveLogs = async (page = 1, pageSize = 10) => {
+  const res = await callApiWithRetries<any>({
+    url: "/active_logs",
+    config: {
+      params: {
+        _page: page,
+        _per_page: pageSize,
+        _sort: "-created_at",
+      },
+    },
   });
+  return res;
 };
 
 export const CreateActiveLog = async (values: ActiveLogType) => {

@@ -30,14 +30,13 @@ const DetailCustomer = () => {
 
     setLoading(true);
     try {
-      const [customers, dataOrder] = await Promise.all([
-        GetCustomers(),
-        GetOrders(),
-      ]);
-      const customerData = (customers ?? []).find(
+      const [{ data: dataCustomers }, { data: dataOrders }] = await Promise.all(
+        [GetCustomers(1, 99), GetOrders(1, 99)],
+      );
+      const customerData = (dataCustomers ?? []).find(
         (item: CustomerType) => String(item.id) === id,
       );
-      const customerOrders = (dataOrder ?? []).filter(
+      const customerOrders = (dataOrders ?? []).filter(
         (item: OrderType) => String(item.customer_id) === id,
       );
 

@@ -29,7 +29,7 @@ const shouldRetryRequest = (error: AxiosError) => {
   );
 };
 
-const callApiWithRetries = async <T = AxiosResponse["data"]>({
+const callApiWithRetries = async <T = AxiosResponse["data"],>({
   url,
   config,
   delayMs = 500,

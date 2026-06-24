@@ -54,7 +54,7 @@ export const useDashboard = () => {
       setLoading(true);
       try {
         const orders: OrderType[] = (await GetOrders()) ?? [];
-        const products = await GetProducts();
+        const { items: totalProducts } = await GetProducts(1, 9999);
 
         const results = months.map(({ month, year }) =>
           getTotalRevenueFromOrders(orders, { month, year }),
@@ -70,7 +70,7 @@ export const useDashboard = () => {
             0,
           ),
           totalCustomers: uniqueCustomers,
-          totalProducts: products.length,
+          totalProducts,
         });
       } catch (err) {
         console.log(err);

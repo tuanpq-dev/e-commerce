@@ -11,7 +11,6 @@ const ROUTE_LABELS: Record<string, string> = {
   [config.routes.CUSTOMER_MANAGEMENT]: "Customer",
   [config.routes.ACTIVE_LOG]: "Active",
   [config.routes.PROFILE]: "Profile",
-  [config.routes.SHOP_CART]: "Shop Cart",
 };
 
 const getDetailLabel = (parentPath: string, id: string) => {

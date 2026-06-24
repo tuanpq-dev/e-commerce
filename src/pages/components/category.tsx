@@ -14,7 +14,7 @@ import { useState, useCallback, useEffect } from "react";
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import openNotification from "../../@crema/core/Notification";
 import AntButton from "../../@crema/component/AntButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../../config";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { CreateActiveLog } from "../../api/activeLogApi";
@@ -22,6 +22,9 @@ import { useAuth } from "../../contexts/AuthContext";
 import { UserPermission } from "../../api/userPermission";
 import useDebounce from "../../@crema/core/hook/useDebounce";
 import { useTranslation } from "react-i18next";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 5;
 
 const Category: React.FC = () => {
   const screens = Grid.useBreakpoint();
@@ -35,26 +38,45 @@ const Category: React.FC = () => {
   const [isOpenModalChild, setIsOpenModalChild] = useState(false);
   const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
   const [category, setCategory] = useState<CategoryType[]>([]);
+  const [allCategories, setAllCategories] = useState<CategoryType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [totalItems, setTotalItems] = useState(0);
+  const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+
+  const fetchAllCategories = useCallback(async () => {
+    try {
+      const { data } = await GetCategories();
+      setAllCategories(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   const fetchCategories = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await GetCategories();
+      const { data, items } = await GetCategories(currentPage, pageSize);
       setCategory(data);
+      setTotalItems(items);
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentPage, pageSize]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCategories();
   }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchAllCategories();
+  }, [fetchAllCategories]);
   const { isAdmin } = UserPermission();
 
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
@@ -100,7 +122,7 @@ const Category: React.FC = () => {
         user: userInfo?.name ?? "Unknown",
       });
 
-      await fetchCategories();
+      await Promise.all([fetchCategories(), fetchAllCategories()]);
 
       setIsOpenModalDelete(false);
 
@@ -127,7 +149,8 @@ const Category: React.FC = () => {
       title: t("category.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
-      render: (_value, _record, index) => index + 1,
+      render: (_value, _record, index) =>
+        (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: t("category.columns.name"),
@@ -223,7 +246,7 @@ const Category: React.FC = () => {
         }),
       ]);
 
-      await fetchCategories();
+      await Promise.all([fetchCategories(), fetchAllCategories()]);
       setIsOpenModal(false);
       setIsUpdate(false);
       setRowData({});
@@ -241,7 +264,7 @@ const Category: React.FC = () => {
           user: userInfo?.name,
         }),
       ]);
-      await fetchCategories();
+      await Promise.all([fetchCategories(), fetchAllCategories()]);
 
       setIsOpenModal(false);
       openNotification("success", {
@@ -260,7 +283,7 @@ const Category: React.FC = () => {
         user: userInfo?.name,
       }),
     ]);
-    await fetchCategories();
+    await Promise.all([fetchCategories(), fetchAllCategories()]);
     setIsOpenModalChild(false);
     openNotification("success", {
       message: t("common.success"),
@@ -291,7 +314,11 @@ const Category: React.FC = () => {
               >
                 {t("category.addChild")}
               </AntButton>
-              <AntButton tooltip={t("common.add")} type="primary" onClick={handleAdd}>
+              <AntButton
+                tooltip={t("common.add")}
+                type="primary"
+                onClick={handleAdd}
+              >
                 {t("category.addParent")}
               </AntButton>
             </div>
@@ -301,9 +328,23 @@ const Category: React.FC = () => {
           <Table<CategoryType>
             rowKey="id"
             columns={columns}
-            dataSource={filterData.reverse()}
+            dataSource={filterData}
             loading={isLoading}
-            pagination={{ pageSize: 5 }}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalItems,
+              showSizeChanger: true,
+              pageSizeOptions: ["5", "10", "20", "50"],
+              showTotal: (total, range) =>
+                `Hiển thị ${range[1] - range[0] + 1} danh mục trên tổng số ${total} kết quả`,
+              onChange: (page, size) => {
+                setSearchParams({
+                  _page: String(page),
+                  _per_page: String(size),
+                });
+              },
+            }}
             scroll={{ x: "max-content" }}
           />
         </div>
@@ -323,7 +364,7 @@ const Category: React.FC = () => {
         onOk={handleOkChild}
         onCancel={handleCancel}
         isUpdate={isUpdate}
-        options={category}
+        options={allCategories}
       />
 
       <ModalConfirm

@@ -15,12 +15,12 @@ import type {
   DataType,
   OrderType,
 } from "../../types/domain";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CreateOrder, GetOrders } from "../../api/orderApi";
 import { EyeOutlined } from "@ant-design/icons";
 import formatCurrency from "../../utils/formatCurrecy";
 import AntButton from "../../@crema/component/AntButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../../config";
 import useDebounce from "../../@crema/core/hook/useDebounce";
 import { UserPermission } from "../../api/userPermission";
@@ -29,11 +29,14 @@ import { GetCustomers } from "../../api/customerApi";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import openNotification from "../../@crema/core/Notification";
-import callApiWithRetries from "../../api/callApiWithRetries";
 import formatDate from "../../utils/formatDate";
 import exportToCSV from "../../@crema/core/ExportToCSV";
 import { useTranslation } from "react-i18next";
 import { getOrderStatuses } from "../../shared/constant/orderStatus";
+import { GetProducts } from "../../api/productApi";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 5;
 
 const Order: React.FC = () => {
   const screens = Grid.useBreakpoint();
@@ -49,9 +52,14 @@ const Order: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [isModalAdd, setIsModalAdd] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [totalItems, setTotalItems] = useState(0);
+  const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
 
   const statusOrder = useMemo(() => getOrderStatuses(t), [t]);
 
@@ -63,6 +71,19 @@ const Order: React.FC = () => {
       })),
     [statusOrder],
   );
+
+  const fetchDataOrder = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data, items } = await GetOrders(currentPage, pageSize);
+      setData(data);
+      setTotalItems(items);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, pageSize]);
 
   const filterDataOrder = data.filter((item) => {
     const matchesStatus = !selectedStatus || item.status === selectedStatus;
@@ -79,19 +100,10 @@ const Order: React.FC = () => {
     setSearchText(value ? String(value) : "");
   };
 
-  const fetchDataOrder = async () => {
-    try {
-      const dataOrder = await GetOrders();
-      setData([...dataOrder].reverse());
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   const fetchCustomers = async () => {
     try {
-      const dataCustomer = (await GetCustomers()) ?? [];
-      setCustomers([...dataCustomer].reverse());
+      const { data: dataCustomer } = (await GetCustomers(1, 99)) ?? [];
+      setCustomers([...dataCustomer]);
     } catch (err) {
       console.log(err);
     }
@@ -99,14 +111,11 @@ const Order: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const dataProduct: DataType[] =
-        (await callApiWithRetries({
-          url: "/products",
-        })) ?? [];
+      const { data: dataProduct } = await GetProducts(1, 99);
       const productCurrent = dataProduct.filter(
         (product) => product.status === "active",
       );
-      setProducts([...productCurrent].reverse());
+      setProducts([...productCurrent]);
     } catch (err) {
       console.log(err);
     }
@@ -123,14 +132,15 @@ const Order: React.FC = () => {
 
   useEffect(() => {
     fetchDataOrder();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const columns: TableProps<OrderType>["columns"] = [
     {
       title: t("order.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
-      render: (_value, _record, index) => index + 1,
+      render: (_value, _record, index) =>
+        (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: t("order.columns.code"),
@@ -306,9 +316,25 @@ const Order: React.FC = () => {
         <div className="table-shell">
           <Table<OrderType>
             rowKey="order_code"
+            loading={isLoading}
             columns={columns}
             dataSource={filterDataOrder}
-            pagination={{ pageSize: 5 }}
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: totalItems,
+              showSizeChanger: true,
+              pageSizeOptions: ["5", "10", "20", "50"],
+              showTotal: (total, range) =>
+                `Hiển thị ${range[1] - range[0] + 1} đơn hàng trên tổng số ${total} kết quả`,
+              onChange: (page, size) => {
+                console.log("page on change", page);
+                setSearchParams({
+                  _page: String(page),
+                  _per_page: String(size),
+                });
+              },
+            }}
             scroll={{ x: "max-content" }}
           />
         </div>
