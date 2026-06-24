@@ -31,7 +31,7 @@ const DetailCustomer = () => {
     setLoading(true);
     try {
       const [{ data: dataCustomers }, { data: dataOrders }] = await Promise.all(
-        [GetCustomers(1, 99), GetOrders(1, 99)],
+        [GetCustomers(), GetOrders()],
       );
       const customerData = (dataCustomers ?? []).find(
         (item: CustomerType) => String(item.id) === id,

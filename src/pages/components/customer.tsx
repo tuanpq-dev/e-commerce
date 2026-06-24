@@ -66,7 +66,7 @@ const Customer: React.FC = () => {
     try {
       const [customers, orders] = await Promise.all([
         GetCustomers(currentPage, pageSize),
-        GetOrders(1, 99),
+        GetOrders(),
       ]);
       const orderList: OrderType[] = orders.data ?? [];
       const data = (customers.data ?? []).map((customer: CustomerType) => {
