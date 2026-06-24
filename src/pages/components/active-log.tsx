@@ -12,7 +12,6 @@ const DEFAULT_PER_PAGE = 10;
 const ActiveLog = () => {
   const { t } = useTranslation();
   const [dataActiveLog, setDataActiveLog] = useState<ActiveLogType[]>([]);
-  console.log("dataActiveLog", dataActiveLog);
   const [isLoading, setIsLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;

@@ -102,7 +102,7 @@ const Order: React.FC = () => {
 
   const fetchCustomers = async () => {
     try {
-      const { data: dataCustomer } = (await GetCustomers(1, 99)) ?? [];
+      const { data: dataCustomer } = (await GetCustomers()) ?? [];
       setCustomers([...dataCustomer]);
     } catch (err) {
       console.log(err);
@@ -111,7 +111,7 @@ const Order: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data: dataProduct } = await GetProducts(1, 99);
+      const { data: dataProduct } = await GetProducts();
       const productCurrent = dataProduct.filter(
         (product) => product.status === "active",
       );
@@ -328,7 +328,6 @@ const Order: React.FC = () => {
               showTotal: (total, range) =>
                 `Hiển thị ${range[1] - range[0] + 1} đơn hàng trên tổng số ${total} kết quả`,
               onChange: (page, size) => {
-                console.log("page on change", page);
                 setSearchParams({
                   _page: String(page),
                   _per_page: String(size),
