@@ -50,16 +50,15 @@ export const DeleteCustomer = async (id: string | number) => {
 };
 
 export const CreateCustomer = async (values: CreateCustomerValues) => {
-  const { data: dataCustomer }: any = (await GetCustomers(1, 99)) ?? [];
-  console.log("dataCustomer", dataCustomer);
+  const { data: dataCustomer }: any = (await GetCustomers()) ?? [];
   const email = normalizeText(values.email);
   const phone = normalizeText(values.phone);
 
   const existedEmail = dataCustomer.some(
-    (data) => normalizeText(data.email) === email,
+    (data: CustomerType) => normalizeText(data.email) === email,
   );
   const existedPhone = dataCustomer.some(
-    (data) => normalizeText(data.phone) === phone,
+    (data: CustomerType) => normalizeText(data.phone) === phone,
   );
 
   if (existedEmail) {

@@ -73,13 +73,29 @@
         }
       ],
       "image": "",
-      "category_child": [],
+      "category_child": [
+        "e53fa783-6076-4456-9bb5-6b00f7469fe9",
+        "e75dc3cb-3508-4570-b398-bc563dc85ceb"
+      ],
       "id": "dbIQAU0FPaU",
       "price": 2000,
       "stock": 689,
       "status": "active",
       "created_at": 1781173632565,
-      "description": ""
+      "description": "",
+      "basePrice": 2000,
+      "selectedSizes": [
+        "S",
+        "L",
+        "XL"
+      ],
+      "selectedColors": [
+        "Đen",
+        "Trắng",
+        "Đỏ",
+        "Hồng",
+        "Cam"
+      ]
     },
     {
       "name": "Sản phẩm Quần 2",
@@ -144,7 +160,17 @@
       "price": 1111,
       "stock": 140,
       "status": "active",
-      "created_at": 1781488147017
+      "created_at": 1781488147017,
+      "basePrice": 1111,
+      "selectedSizes": [
+        "S",
+        "L",
+        "XL"
+      ],
+      "selectedColors": [
+        "Đen",
+        "Trắng"
+      ]
     },
     {
       "name": "Sản phẩm áo 2",
@@ -253,7 +279,7 @@
         "7f09306f-5e31-4abd-ae12-31ebd500cd0c"
       ],
       "description": "Test sản phẩm 23 tháng 6",
-      "status": "pending",
+      "status": "active",
       "created_at": 1782201367366
     },
     {
@@ -278,7 +304,7 @@
         "1a0c1568-3fe8-4e2a-984c-c80423fa592f"
       ],
       "description": "Test sản phẩm 23 tháng 6_2",
-      "status": "pending",
+      "status": "active",
       "created_at": 1782203498331
     },
     {
@@ -301,8 +327,32 @@
         "768f8053-57ae-46dd-a000-1d6ef41fb105"
       ],
       "description": "hehehehe",
-      "status": "pending",
+      "status": "active",
       "created_at": 1782286612626
+    },
+    {
+      "id": "6Sfw7Khs2_k",
+      "sku": "SPMQRUOM9X",
+      "name": "Điện thoại ",
+      "price": 3499,
+      "stock": 90,
+      "basePrice": 2999,
+      "selectedSizes": [
+        "XS",
+        "S",
+        "M"
+      ],
+      "selectedColors": [
+        "black",
+        "white"
+      ],
+      "category": "5bcazNqa_ek",
+      "category_child": [
+        "924259f9-c4cf-494a-9b63-6b3a2113c4c7"
+      ],
+      "description": "Điện thoại",
+      "status": "pending",
+      "created_at": 1782292145344
     }
   ],
   "category": [
@@ -382,7 +432,7 @@
     },
     {
       "name": "Phụ kiện",
-      "total": 0,
+      "total": 1,
       "child": [
         {
           "id": "ad5432b9-d9af-422a-8247-13a69017ac4e",
@@ -406,7 +456,7 @@
           "id": "924259f9-c4cf-494a-9b63-6b3a2113c4c7",
           "name": "Test",
           "parentId": "5bcazNqa_ek",
-          "total": 0
+          "total": 1
         }
       ],
       "id": "5bcazNqa_ek"
@@ -2782,6 +2832,62 @@
       "user": "Phạm Quang Tuấn",
       "created_at": "2026-06-24T08:22:37.262Z",
       "id": "pRovwMo7VNQ"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:03:41.737Z",
+      "id": "729jgmGUmio"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE status - B8Ia16S1y3c",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:04:42.349Z",
+      "id": "CKxAqqJIYBk"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE status - uh5kVz2uNwA",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:04:43.621Z",
+      "id": "7N9J8fHgERw"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE status - BWzohtOAlUw",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:04:44.829Z",
+      "id": "0hoBKYz14nY"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:06:29.265Z",
+      "id": "cY3G19plP_k"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:06:41.968Z",
+      "id": "HLpxsrpTEos"
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:09:05.346Z",
+      "id": "x3EeYL_2AAw"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-24T09:21:37.369Z",
+      "id": "OtYmSefwbfg"
     }
   ],
   "product_variants": {
@@ -3069,6 +3175,116 @@
         "price": 1080,
         "stock": 100,
         "sku": "SPMQRREMCY-S-RED"
+      }
+    ],
+    "SKU 1781173632565": [
+      {
+        "size": "S",
+        "color": "Đen",
+        "price": 2000,
+        "stock": 100,
+        "sku": "SKU-S-ĐEN",
+        "id": "367529a0-5d58-4315-9cf5-6b06488363f6"
+      },
+      {
+        "size": "S",
+        "color": "Trắng",
+        "price": 2000,
+        "stock": 99,
+        "sku": "SKU-S-TRẮNG",
+        "id": "ea940483-0b5b-4b73-8606-eb75262e9340"
+      },
+      {
+        "size": "L",
+        "color": "Đen",
+        "price": 2100,
+        "stock": 100,
+        "sku": "SKU-L-ĐEN",
+        "id": "03717fd4-b0b2-46c9-8b98-50fbec1f1961"
+      },
+      {
+        "size": "L",
+        "color": "Trắng",
+        "price": 2121,
+        "stock": 100,
+        "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-TRẮNG",
+        "id": "34e67456-ac41-41cf-9d50-608579ae23cf"
+      },
+      {
+        "size": "L",
+        "color": "Đỏ",
+        "price": 2100,
+        "stock": 100,
+        "sku": "SKU-L-ĐỎ",
+        "id": "89c61ca7-0177-4e71-a985-6bce9475575e"
+      },
+      {
+        "size": "L",
+        "color": "Cam",
+        "price": 2100,
+        "stock": 90,
+        "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-CAM",
+        "id": "f2f95b4c-f4b2-493c-a981-48dda695dcf9"
+      },
+      {
+        "size": "XL",
+        "color": "Hồng",
+        "price": 2500,
+        "stock": 100,
+        "sku": "SKU-XL-HỒNG",
+        "id": "b7728f21-79e6-46dd-8ab2-fdf029acd674"
+      }
+    ],
+    "SPQUAN 1781488147017": [
+      {
+        "size": "S",
+        "color": "Đen",
+        "price": 1111,
+        "stock": 50,
+        "sku": "SPQUAN-TEST-S-ĐEN",
+        "id": "c6aedf81-58e0-495f-9ec0-062447566efd"
+      },
+      {
+        "size": "L",
+        "color": "Trắng",
+        "price": 2222,
+        "stock": 40,
+        "sku": "SPQUAN-TEST-L-TRẮNG",
+        "id": "553a9321-f24e-4c98-a217-d0a72ae60bf4"
+      },
+      {
+        "size": "XL",
+        "color": "Đen",
+        "price": 3333,
+        "stock": 50,
+        "sku": "SPQUAN-TEST-XL-ĐEN",
+        "id": "d13711ab-c5e9-4022-9a53-af3f5d79a33a"
+      }
+    ],
+    "SPMQRUOM9X": [
+      {
+        "id": "2637b784-4725-48ff-8077-3f5f2fe01c85",
+        "size": "XS",
+        "color": "white",
+        "price": 3499,
+        "stock": 30,
+        "sku": "SPMQRUOM9X-XS-WHT"
+      },
+      {
+        "id": "a6a76c14-aca0-45ad-8a46-c119754133fc",
+        "size": "S",
+        "color": "white",
+        "price": 3499,
+        "stock": 30,
+        "sku": "SPMQRUOM9X-S-WHT"
+      },
+      {
+        "id": "c52cbf6b-e2ff-4fee-9a5a-55a5c1d60152",
+        "size": "M",
+        "color": "white",
+        "price": 3499,
+        "stock": 30,
+        "sku": "SPMQRUOM9X-M-WHT"
       }
     ]
   },

@@ -68,8 +68,6 @@ const Customer: React.FC = () => {
         GetCustomers(currentPage, pageSize),
         GetOrders(1, 99),
       ]);
-      console.log("customers", customers);
-      console.log("orders", orders);
       const orderList: OrderType[] = orders.data ?? [];
       const data = (customers.data ?? []).map((customer: CustomerType) => {
         const customerOrders = orderList.filter(

@@ -118,7 +118,7 @@ export const CreateOrder = async (
   customers: CustomerType[],
   products: DataType[],
 ) => {
-  const { data: orderList } = await GetOrders(1, 99);
+  const { data: orderList } = await GetOrders();
   const customer = customers.find(
     (item) => String(item.id) === String(values.customer_id),
   );

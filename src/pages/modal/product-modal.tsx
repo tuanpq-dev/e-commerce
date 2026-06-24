@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Divider,
@@ -6,6 +6,7 @@ import {
   Form,
   InputNumber,
   Modal,
+  Popconfirm,
   Table,
   Tag,
 } from "antd";
@@ -62,6 +63,13 @@ export const ModalProduct = ({
 
   // State lưu SKU cha tạm thời (đồng bộ cho cả tạo mới và cập nhật)
   const [tempParentSku, setTempParentSku] = useState<string>("");
+
+  // State lưu trữ các keys biến thể đã bị người dùng xóa tạm thời dạng "size|color"
+  const [deletedKeys, setDeletedKeys] = useState<string[]>([]);
+  const deletedKeysRef = useRef<string[]>([]);
+  deletedKeysRef.current = deletedKeys;
+
+  const isInitializingRef = useRef(false);
 
   const selectedCategory = options.find(
     (option) => String(option.id) === String(selectedCategoryId),
@@ -149,7 +157,12 @@ export const ModalProduct = ({
       parentSku: tempParentSku, // Truyền SKU cha để sinh SKU con lập tức
     });
 
-    setVariants(newVariants);
+    // Lọc bỏ những biến thể đã bị người dùng xóa tạm thời
+    const filteredVariants = newVariants.filter(
+      (v) => !deletedKeysRef.current.includes(`${v.size}|${v.color}`)
+    );
+
+    setVariants(filteredVariants);
   };
 
   // Áp dụng giá/stock cho tất cả
@@ -176,6 +189,17 @@ export const ModalProduct = ({
     const updated = [...variants];
     updated[index] = { ...updated[index], [field]: value ?? 0 };
     setVariants(updated);
+  };
+
+  // Hàm xóa một biến thể ra khỏi danh sách tạm thời
+  const handleDeleteVariant = (size: string, color: string) => {
+    const key = `${size}|${color}`;
+    const newDeletedKeys = [...deletedKeys, key];
+    setDeletedKeys(newDeletedKeys);
+    deletedKeysRef.current = newDeletedKeys;
+    setVariants((prev) =>
+      (prev ?? []).filter((v) => !(v.size === size && v.color === color))
+    );
   };
 
   // Columns cho bảng biến thể
@@ -225,6 +249,22 @@ export const ModalProduct = ({
         />
       ),
     },
+    {
+      title: t("common.action", "Hành động"),
+      width: 100,
+      render: (_: unknown, record: NonNullable<ProductInitialValues["variants"]>[number]) => (
+        <Popconfirm
+          title={t("product.confirmDeleteVariant", "Bạn có chắc chắn muốn xóa biến thể này?")}
+          onConfirm={() => handleDeleteVariant(record.size, record.color)}
+          okText={t("common.yes", "Có")}
+          cancelText={t("common.no", "Không")}
+        >
+          <Button type="link" danger size="small">
+            {t("common.delete", "Xóa")}
+          </Button>
+        </Popconfirm>
+      ),
+    },
   ];
 
   // Khởi tạo form khi mở modal
@@ -258,12 +298,22 @@ export const ModalProduct = ({
 
   useEffect(() => {
     if (!open) return;
+    if (isInitializingRef.current) return;
 
     // Chỉ regenerate khi cả hai đã có giá trị
     const sizes = watchedSizes ?? [];
     const colorsVal = watchedColors ?? [];
 
     if (sizes.length > 0 && colorsVal.length > 0) {
+      // Lọc lại các key đã xóa để chỉ giữ lại các key hợp lệ với sizes/colors hiện tại
+      const updatedDeletedKeys = deletedKeysRef.current.filter((key) => {
+        const [s, c] = key.split("|");
+        return sizes.includes(s) && colorsVal.includes(c);
+      });
+      
+      deletedKeysRef.current = updatedDeletedKeys;
+      setDeletedKeys(updatedDeletedKeys);
+
       regenerateVariants(sizes, colorsVal, Number(watchedBasePrice) || 0);
     } else {
       setVariants([]);
@@ -302,9 +352,12 @@ export const ModalProduct = ({
       onCancel={onCancel}
       afterOpenChange={(visible) => {
         if (!visible) return;
+        isInitializingRef.current = true;
         form.resetFields();
         setBulkPrice(null);
         setBulkStock(null);
+        setDeletedKeys([]);
+        deletedKeysRef.current = [];
 
         const initValues = getInitialProductValue();
         form.setFieldsValue(initValues);
@@ -317,12 +370,40 @@ export const ModalProduct = ({
           setTempParentSku(newSku);
         }
 
-        // Khôi phục variants từ dữ liệu cũ
+        // Khôi phục variants từ dữ liệu cũ và tìm những biến thể đã bị xóa trước đó
         if (initialValue?.variants?.length) {
           setVariants(initialValue.variants);
+
+          const { sizes: extractedSizes, colors: extractedColors } =
+            extractAttributesFromVariants(initialValue.variants);
+          const initialSizes = initialValue.selectedSizes ?? extractedSizes;
+          const initialColors = initialValue.selectedColors ?? extractedColors;
+
+          const pastDeleted: string[] = [];
+          const existingSet = new Set(
+            initialValue.variants.map((v) => `${v.size}|${v.color}`)
+          );
+
+          for (const s of initialSizes) {
+            for (const c of initialColors) {
+              const key = `${s}|${c}`;
+              if (!existingSet.has(key)) {
+                pastDeleted.push(key);
+              }
+            }
+          }
+
+          setDeletedKeys(pastDeleted);
+          deletedKeysRef.current = pastDeleted;
         } else {
           setVariants([]);
+          setDeletedKeys([]);
+          deletedKeysRef.current = [];
         }
+
+        setTimeout(() => {
+          isInitializingRef.current = false;
+        }, 0);
       }}
       afterClose={() => {
         form.resetFields();
@@ -330,6 +411,9 @@ export const ModalProduct = ({
         setBulkPrice(null);
         setBulkStock(null);
         setTempParentSku("");
+        setDeletedKeys([]);
+        deletedKeysRef.current = [];
+        isInitializingRef.current = false;
       }}
       destroyOnHidden
       okText={isUpdate ? t("common.save") : t("common.add")}

@@ -1,6 +1,5 @@
 // hooks/useDashboard.ts
 import { useEffect, useState } from "react";
-import type { OrderType } from "../../../../types/domain";
 import {
   GetOrders,
   getOrdersByDayOfMonth,
@@ -53,8 +52,8 @@ export const useDashboard = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const orders: OrderType[] = (await GetOrders()) ?? [];
-        const { items: totalProducts } = await GetProducts(1, 9999);
+        const { data: orders } = (await GetOrders()) ?? { data: [], items: 0 };
+        const { items: totalProducts } = await GetProducts();
 
         const results = months.map(({ month, year }) =>
           getTotalRevenueFromOrders(orders, { month, year }),

@@ -28,19 +28,26 @@ export type PaginatedProducts = {
 };
 
 export const GetProducts = async (
-  page = 1,
-  perPage = 5,
+  page?: number,
+  perPage?: number,
 ): Promise<PaginatedProducts> => {
   // Fetch song song: products + product_variants (dạng Key-Value Object)
+  const params: any = {
+    _sort: "-created_at",
+  };
+
+  if (page !== undefined) {
+    params._page = page;
+  }
+  if (perPage !== undefined) {
+    params._per_page = perPage;
+  }
+
   const [products, allVariants] = await Promise.all([
     callApiWithRetries<any>({
       url: "/products",
       config: {
-        params: {
-          _page: page,
-          _per_page: perPage,
-          _sort: "-created_at",
-        },
+        params,
       },
     }),
     callApiWithRetries<ProductVariantsMap>({ url: "/product_variants" }),
