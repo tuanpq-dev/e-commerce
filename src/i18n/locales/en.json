@@ -187,7 +187,8 @@
       "addressRequired": "Please enter shipping address",
       "addressMax": "Maximum 100 characters",
       "noteMax": "Maximum 200 characters",
-      "min1Product": "Please add at least one product"
+      "min1Product": "Please add at least one product",
+      "invalidVariant": "Variant does not exist or is out of stock"
     },
     "detail": {
       "title": "Order Detail",

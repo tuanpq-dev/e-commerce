@@ -46,6 +46,7 @@ const Order: React.FC = () => {
   const { isAdmin } = UserPermission();
   const { userInfo } = useAuth();
   const [data, setData] = useState<OrderType[]>([]);
+  const [allDataOrder, setAllDataOrder] = useState<OrderType[]>([]);
   const [customers, setCustomers] = useState<CustomerType[]>([]);
   const [products, setProducts] = useState<DataType[]>([]);
   const navigate = useNavigate();
@@ -85,6 +86,18 @@ const Order: React.FC = () => {
     }
   }, [currentPage, pageSize]);
 
+  const getAllData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data } = await GetOrders();
+      setAllDataOrder(data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const filterDataOrder = data.filter((item) => {
     const matchesStatus = !selectedStatus || item.status === selectedStatus;
     const matchesSearch =
@@ -103,7 +116,7 @@ const Order: React.FC = () => {
   const fetchCustomers = async () => {
     try {
       const { data: dataCustomer } = (await GetCustomers()) ?? [];
-      setCustomers([...dataCustomer]);
+      setCustomers(dataCustomer);
     } catch (err) {
       console.log(err);
     }
@@ -115,7 +128,7 @@ const Order: React.FC = () => {
       const productCurrent = dataProduct.filter(
         (product) => product.status === "active",
       );
-      setProducts([...productCurrent]);
+      setProducts(productCurrent);
     } catch (err) {
       console.log(err);
     }
@@ -133,6 +146,10 @@ const Order: React.FC = () => {
   useEffect(() => {
     fetchDataOrder();
   }, [currentPage, pageSize]);
+
+  useEffect(() => {
+    getAllData();
+  }, []);
 
   const columns: TableProps<OrderType>["columns"] = [
     {
@@ -258,7 +275,7 @@ const Order: React.FC = () => {
     return found?.title ?? status;
   };
 
-  const exportData = data.map((d, index) => ({
+  const exportData = allDataOrder.map((d, index) => ({
     [t("order.exportColumns.no")]: index + 1,
     [t("order.exportColumns.orderCode")]: d.order_code,
     [t("order.exportColumns.customerName")]: d.customer_name,
