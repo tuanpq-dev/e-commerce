@@ -82,8 +82,3 @@ export const CreateCustomer = async (values: CreateCustomerValues) => {
   const res = await axiosClient.post("/customers", payload);
   return res.data;
 };
-
-export const GetCustomerById = async (id: number | string) => {
-  const data = await callApiWithRetries({ url: `/detail_customers/${id}` });
-  return data;
-};

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { Flex, Form, Modal } from "antd";
 import type { FormInstance } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
@@ -102,7 +102,7 @@ const getOrderTotalPrice = (
     return total + Number(variant?.price ?? 0) * Number(item.quantity ?? 0);
   }, 0);
 
-const OrderItemField = ({
+const OrderItemFieldComponent = ({
   form,
   fieldName,
   restField,
@@ -111,34 +111,90 @@ const OrderItemField = ({
   canRemove,
   onRemove,
 }: OrderItemFieldProps) => {
-  const productCurrent = products.filter(
-    (product) => product.status === "active",
-  );
   const { t } = useTranslation();
+  const productCurrent = useMemo(
+    () => products.filter((product) => product.status === "active"),
+    [products],
+  );
+
+  // 2. Theo dõi các giá trị của hàng hiện tại qua Form.useWatch
   const productId = Form.useWatch(["items", fieldName, "product_id"], form);
   const selectedSize = Form.useWatch(["items", fieldName, "size"], form);
-  const color = Form.useWatch(["items", fieldName, "color"], form);
+  const selectedColor = Form.useWatch(["items", fieldName, "color"], form);
   const quantity = Form.useWatch(["items", fieldName, "quantity"], form);
-  const product = findOrderProduct(productCurrent, productId);
-  const variants = getOrderProductVariants(product);
-  const variant = findOrderVariant(productCurrent, {
-    product_id: productId,
-    size: selectedSize,
-    color,
-  });
-  const sizeOptions = Array.from(
-    new Set(variants.map((item) => item.size)),
-  ).map((size) => ({
-    label: size,
-    value: size,
-  }));
-  const colorOptions = variants
-    .filter((item) => !selectedSize || item.size === selectedSize)
-    .map((item) => ({
-      label: `${item.color} - ${t("order.stock")} ${item.stock}`,
-      value: item.color,
-      disabled: Number(item.stock) <= 0,
-    }));
+
+  // Tìm sản phẩm và biến thể đang chọn
+  const product = useMemo(
+    () => findOrderProduct(productCurrent, productId),
+    [productCurrent, productId],
+  );
+  const variants = useMemo(() => getOrderProductVariants(product), [product]);
+  const variant = useMemo(
+    () =>
+      findOrderVariant(productCurrent, {
+        product_id: productId,
+        size: selectedSize,
+        color: selectedColor,
+      }),
+    [productCurrent, productId, selectedSize, selectedColor],
+  );
+
+  const sizeOptions = useMemo(() => {
+    const uniqueSizes = Array.from(new Set(variants.map((item) => item.size)));
+    return uniqueSizes.map((size) => {
+      let isDisabled: boolean;
+      if (selectedColor) {
+        // Nếu đã chọn màu, size này chỉ khả dụng nếu tồn tại biến thể (size, selectedColor) có stock > 0
+        const matchingVariant = variants.find(
+          (v) => v.size === size && v.color === selectedColor
+        );
+        isDisabled = !matchingVariant || Number(matchingVariant.stock ?? 0) <= 0;
+      } else {
+        // Nếu chưa chọn màu, size này bị disable nếu TẤT CẢ biến thể có size này đều hết hàng
+        const sizeVariants = variants.filter((v) => v.size === size);
+        const totalStockForSize = sizeVariants.reduce(
+          (sum, v) => sum + Number(v.stock ?? 0),
+          0
+        );
+        isDisabled = totalStockForSize <= 0;
+      }
+
+      return {
+        label: size,
+        value: size,
+        disabled: isDisabled,
+      };
+    });
+  }, [variants, selectedColor]);
+
+  const colorOptions = useMemo(() => {
+    const uniqueColors = Array.from(new Set(variants.map((item) => item.color)));
+    return uniqueColors.map((color) => {
+      let isDisabled: boolean;
+      if (selectedSize) {
+        // Nếu đã chọn size, màu này chỉ khả dụng nếu tồn tại biến thể (selectedSize, color) có stock > 0
+        const matchingVariant = variants.find(
+          (v) => v.size === selectedSize && v.color === color
+        );
+        isDisabled = !matchingVariant || Number(matchingVariant.stock ?? 0) <= 0;
+      } else {
+        // Nếu chưa chọn size, màu này bị disable nếu TẤT CẢ biến thể có màu này đều hết hàng
+        const colorVariants = variants.filter((v) => v.color === color);
+        const totalStockForColor = colorVariants.reduce(
+          (sum, v) => sum + Number(v.stock ?? 0),
+          0
+        );
+        isDisabled = totalStockForColor <= 0;
+      }
+
+      return {
+        label: color,
+        value: color,
+        disabled: isDisabled,
+      };
+    });
+  }, [variants, selectedSize]);
+
   const rowTotal = Number(variant?.price ?? 0) * Number(quantity ?? 0);
 
   return (
@@ -154,15 +210,29 @@ const OrderItemField = ({
           label: item.name,
           value: item.id,
         }))}
-        onChange={() => {
-          const items = form.getFieldValue("items") ?? [];
-          items[fieldName] = {
-            ...items[fieldName],
-            size: undefined,
-            color: undefined,
-            quantity: 1,
-          };
-          form.setFieldsValue({ items });
+        onChange={(val) => {
+          // Tìm sản phẩm vừa chọn để kiểm tra số lượng biến thể
+          const selectedProd = productCurrent.find(
+            (p) => String(p.id) === String(val),
+          );
+          const prodVariants = getOrderProductVariants(selectedProd);
+
+          // Cải thiện UX: Tự động điền nếu chỉ có duy nhất 1 biến thể (hoặc hàng Default)
+          if (prodVariants.length === 1) {
+            form.setFieldValue(
+              ["items", fieldName, "size"],
+              prodVariants[0].size,
+            );
+            form.setFieldValue(
+              ["items", fieldName, "color"],
+              prodVariants[0].color,
+            );
+          } else {
+            // Đổi sản phẩm và có nhiều biến thể: xóa size/color cũ
+            form.setFieldValue(["items", fieldName, "size"], undefined);
+            form.setFieldValue(["items", fieldName, "color"], undefined);
+          }
+          form.setFieldValue(["items", fieldName, "quantity"], 1);
         }}
         rules={[
           { required: true, message: t("order.validation.productRequired") },
@@ -172,16 +242,7 @@ const OrderItemField = ({
         {...restField}
         label={t("order.size")}
         name={[fieldName, "size"]}
-        disabled={!productId || optionsLoading}
         options={sizeOptions}
-        onChange={() => {
-          const items = form.getFieldValue("items") ?? [];
-          items[fieldName] = {
-            ...items[fieldName],
-            color: undefined,
-          };
-          form.setFieldsValue({ items });
-        }}
         rules={[
           { required: true, message: t("order.validation.sizeRequired") },
         ]}
@@ -190,7 +251,6 @@ const OrderItemField = ({
         {...restField}
         label={t("order.color")}
         name={[fieldName, "color"]}
-        disabled={!productId || !selectedSize || optionsLoading}
         options={colorOptions}
         rules={[
           { required: true, message: t("order.validation.colorRequired") },
@@ -201,7 +261,7 @@ const OrderItemField = ({
         label={t("order.quantity")}
         name={[fieldName, "quantity"]}
         type="number"
-        min={1}
+        min={0}
         rules={[
           { required: true, message: t("order.validation.quantityRequired") },
           {
@@ -210,6 +270,10 @@ const OrderItemField = ({
 
               if (currentQuantity < 1) {
                 throw new Error(t("order.validation.quantityMin"));
+              }
+
+              if (selectedSize && selectedColor && !variant) {
+                throw new Error(t("order.validation.invalidVariant"));
               }
 
               if (variant && currentQuantity > Number(variant.stock)) {
@@ -247,6 +311,18 @@ const OrderItemField = ({
     </div>
   );
 };
+
+const OrderItemField = React.memo(
+  OrderItemFieldComponent,
+  (prevProps, nextProps) => {
+    return (
+      prevProps.fieldName === nextProps.fieldName &&
+      prevProps.optionsLoading === nextProps.optionsLoading &&
+      prevProps.canRemove === nextProps.canRemove &&
+      prevProps.products === nextProps.products
+    );
+  },
+);
 
 export const ModalCart = ({
   open,

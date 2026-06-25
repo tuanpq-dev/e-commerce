@@ -296,7 +296,6 @@ const Product: React.FC = () => {
       selectedSizes: values.selectedSizes,
       selectedColors: values.selectedColors,
       variants: values.variants,
-      status: "pending",
       description: values.description || "",
     });
   };
@@ -466,13 +465,8 @@ const Product: React.FC = () => {
         return;
       }
 
-      const { ...updateValues } = values;
-
-      delete updateValues.id;
-      delete updateValues.status;
-
       await Promise.all([
-        UpdateProduct({ ...updateValues, id: rowData.id }),
+        UpdateProduct({ ...values, id: rowData.id }),
         CreateActiveLog({
           module: "Product",
           action: "UPDATE",

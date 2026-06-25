@@ -189,7 +189,8 @@
       "addressRequired": "Vui lòng nhập địa chỉ",
       "addressMax": "Tối đa 100 ký tự",
       "noteMax": "Tối đa 200 ký tự",
-      "min1Product": "Vui lòng thêm ít nhất một sản phẩm"
+      "min1Product": "Vui lòng thêm ít nhất một sản phẩm",
+      "invalidVariant": "Biến thể không tồn tại hoặc hết hàng"
     },
     "detail": {
       "title": "Chi tiết đơn hàng",

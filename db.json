@@ -1,14 +1,4 @@
 {
-  "users": [
-    {
-      "id": "1",
-      "username": "admin",
-      "email": "admin@gmail.com",
-      "password": "123456",
-      "name": "Admin User",
-      "role": "admin"
-    }
-  ],
   "products": [
     {
       "name": "Sản phẩm áo",
@@ -333,9 +323,9 @@
     {
       "id": "6Sfw7Khs2_k",
       "sku": "SPMQRUOM9X",
-      "name": "Điện thoại ",
-      "price": 3499,
-      "stock": 90,
+      "name": "Điện thoại updateeee",
+      "price": 2999,
+      "stock": 130,
       "basePrice": 2999,
       "selectedSizes": [
         "XS",
@@ -343,15 +333,15 @@
         "M"
       ],
       "selectedColors": [
-        "black",
-        "white"
+        "white",
+        "black"
       ],
       "category": "5bcazNqa_ek",
       "category_child": [
         "924259f9-c4cf-494a-9b63-6b3a2113c4c7"
       ],
       "description": "Điện thoại",
-      "status": "pending",
+      "status": "active",
       "created_at": 1782292145344
     }
   ],
@@ -591,107 +581,6 @@
       "total_expend": 0,
       "created_at": 1782288329857,
       "id": "gm655D8e4ww"
-    }
-  ],
-  "detail_customers": [
-    {
-      "id": "1",
-      "list_order": [
-        {
-          "order_code": "code_abc_xyz1",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "name": "Mũ lưỡi trai đen",
-          "price": 99000,
-          "status": "success"
-        },
-        {
-          "order_code": "code_abc_xyz2",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "name": "Áo khoác bomber",
-          "price": 550000,
-          "status": "success"
-        },
-        {
-          "order_code": "code_abc_xyz3",
-          "price": 20000,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "name": "Sản phẩm 26",
-          "status": "error"
-        },
-        {
-          "order_code": "code_abc_xyz4",
-          "price": 3000,
-          "image": [
-            "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80"
-          ],
-          "name": "JOB_007",
-          "status": "success"
-        }
-      ]
-    },
-    {
-      "id": "2",
-      "list_order": [
-        {
-          "order_code": "code_abc1",
-          "name": "New product",
-          "price": 5555,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "status": "success"
-        },
-        {
-          "order_code": "code_abc2",
-          "name": "Phạm Quang Tuấn",
-          "price": 3800,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "status": "error"
-        }
-      ]
-    },
-    {
-      "id": "3",
-      "list_order": [
-        {
-          "order_code": "code_order_1",
-          "name": "New product",
-          "price": 5555,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "status": "success"
-        },
-        {
-          "order_code": "code_order_2",
-          "name": "Phạm Quang Tuấn",
-          "price": 3800,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "status": "error"
-        }
-      ]
-    },
-    {
-      "id": "4",
-      "list_order": [
-        {
-          "order_code": "code_order_abc_1",
-          "name": "New product",
-          "price": 5555,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "status": "success"
-        },
-        {
-          "order_code": "code_order_abc_2",
-          "name": "Phạm Quang Tuấn",
-          "price": 3800,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "status": "error"
-        },
-        {
-          "order_code": "code_order_abc_3",
-          "name": "Phạm Quang Tuấn",
-          "price": 3800,
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "status": "success"
-        }
-      ]
     }
   ],
   "orders": [
@@ -2905,6 +2794,41 @@
       "user": "Phạm Quang Tuấn",
       "created_at": "2026-06-24T09:52:14.025Z",
       "id": "Izsxx20m3AU"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE status - 6Sfw7Khs2_k",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-25T02:53:47.701Z",
+      "id": "fS_e3f1tDss"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-25T02:53:59.366Z",
+      "id": "pf8Kmzawv6U"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-25T02:57:21.738Z",
+      "id": "bPi2_4YfL_E"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-25T02:58:55.117Z",
+      "id": "uazDTDxyshc"
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-25T07:49:33.987Z",
+      "id": "ZKb3krnlzk4"
     }
   ],
   "product_variants": {
@@ -3194,90 +3118,6 @@
         "sku": "SPMQRREMCY-S-RED"
       }
     ],
-    "SKU 1781173632565": [
-      {
-        "size": "S",
-        "color": "Đen",
-        "price": 2000,
-        "stock": 100,
-        "sku": "SKU-S-ĐEN",
-        "id": "367529a0-5d58-4315-9cf5-6b06488363f6"
-      },
-      {
-        "size": "S",
-        "color": "Trắng",
-        "price": 2000,
-        "stock": 99,
-        "sku": "SKU-S-TRẮNG",
-        "id": "ea940483-0b5b-4b73-8606-eb75262e9340"
-      },
-      {
-        "size": "L",
-        "color": "Đen",
-        "price": 2100,
-        "stock": 100,
-        "sku": "SKU-L-ĐEN",
-        "id": "03717fd4-b0b2-46c9-8b98-50fbec1f1961"
-      },
-      {
-        "size": "L",
-        "color": "Trắng",
-        "price": 2121,
-        "stock": 100,
-        "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-TRẮNG",
-        "id": "34e67456-ac41-41cf-9d50-608579ae23cf"
-      },
-      {
-        "size": "L",
-        "color": "Đỏ",
-        "price": 2100,
-        "stock": 100,
-        "sku": "SKU-L-ĐỎ",
-        "id": "89c61ca7-0177-4e71-a985-6bce9475575e"
-      },
-      {
-        "size": "L",
-        "color": "Cam",
-        "price": 2100,
-        "stock": 90,
-        "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-CAM",
-        "id": "f2f95b4c-f4b2-493c-a981-48dda695dcf9"
-      },
-      {
-        "size": "XL",
-        "color": "Hồng",
-        "price": 2500,
-        "stock": 100,
-        "sku": "SKU-XL-HỒNG",
-        "id": "b7728f21-79e6-46dd-8ab2-fdf029acd674"
-      }
-    ],
-    "SPQUAN 1781488147017": [
-      {
-        "size": "S",
-        "color": "Đen",
-        "price": 1111,
-        "stock": 50,
-        "sku": "SPQUAN-TEST-S-ĐEN",
-        "id": "c6aedf81-58e0-495f-9ec0-062447566efd"
-      },
-      {
-        "size": "L",
-        "color": "Trắng",
-        "price": 2222,
-        "stock": 40,
-        "sku": "SPQUAN-TEST-L-TRẮNG",
-        "id": "553a9321-f24e-4c98-a217-d0a72ae60bf4"
-      },
-      {
-        "size": "XL",
-        "color": "Đen",
-        "price": 3333,
-        "stock": 50,
-        "sku": "SPQUAN-TEST-XL-ĐEN",
-        "id": "d13711ab-c5e9-4022-9a53-af3f5d79a33a"
-      }
-    ],
     "SPMQRUOM9X": [
       {
         "id": "2637b784-4725-48ff-8077-3f5f2fe01c85",
@@ -3288,6 +3128,14 @@
         "sku": "SPMQRUOM9X-XS-WHT"
       },
       {
+        "id": "8ee0a56a-1f0e-4bdd-a598-692d1eac1e67",
+        "size": "XS",
+        "color": "black",
+        "price": 2999,
+        "stock": 20,
+        "sku": "SPMQRUOM9X-XS-BLK"
+      },
+      {
         "id": "a6a76c14-aca0-45ad-8a46-c119754133fc",
         "size": "S",
         "color": "white",
@@ -3296,12 +3144,28 @@
         "sku": "SPMQRUOM9X-S-WHT"
       },
       {
+        "id": "258434ab-fa28-4c6f-afcf-819365969ba5",
+        "size": "S",
+        "color": "black",
+        "price": 2999,
+        "stock": 20,
+        "sku": "SPMQRUOM9X-S-BLK"
+      },
+      {
         "id": "c52cbf6b-e2ff-4fee-9a5a-55a5c1d60152",
         "size": "M",
         "color": "white",
         "price": 3499,
         "stock": 30,
         "sku": "SPMQRUOM9X-M-WHT"
+      },
+      {
+        "id": "c456ef9a-fd08-4a0b-8cfa-b783af5a9c36",
+        "size": "M",
+        "color": "black",
+        "price": 2999,
+        "stock": 0,
+        "sku": "SPMQRUOM9X-M-BLK"
       }
     ]
   },
