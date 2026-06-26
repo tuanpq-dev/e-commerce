@@ -41,11 +41,38 @@ const Category: React.FC = () => {
   const [allCategories, setAllCategories] = useState<CategoryType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
-  const [searchText, setSearchText] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const [totalItems, setTotalItems] = useState(0);
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+  const searchQuery = searchParams.get("q") ?? "";
+
+  // State quản lý giá trị đang gõ vào ô tìm kiếm (debounce 500ms)
+  const [searchInput, setSearchInput] = useState(searchQuery);
+  const debouncedSearch = useDebounce(searchInput, 500);
+
+  // Khi URL thay đổi từ bên ngoài, đồng bộ lại input
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
+
+  // Khi debounce thay đổi, cập nhật URL params
+  useEffect(() => {
+    if (debouncedSearch.trim() !== searchQuery.trim()) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        const keyword = debouncedSearch.trim();
+        if (keyword) {
+          next.set("q", keyword);
+          next.set("_page", String(DEFAULT_PAGE));
+        } else {
+          next.delete("q");
+          next.delete("_page");
+        }
+        return next;
+      });
+    }
+  }, [debouncedSearch, searchQuery, setSearchParams]);
 
   const fetchAllCategories = useCallback(async () => {
     try {
@@ -59,7 +86,7 @@ const Category: React.FC = () => {
   const fetchCategories = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, items } = await GetCategories(currentPage, pageSize);
+      const { data, items } = await GetCategories(currentPage, pageSize, searchQuery);
       setCategory(data);
       setTotalItems(items);
     } catch (err) {
@@ -67,10 +94,9 @@ const Category: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchQuery]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCategories();
   }, [fetchCategories]);
 
@@ -78,11 +104,6 @@ const Category: React.FC = () => {
     fetchAllCategories();
   }, [fetchAllCategories]);
   const { isAdmin } = UserPermission();
-
-  const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
-  const filterData = category.filter(
-    (item) => !keyword || item.name?.toLowerCase().includes(keyword),
-  );
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -291,10 +312,6 @@ const Category: React.FC = () => {
     });
   };
 
-  const handleSearch = (value: string | number | null) => {
-    setSearchText(value ? String(value) : "");
-  };
-
   return (
     <>
       <Flex className="page-stack" gap="medium" vertical>
@@ -302,7 +319,8 @@ const Category: React.FC = () => {
           <Search
             allowClear={true}
             placeholder={t("category.placeholder.search")}
-            onChange={(event) => handleSearch(event.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="page-search"
           />
           {isAdmin && (
@@ -328,7 +346,7 @@ const Category: React.FC = () => {
           <Table<CategoryType>
             rowKey="id"
             columns={columns}
-            dataSource={filterData}
+            dataSource={category}
             loading={isLoading}
             pagination={{
               current: currentPage,

@@ -25,8 +25,8 @@ import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import formatDate from "../../utils/formatDate";
 import { UserPermission } from "../../api/userPermission";
-import useDebounce from "../../@crema/core/hook/useDebounce";
 import { useTranslation } from "react-i18next";
+import useDebounce from "../../@crema/core/hook/useDebounce";
 
 const getProductVariants = (record: DataType) => record.variants ?? [];
 
@@ -99,7 +99,6 @@ const Product: React.FC = () => {
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
-  const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>();
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const [selectedPrice, setSelectedPrice] = useState<string>();
@@ -115,11 +114,43 @@ const Product: React.FC = () => {
   // Bóc tách _page và _per_page từ URL, fallback về giá trị mặc định
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+  const searchText = searchParams.get("q") ?? "";
+
+  // State quản lý giá trị đang gõ vào ô tìm kiếm (có debounce 500ms)
+  const [searchInput, setSearchInput] = useState(searchText);
+  const debouncedSearchText = useDebounce(searchInput, 500);
+
+  // Khi URL thay đổi từ bên ngoài (ví dụ: xóa query), đồng bộ lại input
+  useEffect(() => {
+    setSearchInput(searchText);
+  }, [searchText]);
+
+  // Khi giá trị debounce thay đổi, cập nhật URL params
+  useEffect(() => {
+    if (debouncedSearchText.trim() !== searchText.trim()) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        const keyword = debouncedSearchText.trim();
+        if (keyword) {
+          next.set("q", keyword);
+          next.set("_page", String(DEFAULT_PAGE));
+        } else {
+          next.delete("q");
+          next.delete("_page");
+        }
+        return next;
+      });
+    }
+  }, [debouncedSearchText, searchText, setSearchParams]);
 
   const fetchProducts = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, items } = await GetProducts(currentPage, pageSize);
+      const { data, items } = await GetProducts(
+        currentPage,
+        pageSize,
+        searchText,
+      );
       setProduct(data);
       setTotalItems(items);
     } catch (err) {
@@ -127,7 +158,7 @@ const Product: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchText]);
 
   // Gọi API khi page/pageSize (từ URL) thay đổi
   useEffect(() => {
@@ -156,63 +187,6 @@ const Product: React.FC = () => {
     });
     return map;
   }, [category]);
-
-  const keyword = useDebounce(searchText.trim().toLowerCase());
-  const filteredProduct = useMemo(() => {
-    return product.filter((item) => {
-      const variants = item.variants ?? [];
-
-      const prices = variants
-        .map((variant) => Number(variant.price))
-        .filter((price) => !Number.isNaN(price));
-
-      const minPrice = prices.length ? Math.min(...prices) : 0;
-      const maxPrice = prices.length ? Math.max(...prices) : 0;
-
-      const categoryId =
-        typeof item.category === "object" ? item.category?.id : item.category;
-
-      const parentName = categoryMap.get(String(categoryId)) ?? "";
-
-      const childIds = (item.category_child ?? [])
-        .map((child) => (typeof child === "object" ? child?.id : child))
-        .filter((id): id is string | number => id !== undefined);
-
-      const childNames = childIds
-        .map((id) => categoryMap.get(String(id)))
-        .filter(Boolean)
-        .join(" ");
-
-      const matchesSearch =
-        !keyword ||
-        item.name?.toLowerCase().includes(keyword) ||
-        item.sku?.toLowerCase().includes(keyword) ||
-        parentName.toLowerCase().includes(keyword) ||
-        childNames.toLowerCase().includes(keyword);
-
-      const matchesCategory =
-        !selectedCategory ||
-        String(categoryId) === selectedCategory ||
-        childIds.some((id) => String(id) === selectedCategory);
-
-      const matchesStatus = !selectedStatus || item.status === selectedStatus;
-
-      const matchesPrice =
-        !selectedPrice ||
-        (selectedPrice === "above-3000"
-          ? maxPrice > 3000
-          : minPrice < Number(selectedPrice));
-
-      return matchesSearch && matchesCategory && matchesStatus && matchesPrice;
-    });
-  }, [
-    categoryMap,
-    product,
-    keyword,
-    selectedCategory,
-    selectedStatus,
-    selectedPrice,
-  ]);
 
   const categoryOptions = useMemo(
     () =>
@@ -502,10 +476,6 @@ const Product: React.FC = () => {
     }
   };
 
-  const handleSearch = (value: string | number | null) => {
-    setSearchText(value ? String(value) : "");
-  };
-
   return (
     <>
       <Flex className="page-stack" gap="medium" vertical>
@@ -514,7 +484,8 @@ const Product: React.FC = () => {
             <Search
               allowClear={true}
               placeholder={t("product.placeholder.search")}
-              onChange={(event) => handleSearch(event.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="page-search"
             />
             <Select
@@ -556,7 +527,7 @@ const Product: React.FC = () => {
           <Table<DataType>
             rowKey="sku"
             columns={columns}
-            dataSource={filteredProduct}
+            dataSource={product}
             loading={isLoading}
             pagination={{
               current: currentPage,
