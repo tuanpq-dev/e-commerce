@@ -74,18 +74,8 @@
       "created_at": 1781173632565,
       "description": "",
       "basePrice": 2000,
-      "selectedSizes": [
-        "S",
-        "L",
-        "XL"
-      ],
-      "selectedColors": [
-        "Đen",
-        "Trắng",
-        "Đỏ",
-        "Hồng",
-        "Cam"
-      ]
+      "selectedSizes": ["S", "L", "XL"],
+      "selectedColors": ["Đen", "Trắng", "Đỏ", "Hồng", "Cam"]
     },
     {
       "name": "Sản phẩm Quần 2",
@@ -101,9 +91,7 @@
           "id": "002ac883-f82b-44bf-82e5-84718429354c"
         }
       ],
-      "category_child": [
-        "1a0c1568-3fe8-4e2a-984c-c80423fa592f"
-      ],
+      "category_child": ["1a0c1568-3fe8-4e2a-984c-c80423fa592f"],
       "id": "JQAexFpfw1w",
       "price": 1001,
       "stock": 70,
@@ -152,15 +140,8 @@
       "status": "active",
       "created_at": 1781488147017,
       "basePrice": 1111,
-      "selectedSizes": [
-        "S",
-        "L",
-        "XL"
-      ],
-      "selectedColors": [
-        "Đen",
-        "Trắng"
-      ]
+      "selectedSizes": ["S", "L", "XL"],
+      "selectedColors": ["Đen", "Trắng"]
     },
     {
       "name": "Sản phẩm áo 2",
@@ -250,24 +231,10 @@
       "price": 1000,
       "stock": 1200,
       "basePrice": 1000,
-      "selectedSizes": [
-        "XS",
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL"
-      ],
-      "selectedColors": [
-        "black",
-        "white",
-        "blue",
-        "red"
-      ],
+      "selectedSizes": ["XS", "S", "M", "L", "XL", "XXL"],
+      "selectedColors": ["black", "white", "blue", "red"],
       "category": "DoSf-yUiv4c",
-      "category_child": [
-        "7f09306f-5e31-4abd-ae12-31ebd500cd0c"
-      ],
+      "category_child": ["7f09306f-5e31-4abd-ae12-31ebd500cd0c"],
       "description": "Test sản phẩm 23 tháng 6",
       "status": "active",
       "created_at": 1782201367366
@@ -279,20 +246,10 @@
       "price": 1000,
       "stock": 400,
       "basePrice": 1000,
-      "selectedSizes": [
-        "XS",
-        "S",
-        "M",
-        "L"
-      ],
-      "selectedColors": [
-        "black",
-        "white"
-      ],
+      "selectedSizes": ["XS", "S", "M", "L"],
+      "selectedColors": ["black", "white"],
       "category": "sFGTOuTS9OA",
-      "category_child": [
-        "1a0c1568-3fe8-4e2a-984c-c80423fa592f"
-      ],
+      "category_child": ["1a0c1568-3fe8-4e2a-984c-c80423fa592f"],
       "description": "Test sản phẩm 23 tháng 6_2",
       "status": "active",
       "created_at": 1782203498331
@@ -304,18 +261,10 @@
       "price": 1080,
       "stock": 400,
       "basePrice": 1000,
-      "selectedSizes": [
-        "XS",
-        "S"
-      ],
-      "selectedColors": [
-        "white",
-        "red"
-      ],
+      "selectedSizes": ["XS", "S"],
+      "selectedColors": ["white", "red"],
       "category": "L0LncjdxyvU",
-      "category_child": [
-        "768f8053-57ae-46dd-a000-1d6ef41fb105"
-      ],
+      "category_child": ["768f8053-57ae-46dd-a000-1d6ef41fb105"],
       "description": "hehehehe",
       "status": "active",
       "created_at": 1782286612626
@@ -327,19 +276,10 @@
       "price": 2999,
       "stock": 130,
       "basePrice": 2999,
-      "selectedSizes": [
-        "XS",
-        "S",
-        "M"
-      ],
-      "selectedColors": [
-        "white",
-        "black"
-      ],
+      "selectedSizes": ["XS", "S", "M"],
+      "selectedColors": ["white", "black"],
       "category": "5bcazNqa_ek",
-      "category_child": [
-        "924259f9-c4cf-494a-9b63-6b3a2113c4c7"
-      ],
+      "category_child": ["924259f9-c4cf-494a-9b63-6b3a2113c4c7"],
       "description": "Điện thoại",
       "status": "active",
       "created_at": 1782292145344
@@ -579,8 +519,28 @@
       "address": "120 Yên Lãng, Đống Đa, Hà Nội",
       "total_orders": 0,
       "total_expend": 0,
-      "created_at": 1782288329857,
+      "created_at": "2026-06-24T08:05:29.857Z",
       "id": "gm655D8e4ww"
+    },
+    {
+      "fullname": "Độ Mixi 1",
+      "email": "mixigaming@gmail.com",
+      "phone": "012345987",
+      "address": "Yên Lãng",
+      "total_orders": 0,
+      "total_expend": 0,
+      "created_at": "2026-06-26T10:41:11.010Z",
+      "id": "6JTqJiz"
+    },
+    {
+      "fullname": "Độ Yên Lãng",
+      "email": "yenlang@gmail.com",
+      "phone": "0123412345",
+      "address": "Cao Bằng",
+      "total_orders": 0,
+      "total_expend": 0,
+      "created_at": "2026-06-26T10:51:02.656Z",
+      "id": "t2DO1nI"
     }
   ],
   "orders": [
@@ -2829,6 +2789,20 @@
       "user": "Phạm Quang Tuấn",
       "created_at": "2026-06-25T07:49:33.987Z",
       "id": "ZKb3krnlzk4"
+    },
+    {
+      "module": "Customer",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-26T10:41:11.071Z",
+      "id": "wgXEHJy"
+    },
+    {
+      "module": "Customer",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-26T10:51:02.679Z",
+      "id": "LVD6lIM"
     }
   ],
   "product_variants": {

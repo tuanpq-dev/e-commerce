@@ -1,4 +1,5 @@
 import type { CategoryType } from "../types/domain";
+import type { AxiosResponse } from "axios";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
 
@@ -9,32 +10,29 @@ export type PaginatedCategories = {
 
 export const GetCategories = async (
   page?: number,
-  perPage?: number,
+  limit?: number,
+  search?: string,
 ): Promise<PaginatedCategories> => {
-  const params: any = {
-    _sort: "-created_at",
+  const params: Record<string, string | number> = {
+    _sort: "created_at",
+    _order: "desc",
   };
+
   if (page !== undefined) {
     params._page = page;
   }
-  if (perPage !== undefined) {
-    params._per_page = perPage;
+  if (limit !== undefined) {
+    params._limit = limit;
+  }
+  if (search && search.trim()) {
+    params.q = search.trim();
   }
 
-  const response = await callApiWithRetries<any>({
-    url: "/category",
-    config: {
-      params,
-    },
-  });
+  // Dùng axiosClient trực tiếp để đọc header X-Total-Count (json-server v0.17)
+  const response = await axiosClient.get<CategoryType[]>("/category", { params }) as AxiosResponse<CategoryType[]>;
 
-  const data: CategoryType[] = Array.isArray(response)
-    ? response
-    : (response?.data ?? []);
-
-  const items: number = Array.isArray(response)
-    ? response.length
-    : (response?.items ?? data.length);
+  const data: CategoryType[] = response.data ?? [];
+  const items: number = Number(response.headers["x-total-count"]) || data.length;
 
   return { data, items };
 };

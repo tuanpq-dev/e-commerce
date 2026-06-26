@@ -50,17 +50,43 @@ const Order: React.FC = () => {
   const [customers, setCustomers] = useState<CustomerType[]>([]);
   const [products, setProducts] = useState<DataType[]>([]);
   const navigate = useNavigate();
-  const [searchText, setSearchText] = useState("");
   const [isModalAdd, setIsModalAdd] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>();
-  const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
   const [searchParams, setSearchParams] = useSearchParams();
   const [totalItems, setTotalItems] = useState(0);
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+  const searchQuery = searchParams.get("q") ?? "";
+
+  // State quản lý giá trị đang gõ vào ô tìm kiếm (debounce 500ms)
+  const [searchInput, setSearchInput] = useState(searchQuery);
+  const debouncedSearch = useDebounce(searchInput, 500);
+
+  // Khi URL thay đổi từ bên ngoài, đồng bộ lại input
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
+
+  // Khi debounce thay đổi, cập nhật URL params
+  useEffect(() => {
+    if (debouncedSearch.trim() !== searchQuery.trim()) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        const keyword = debouncedSearch.trim();
+        if (keyword) {
+          next.set("q", keyword);
+          next.set("_page", String(DEFAULT_PAGE));
+        } else {
+          next.delete("q");
+          next.delete("_page");
+        }
+        return next;
+      });
+    }
+  }, [debouncedSearch, searchQuery, setSearchParams]);
 
   const statusOrder = useMemo(() => getOrderStatuses(t), [t]);
 
@@ -76,7 +102,7 @@ const Order: React.FC = () => {
   const fetchDataOrder = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, items } = await GetOrders(currentPage, pageSize);
+      const { data, items } = await GetOrders(currentPage, pageSize, searchQuery);
       setData(data);
       setTotalItems(items);
     } catch (err) {
@@ -84,7 +110,7 @@ const Order: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchQuery]);
 
   const getAllData = useCallback(async () => {
     setIsLoading(true);
@@ -98,20 +124,10 @@ const Order: React.FC = () => {
     }
   }, []);
 
-  const filterDataOrder = data.filter((item) => {
-    const matchesStatus = !selectedStatus || item.status === selectedStatus;
-    const matchesSearch =
-      !keyword ||
-      String(item.order_code ?? "")
-        .toLowerCase()
-        .includes(keyword) ||
-      item.customer_name?.toLowerCase().includes(keyword);
-    return matchesStatus && matchesSearch;
-  });
-
-  const handleSearch = (value: string | number | null) => {
-    setSearchText(value ? String(value) : "");
-  };
+  // Chỉ giữ filter status phía client (json-server không filter theo field status)
+  const filterDataOrder = data.filter(
+    (item) => !selectedStatus || item.status === selectedStatus,
+  );
 
   const fetchCustomers = async () => {
     try {
@@ -145,7 +161,7 @@ const Order: React.FC = () => {
 
   useEffect(() => {
     fetchDataOrder();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchQuery]);
 
   useEffect(() => {
     getAllData();
@@ -299,7 +315,8 @@ const Order: React.FC = () => {
           <div className="page-toolbar-controls">
             <Search
               allowClear={true}
-              onChange={(event) => handleSearch(event.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               placeholder={t("order.placeholder.search")}
               className="page-search"
             />

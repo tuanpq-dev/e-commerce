@@ -43,29 +43,44 @@ const Customer: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const navigate = useNavigate();
-  const [searchText, setSearchText] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
   const [totalItems, setTotalItems] = useState(0);
-  const keyword = useDebounce(searchText.trim().toLocaleLowerCase());
-  const filterDataOrder = dataCustomer.filter((item) => {
-    return (
-      !keyword ||
-      item.fullname?.toLowerCase().includes(keyword) ||
-      item.email?.toLowerCase().includes(keyword)
-    );
-  });
+  const searchQuery = searchParams.get("q") ?? "";
 
-  const handleSearch = (value: string | number | null) => {
-    setSearchText(value ? String(value) : "");
-  };
+  // State quản lý giá trị đang gõ vào ô tìm kiếm (debounce 500ms)
+  const [searchInput, setSearchInput] = useState(searchQuery);
+  const debouncedSearch = useDebounce(searchInput, 500);
+
+  // Khi URL thay đổi từ bên ngoài, đồng bộ lại input
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
+
+  // Khi debounce thay đổi, cập nhật URL params
+  useEffect(() => {
+    if (debouncedSearch.trim() !== searchQuery.trim()) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        const keyword = debouncedSearch.trim();
+        if (keyword) {
+          next.set("q", keyword);
+          next.set("_page", String(DEFAULT_PAGE));
+        } else {
+          next.delete("q");
+          next.delete("_page");
+        }
+        return next;
+      });
+    }
+  }, [debouncedSearch, searchQuery, setSearchParams]);
 
   const fetchCustomer = async () => {
     setIsLoading(true);
     try {
       const [customers, orders] = await Promise.all([
-        GetCustomers(currentPage, pageSize),
+        GetCustomers(currentPage, pageSize, searchQuery),
         GetOrders(),
       ]);
       const orderList: OrderType[] = orders.data ?? [];
@@ -94,9 +109,9 @@ const Customer: React.FC = () => {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCustomer();
-  }, [currentPage, pageSize]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, pageSize, searchQuery]);
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -270,7 +285,8 @@ const Customer: React.FC = () => {
       <div className="page-toolbar">
         <Search
           allowClear={true}
-          onChange={(event) => handleSearch(event.target.value)}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
           placeholder={t("customer.placeholder.search")}
           className="page-search"
         />
@@ -289,7 +305,7 @@ const Customer: React.FC = () => {
           rowKey="id"
           columns={columns}
           loading={isLoading}
-          dataSource={filterDataOrder}
+          dataSource={dataCustomer}
           pagination={{
             current: currentPage,
             pageSize: pageSize,

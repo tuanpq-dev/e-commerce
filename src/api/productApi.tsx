@@ -6,6 +6,7 @@ import type {
 } from "../types/domain";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
+import type { AxiosResponse } from "axios";
 import { IncreaseCategoryProductTotal } from "./categoryApi";
 import {
   generateUniqueParentSku,
@@ -18,9 +19,9 @@ import {
 // ═══════════════════════════════════════════════════════
 
 /**
- * Response phân trang từ json-server v1.
+ * Response phân trang từ json-server v0.17.
  * - `data`: mảng sản phẩm đã merge variants.
- * - `items`: tổng số sản phẩm (dùng cho pagination `total`).
+ * - `items`: tổng số sản phẩm (đọc từ header X-Total-Count).
  */
 export type PaginatedProducts = {
   data: DataType[];
@@ -29,39 +30,36 @@ export type PaginatedProducts = {
 
 export const GetProducts = async (
   page?: number,
-  perPage?: number,
+  limit?: number,
+  search?: string,
 ): Promise<PaginatedProducts> => {
-  // Fetch song song: products + product_variants (dạng Key-Value Object)
-  const params: any = {
-    _sort: "-created_at",
+  // json-server v0.17: dùng _sort + _order thay vì prefix "-"
+  const params: Record<string, string | number> = {
+    _sort: "created_at",
+    _order: "desc",
   };
 
   if (page !== undefined) {
     params._page = page;
   }
-  if (perPage !== undefined) {
-    params._per_page = perPage;
+  if (limit !== undefined) {
+    params._limit = limit;
+  }
+  if (search && search.trim()) {
+    params.q = search.trim();
   }
 
-  const [products, allVariants] = await Promise.all([
-    callApiWithRetries<any>({
-      url: "/products",
-      config: {
-        params,
-      },
-    }),
+  // Dùng axiosClient trực tiếp để đọc header X-Total-Count
+  const [productsRes, allVariants] = await Promise.all([
+    axiosClient.get<DataType[]>("/products", { params }) as Promise<AxiosResponse<DataType[]>>,
     callApiWithRetries<ProductVariantsMap>({ url: "/product_variants" }),
   ]);
 
-  // json-server v1 trả về object { first, prev, next, last, pages, items, data }
-  // khi có _page param; trả về plain array khi không có.
-  const rawProducts: DataType[] = Array.isArray(products)
-    ? products
-    : (products?.data ?? []);
+  // json-server v0.17 luôn trả về plain array
+  const rawProducts: DataType[] = productsRes.data ?? [];
 
-  const items: number = Array.isArray(products)
-    ? products.length
-    : (products?.items ?? rawProducts.length);
+  // Tổng số bản ghi nằm trong header X-Total-Count
+  const items: number = Number(productsRes.headers["x-total-count"]) || rawProducts.length;
 
   // Merge variants vào sản phẩm dựa trên SKU cha (product.sku)
   const merged = rawProducts.map((product) => {
