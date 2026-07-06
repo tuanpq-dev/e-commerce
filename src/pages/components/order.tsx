@@ -102,7 +102,11 @@ const Order: React.FC = () => {
   const fetchDataOrder = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, items } = await GetOrders(currentPage, pageSize, searchQuery);
+      const { data, items } = await GetOrders(
+        currentPage,
+        pageSize,
+        searchQuery,
+      );
       setData(data);
       setTotalItems(items);
     } catch (err) {
@@ -131,8 +135,8 @@ const Order: React.FC = () => {
 
   const fetchCustomers = async () => {
     try {
-      const { data: dataCustomer } = (await GetCustomers()) ?? [];
-      setCustomers(dataCustomer);
+      const { data } = (await GetCustomers()) ?? [];
+      setCustomers(data);
     } catch (err) {
       console.log(err);
     }
@@ -260,16 +264,17 @@ const Order: React.FC = () => {
   const handleCreateOrder = async (values: CreateOrderValues) => {
     try {
       setIsCreating(true);
-      await Promise.all([
-        CreateOrder(values, customers, products),
-        CreateActiveLog({
-          module: "Order",
-          action: "CREATE",
-          user: userInfo?.name,
-        }),
-      ]);
+      await CreateOrder(values, customers, products);
+      await CreateActiveLog({
+        module: "Order",
+        action: "CREATE",
+        user: userInfo?.name,
+      });
 
-      await Promise.all([fetchDataOrder(), fetchOrderOptions()]);
+      await fetchDataOrder();
+      await getAllData();
+      await fetchOrderOptions();
+      
       setIsModalAdd(false);
       openNotification("success", {
         message: t("common.success"),
@@ -360,7 +365,10 @@ const Order: React.FC = () => {
               showSizeChanger: true,
               pageSizeOptions: ["5", "10", "20", "50"],
               showTotal: (total, range) =>
-                `Hiển thị ${range[1] - range[0] + 1} đơn hàng trên tổng số ${total} kết quả`,
+                t("order.pagination", {
+                  count: range[1] - range[0] + 1,
+                  total,
+                }),
               onChange: (page, size) => {
                 setSearchParams({
                   _page: String(page),

@@ -4,8 +4,10 @@ import {
   Empty,
   Form,
   Image,
+  Space,
   Spin,
   Table,
+  Tag,
   Timeline,
 } from "antd";
 import type { TableProps } from "antd";
@@ -121,50 +123,107 @@ const DetailOrder = () => {
     fetchData();
   }, []);
 
-  const columns: TableProps<OrderItemType>["columns"] = [
-    {
-      title: t("order.detail.columns.image"),
-      dataIndex: "image",
-      key: "image",
-      width: 80,
-      render: (image: string) => <Image width={50} height={50} src={image} />,
-    },
-    {
-      title: t("order.detail.columns.productName"),
-      dataIndex: "product_name",
-      key: "product_name",
-    },
-    {
-      title: t("order.detail.columns.size"),
-      dataIndex: "size",
-      key: "size",
-      width: 80,
-    },
-    {
-      title: t("order.detail.columns.color"),
-      dataIndex: "color",
-      key: "color",
-      width: 100,
-    },
-    {
-      title: t("order.detail.columns.quantity"),
-      dataIndex: "quantity",
-      key: "quantity",
-      width: 100,
-    },
-    {
-      title: t("order.detail.columns.price"),
-      dataIndex: "price",
-      key: "price",
-      render: (price: number) => `${formatCurrency(price)}`,
-    },
-    {
-      title: t("order.detail.columns.total"),
-      key: "total",
-      render: (_, record) =>
-        `${formatCurrency(record.price * record.quantity)}`,
-    },
-  ];
+  const columns: TableProps<OrderItemType>["columns"] = useMemo(() => {
+    const hasDynamicAttributes = data?.items?.some(
+      (item) => item.color === "Default" && item.size?.includes(" / ")
+    );
+
+    if (hasDynamicAttributes) {
+      return [
+        {
+          title: t("order.detail.columns.image"),
+          dataIndex: "image",
+          key: "image",
+          width: 80,
+          render: (image: string) => <Image width={50} height={50} src={image} />,
+        },
+        {
+          title: t("order.detail.columns.productName"),
+          dataIndex: "product_name",
+          key: "product_name",
+        },
+        {
+          title: t("order.detail.columns.attributes"),
+          dataIndex: "size",
+          key: "attributes",
+          render: (size: string) => {
+            return (
+              <Space wrap>
+                {size.split(" / ").map((val) => (
+                  <Tag color="blue" key={val}>
+                    {val}
+                  </Tag>
+                ))}
+              </Space>
+            );
+          },
+        },
+        {
+          title: t("order.detail.columns.quantity"),
+          dataIndex: "quantity",
+          key: "quantity",
+          width: 100,
+        },
+        {
+          title: t("order.detail.columns.price"),
+          dataIndex: "price",
+          key: "price",
+          render: (price: number) => `${formatCurrency(price)}`,
+        },
+        {
+          title: t("order.detail.columns.total"),
+          key: "total",
+          render: (_, record) =>
+            `${formatCurrency(record.price * record.quantity)}`,
+        },
+      ];
+    }
+
+    return [
+      {
+        title: t("order.detail.columns.image"),
+        dataIndex: "image",
+        key: "image",
+        width: 80,
+        render: (image: string) => <Image width={50} height={50} src={image} />,
+      },
+      {
+        title: t("order.detail.columns.productName"),
+        dataIndex: "product_name",
+        key: "product_name",
+      },
+      {
+        title: t("order.detail.columns.size"),
+        dataIndex: "size",
+        key: "size",
+        width: 80,
+      },
+      {
+        title: t("order.detail.columns.color"),
+        dataIndex: "color",
+        key: "color",
+        width: 100,
+      },
+      {
+        title: t("order.detail.columns.quantity"),
+        dataIndex: "quantity",
+        key: "quantity",
+        width: 100,
+      },
+      {
+        title: t("order.detail.columns.price"),
+        dataIndex: "price",
+        key: "price",
+        render: (price: number) => `${formatCurrency(price)}`,
+      },
+      {
+        title: t("order.detail.columns.total"),
+        key: "total",
+        render: (_, record) =>
+          `${formatCurrency(record.price * record.quantity)}`,
+      },
+    ];
+  }, [data, t]);
 
   const handleUpdateStatus = async (status: string) => {
     if (!data?.id) return;

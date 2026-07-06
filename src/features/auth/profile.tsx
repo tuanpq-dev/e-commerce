@@ -16,8 +16,10 @@ import { useEffect, useState } from "react";
 import ModalProfile from "./modal-profile";
 import openNotification from "../../@crema/core/Notification";
 import { CreateActiveLog } from "../../api/activeLogApi";
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
+  const { t } = useTranslation();
   const [isUpdate, setIsUpdate] = useState(false);
   const [form] = Form.useForm();
   const { getUserInfo, userInfo, updateUser, uploadAvatar, refreshUser } =
@@ -81,13 +83,17 @@ const Profile = () => {
   return (
     <>
       <Card
-        title="Thông tin cá nhân"
-        extra={<button onClick={handleUpdateProfile}>Chỉnh sửa</button>}
+        title={t("common.name")}
+        extra={
+          <button onClick={handleUpdateProfile}>{t("common.update")}</button>
+        }
       >
         <div className="profile-layout">
           <div style={{ flex: 1 }}>
             <Descriptions column={1} bordered>
-              <Descriptions.Item label="Tên">{userInfo.name}</Descriptions.Item>
+              <Descriptions.Item label={t("common.name")}>
+                {userInfo.name}
+              </Descriptions.Item>
 
               <Descriptions.Item label="Email">
                 {userInfo.email}
@@ -115,7 +121,7 @@ const Profile = () => {
                 maxCount={1}
                 showUploadList={false}
               >
-                <Button type="primary">Cập nhật</Button>
+                <Button type="primary">{t("common.updateAvatar")}</Button>
               </Upload>
             </Space>
           </Card>

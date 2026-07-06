@@ -1,23 +1,46 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+/**
+ * Product Modal — Đã đơn giản hóa
+ *
+ * Luồng mới:
+ *  1. Nhập thông tin cơ bản (tên, category, base_price)
+ *  2. Chọn nhóm thuộc tính từ pool toàn cục
+ *  3. Chọn giá trị cụ thể (từ pool, KHÔNG nhập tay)
+ *  4. Save → stock sẽ được nhập tại trang "Quản lý thuộc tính theo sản phẩm"
+ */
+
+import { useMemo, useRef, useState } from "react";
 import {
   Button,
   Divider,
-  Flex,
   Form,
-  InputNumber,
   Modal,
-  Popconfirm,
-  Table,
+  Select,
+  Space,
   Tag,
+  Tooltip,
+  Typography,
 } from "antd";
-import type { CategoryType, ProductInitialValues } from "../../types/domain";
+import { PlusOutlined, TagsOutlined } from "@ant-design/icons";
+import type {
+  AttributeGroup,
+  AttributeTitle,
+  AttributeValueItem,
+  CategoryType,
+  ProductInitialValues,
+  VariantCombinationMap,
+} from "../../types/domain";
 import FormInput from "../../@crema/core/Form/FormInput";
 import FormSelect from "../../@crema/core/Form/FormSelect";
-
 import { useTranslation } from "react-i18next";
-import { generateVariants } from "../../utils/generateVariants";
-import formatCurrency from "../../utils/formatCurrecy";
 import { generateUniqueParentSku } from "../../utils/skuGenerator";
+import { generateAllCombinations, generateCombinationKey } from "../../utils/variantEngine";
+import formatCurrency from "../../utils/formatCurrecy";
+
+const { Text } = Typography;
+
+// ─────────────────────────────────────────────────────────────
+// TYPES
+// ─────────────────────────────────────────────────────────────
 
 type ModalProductProps = {
   isUpdate?: boolean;
@@ -26,19 +49,15 @@ type ModalProductProps = {
   onCancel: () => void;
   onOk: (values: ProductInitialValues) => void;
   options: CategoryType[];
+  /** Danh sách tên nhóm toàn hệ thống */
+  attributeTitles?: AttributeTitle[];
+  /** Pool giá trị toàn hệ thống: titleId → values[] */
+  attributeValuePool?: Record<string, AttributeValueItem[]>;
 };
 
-// Trích xuất sizes/colors từ variants hiện có (hỗ trợ backward compat)
-const extractAttributesFromVariants = (
-  variants: ProductInitialValues["variants"],
-) => {
-  if (!variants?.length) return { sizes: [], colors: [] };
-
-  const sizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
-  const colors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
-
-  return { sizes, colors };
-};
+// ─────────────────────────────────────────────────────────────
+// COMPONENT
+// ─────────────────────────────────────────────────────────────
 
 export const ModalProduct = ({
   isUpdate,
@@ -47,32 +66,21 @@ export const ModalProduct = ({
   onCancel,
   onOk,
   options,
+  attributeTitles = [],
+  attributeValuePool = {},
 }: ModalProductProps) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const selectedCategoryId = Form.useWatch("category", form);
+  const watchedBasePrice = Form.useWatch("basePrice", form);
 
-  // State cho bulk apply
-  const [bulkPrice, setBulkPrice] = useState<number | null>(null);
-  const [bulkStock, setBulkStock] = useState<number | null>(null);
-
-  // State cho danh sách biến thể (nằm ngoài Form để kiểm soát Table)
-  const [variants, setVariants] = useState<ProductInitialValues["variants"]>(
-    [],
-  );
-
-  // State lưu SKU cha tạm thời (đồng bộ cho cả tạo mới và cập nhật)
-  const [tempParentSku, setTempParentSku] = useState<string>("");
-
-  // State lưu trữ các keys biến thể đã bị người dùng xóa tạm thời dạng "size|color"
-  const [deletedKeys, setDeletedKeys] = useState<string[]>([]);
-  const deletedKeysRef = useRef<string[]>([]);
-  deletedKeysRef.current = deletedKeys;
-
+  const [tempParentSku, setTempParentSku] = useState("");
+  const [attributeGroups, setAttributeGroups] = useState<AttributeGroup[]>([]);
   const isInitializingRef = useRef(false);
 
+  // ── Category child ─────────────────────────────────────────
   const selectedCategory = options.find(
-    (option) => String(option.id) === String(selectedCategoryId),
+    (opt) => String(opt.id) === String(selectedCategoryId),
   );
   const optionsChild = selectedCategory?.child ?? [];
 
@@ -80,339 +88,140 @@ export const ModalProduct = ({
     categoryChild: ProductInitialValues["category_child"],
   ) =>
     (categoryChild ?? [])
-      .map((item) => {
-        if (typeof item === "object") {
-          return item.id;
-        }
-
-        return item;
-      })
+      .map((item) => (typeof item === "object" ? item.id : item))
       .filter((item): item is string | number => item !== undefined);
 
-  const colors = [
-    "black",
-    "white",
-    "orange",
-    "pink",
-    "blue",
-    "green",
-    "gray",
-    "red",
-    "yellow",
-    "purple",
-    "brown",
-    "beige",
-    "navy",
-    "cream",
-  ];
+  // ── Pool helpers ────────────────────────────────────────────
+  const usedTitleIds = new Set(attributeGroups.map((g) => g.titleId));
+  const availableTitles = attributeTitles.filter((t) => !usedTitleIds.has(t.id));
 
-  const colorOptions = colors.map((color) => ({
-    value: color,
-    label: t(`product.colors.${color}`),
-  }));
+  // ── Preview tổ hợp sẽ được tạo ─────────────────────────────
+  const previewCombinations = useMemo(() => {
+    const allCombos = generateAllCombinations(attributeGroups);
+    const basePrice = Number(watchedBasePrice) || 0;
 
-  const sizeOptions = [
-    { value: "XS", label: "XS" },
-    { value: "S", label: "S" },
-    { value: "M", label: "M" },
-    { value: "L", label: "L" },
-    { value: "XL", label: "XL" },
-    { value: "XXL", label: "XXL" },
-  ];
-
-  // Tính toán summary
-  const variantSummary = useMemo(() => {
-    if (!variants?.length) {
-      return { totalStock: 0, minPrice: 0, maxPrice: 0 };
+    // Build label + price map
+    const valueLabel = new Map<string, string>();
+    const valueModifier = new Map<string, number>();
+    for (const g of attributeGroups) {
+      for (const v of g.values) {
+        valueLabel.set(v.id, v.value);
+        valueModifier.set(v.id, v.price_modifier_amount);
+      }
     }
 
-    const totalStock = variants.reduce(
-      (sum, v) => sum + Number(v.stock || 0),
-      0,
-    );
-    const prices = variants.map((v) => Number(v.price || 0));
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-
-    return { totalStock, minPrice, maxPrice };
-  }, [variants]);
-
-  // Hàm tái sinh biến thể khi sizes hoặc colors thay đổi
-  const regenerateVariants = (
-    newSizes?: string[],
-    newColors?: string[],
-    newBasePrice?: number,
-  ) => {
-    const currentValues = form.getFieldsValue();
-    const sizes = newSizes ?? currentValues.selectedSizes ?? [];
-    const colorsVal = newColors ?? currentValues.selectedColors ?? [];
-    const basePrice =
-      newBasePrice ?? (Number(currentValues.basePrice) || 0);
-
-    const newVariants = generateVariants({
-      sizes,
-      colors: colorsVal,
-      basePrice,
-      existingVariants: variants,
-      parentSku: tempParentSku, // Truyền SKU cha để sinh SKU con lập tức
+    return allCombos.slice(0, 8).map((ids) => {
+      const key = generateCombinationKey(ids);
+      const labels = ids.map((id) => valueLabel.get(id) ?? id);
+      const price = basePrice + ids.reduce((s, id) => s + (valueModifier.get(id) ?? 0), 0);
+      return { key, labels, price };
     });
+  }, [attributeGroups, watchedBasePrice]);
 
-    // Lọc bỏ những biến thể đã bị người dùng xóa tạm thời
-    const filteredVariants = newVariants.filter(
-      (v) => !deletedKeysRef.current.includes(`${v.size}|${v.color}`)
-    );
-
-    setVariants(filteredVariants);
+  // ── Handlers ────────────────────────────────────────────────
+  const handleAddGroup = (titleId: string) => {
+    const title = attributeTitles.find((t) => t.id === titleId);
+    if (!title) return;
+    setAttributeGroups((prev) => [
+      ...prev,
+      { titleId: title.id, name: title.name, values: [] },
+    ]);
   };
 
-  // Áp dụng giá/stock cho tất cả
-  const handleBulkApply = () => {
-    if (!variants?.length) return;
-
-    const updated = variants.map((v) => ({
-      ...v,
-      ...(bulkPrice != null ? { price: bulkPrice } : {}),
-      ...(bulkStock != null ? { stock: bulkStock } : {}),
-    }));
-
-    setVariants(updated);
+  const handleRemoveGroup = (titleId: string) => {
+    setAttributeGroups((prev) => prev.filter((g) => g.titleId !== titleId));
   };
 
-  // Cập nhật giá/stock cho từng dòng
-  const updateVariantField = (
-    index: number,
-    field: "price" | "stock",
-    value: number | null,
-  ) => {
-    if (!variants) return;
+  const handleAddValue = (titleId: string, valueId: string) => {
+    const poolValues = attributeValuePool[titleId] ?? [];
+    const found = poolValues.find((v) => v.id === valueId);
+    if (!found) return;
 
-    const updated = [...variants];
-    updated[index] = { ...updated[index], [field]: value ?? 0 };
-    setVariants(updated);
-  };
-
-  // Hàm xóa một biến thể ra khỏi danh sách tạm thời
-  const handleDeleteVariant = (size: string, color: string) => {
-    const key = `${size}|${color}`;
-    const newDeletedKeys = [...deletedKeys, key];
-    setDeletedKeys(newDeletedKeys);
-    deletedKeysRef.current = newDeletedKeys;
-    setVariants((prev) =>
-      (prev ?? []).filter((v) => !(v.size === size && v.color === color))
+    setAttributeGroups((prev) =>
+      prev.map((g) =>
+        g.titleId !== titleId ? g : { ...g, values: [...g.values, found] },
+      ),
     );
   };
 
-  // Columns cho bảng biến thể
-  const variantColumns = [
-    {
-      title: "#",
-      width: 50,
-      render: (_: unknown, __: unknown, index: number) => index + 1,
-    },
-    {
-      title: t("product.variantName"),
-      width: 160,
-      render: (_: unknown, record: NonNullable<ProductInitialValues["variants"]>[number]) => (
-        <span>
-          <Tag>{record.size}</Tag>
-          <Tag color="blue">
-            {t(`product.colors.${record.color}`, record.color)}
-          </Tag>
-        </span>
+  const handleRemoveValue = (titleId: string, valueId: string) => {
+    setAttributeGroups((prev) =>
+      prev.map((g) =>
+        g.titleId !== titleId
+          ? g
+          : { ...g, values: g.values.filter((v) => v.id !== valueId) },
       ),
-    },
-    {
-      title: t("product.price"),
-      width: 150,
-      render: (_: unknown, record: NonNullable<ProductInitialValues["variants"]>[number], index: number) => (
-        <InputNumber
-          min={0}
-          value={Number(record.price)}
-          onChange={(val) => updateVariantField(index, "price", val)}
-          style={{ width: "100%" }}
-          formatter={(value) =>
-            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-          }
-          parser={(value) => Number(value?.replace(/,/g, "") ?? 0)}
-        />
-      ),
-    },
-    {
-      title: t("product.stock"),
-      width: 120,
-      render: (_: unknown, record: NonNullable<ProductInitialValues["variants"]>[number], index: number) => (
-        <InputNumber
-          min={0}
-          value={Number(record.stock)}
-          onChange={(val) => updateVariantField(index, "stock", val)}
-          style={{ width: "100%" }}
-        />
-      ),
-    },
-    {
-      title: t("common.action", "Hành động"),
-      width: 100,
-      render: (_: unknown, record: NonNullable<ProductInitialValues["variants"]>[number]) => (
-        <Popconfirm
-          title={t("product.confirmDeleteVariant", "Bạn có chắc chắn muốn xóa biến thể này?")}
-          onConfirm={() => handleDeleteVariant(record.size, record.color)}
-          okText={t("common.yes", "Có")}
-          cancelText={t("common.no", "Không")}
-        >
-          <Button type="link" danger size="small">
-            {t("common.delete", "Xóa")}
-          </Button>
-        </Popconfirm>
-      ),
-    },
-  ];
+    );
+  };
 
-  // Khởi tạo form khi mở modal
+  // ── Init ────────────────────────────────────────────────────
   const getInitialProductValue = () => {
-    if (!initialValue) {
-      return {
-        variants: [],
-        selectedSizes: [],
-        selectedColors: [],
-        basePrice: undefined,
-      };
-    }
-
-    // Backward compat: trích xuất sizes/colors từ variants cũ nếu chưa có
-    const { sizes: extractedSizes, colors: extractedColors } =
-      extractAttributesFromVariants(initialValue.variants);
-
+    if (!initialValue) return { basePrice: undefined };
     return {
       ...initialValue,
       category_child: normalizeCategoryChild(initialValue.category_child),
-      selectedSizes: initialValue.selectedSizes ?? extractedSizes,
-      selectedColors: initialValue.selectedColors ?? extractedColors,
       basePrice: initialValue.basePrice ?? initialValue.price,
     };
   };
 
-  // Theo dõi selectedSizes thay đổi
-  const watchedSizes = Form.useWatch("selectedSizes", form);
-  const watchedColors = Form.useWatch("selectedColors", form);
-  const watchedBasePrice = Form.useWatch("basePrice", form);
+  // ── Submit ──────────────────────────────────────────────────
+  const handleOk = async () => {
+    const values = await form.validateFields();
 
-  useEffect(() => {
-    if (!open) return;
-    if (isInitializingRef.current) return;
-
-    // Chỉ regenerate khi cả hai đã có giá trị
-    const sizes = watchedSizes ?? [];
-    const colorsVal = watchedColors ?? [];
-
-    if (sizes.length > 0 && colorsVal.length > 0) {
-      // Lọc lại các key đã xóa để chỉ giữ lại các key hợp lệ với sizes/colors hiện tại
-      const updatedDeletedKeys = deletedKeysRef.current.filter((key) => {
-        const [s, c] = key.split("|");
-        return sizes.includes(s) && colorsVal.includes(c);
-      });
-      
-      deletedKeysRef.current = updatedDeletedKeys;
-      setDeletedKeys(updatedDeletedKeys);
-
-      regenerateVariants(sizes, colorsVal, Number(watchedBasePrice) || 0);
-    } else {
-      setVariants([]);
+    if (!attributeGroups.length) {
+      form.setFields([{
+        name: "attr_error",
+        errors: ["Vui lòng chọn ít nhất 1 nhóm thuộc tính"],
+      }]);
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watchedSizes, watchedColors, open, tempParentSku]);
 
+    // Tạo variant_map: giữ lại stock cho tổ hợp cũ trùng khớp, tổ hợp mới set stock = 0
+    const allCombos = generateAllCombinations(attributeGroups);
+    const initVariantMap: VariantCombinationMap = {};
+    const existingMap = initialValue?.variant_map ?? {};
+    for (const ids of allCombos) {
+      const key = generateCombinationKey(ids);
+      initVariantMap[key] = { stock: existingMap[key]?.stock ?? 0 };
+    }
+
+    onOk({
+      ...values,
+      sku: tempParentSku,
+      basePrice: Number(values.basePrice),
+      attribute_groups: attributeGroups,
+      variant_map: initVariantMap,
+    });
+  };
+
+  // ── Render ──────────────────────────────────────────────────
   return (
     <Modal
       title={isUpdate ? t("product.titleUpdate") : t("product.titleCreate")}
-      width="min(960px, calc(100vw - 24px))"
+      width="min(860px, calc(100vw - 24px))"
       open={open}
-      onOk={async () => {
-        const values = await form.validateFields();
-
-        // Validate rằng phải có ít nhất 1 biến thể
-        if (!variants?.length) {
-          form.setFields([
-            {
-              name: "selectedSizes",
-              errors: [t("product.validation.selectSize")],
-            },
-          ]);
-          return;
-        }
-
-        const formattedValues: ProductInitialValues = {
-          ...values,
-          sku: tempParentSku, // Luôn gửi SKU cha đồng bộ
-          basePrice: Number(values.basePrice),
-          variants,
-        };
-
-        onOk(formattedValues);
-      }}
+      onOk={handleOk}
       onCancel={onCancel}
       afterOpenChange={(visible) => {
         if (!visible) return;
         isInitializingRef.current = true;
         form.resetFields();
-        setBulkPrice(null);
-        setBulkStock(null);
-        setDeletedKeys([]);
-        deletedKeysRef.current = [];
-
-        const initValues = getInitialProductValue();
-        form.setFieldsValue(initValues);
 
         if (isUpdate && initialValue?.sku) {
           setTempParentSku(initialValue.sku);
         } else {
-          // Sinh SKU cha độc nhất tạm thời cho sản phẩm mới
-          const newSku = generateUniqueParentSku("SP");
-          setTempParentSku(newSku);
+          setTempParentSku(generateUniqueParentSku("SP"));
         }
 
-        // Khôi phục variants từ dữ liệu cũ và tìm những biến thể đã bị xóa trước đó
-        if (initialValue?.variants?.length) {
-          setVariants(initialValue.variants);
+        form.setFieldsValue(getInitialProductValue());
+        setAttributeGroups(initialValue?.attribute_groups ?? []);
 
-          const { sizes: extractedSizes, colors: extractedColors } =
-            extractAttributesFromVariants(initialValue.variants);
-          const initialSizes = initialValue.selectedSizes ?? extractedSizes;
-          const initialColors = initialValue.selectedColors ?? extractedColors;
-
-          const pastDeleted: string[] = [];
-          const existingSet = new Set(
-            initialValue.variants.map((v) => `${v.size}|${v.color}`)
-          );
-
-          for (const s of initialSizes) {
-            for (const c of initialColors) {
-              const key = `${s}|${c}`;
-              if (!existingSet.has(key)) {
-                pastDeleted.push(key);
-              }
-            }
-          }
-
-          setDeletedKeys(pastDeleted);
-          deletedKeysRef.current = pastDeleted;
-        } else {
-          setVariants([]);
-          setDeletedKeys([]);
-          deletedKeysRef.current = [];
-        }
-
-        setTimeout(() => {
-          isInitializingRef.current = false;
-        }, 0);
+        setTimeout(() => { isInitializingRef.current = false; }, 0);
       }}
       afterClose={() => {
         form.resetFields();
-        setVariants([]);
-        setBulkPrice(null);
-        setBulkStock(null);
+        setAttributeGroups([]);
         setTempParentSku("");
-        setDeletedKeys([]);
-        deletedKeysRef.current = [];
         isInitializingRef.current = false;
       }}
       destroyOnHidden
@@ -421,27 +230,18 @@ export const ModalProduct = ({
       className="product-modal"
     >
       <Form form={form} layout="vertical">
-        {/* ═══════ PHẦN 1: THÔNG TIN CƠ BẢN ═══════ */}
+        {/* ═══ PHẦN 1: THÔNG TIN CƠ BẢN ═══ */}
         <FormInput
           label={t("product.name")}
           name="name"
-          required={true}
+          required
           rules={[
-            {
-              required: true,
-              message: t("product.validation.nameRequired"),
-            },
-            {
-              min: 3,
-              message: t("product.validation.nameMin"),
-            },
-            {
-              max: 50,
-              message: t("product.validation.nameMax"),
-            },
+            { required: true, message: t("product.validation.nameRequired") },
+            { min: 3, message: t("product.validation.nameMin") },
+            { max: 50, message: t("product.validation.nameMax") },
           ]}
         />
-        {/* SKU: Hiển thị readonly mã SKU cha tự sinh */}
+
         {tempParentSku && (
           <Form.Item label={t("product.sku")}>
             <span style={{ fontFamily: "monospace", fontSize: 14, fontWeight: 600 }}>
@@ -456,19 +256,14 @@ export const ModalProduct = ({
           fieldNames={{ value: "id", label: "name" }}
           options={options}
           placeholder={t("product.selectCategory")}
-          rules={[
-            {
-              required: true,
-              message: t("product.validation.categoryRequired"),
-            },
-          ]}
+          rules={[{ required: true, message: t("product.validation.categoryRequired") }]}
         />
 
         {selectedCategoryId && (
           <FormSelect
             label={t("product.categoryChild")}
             name="category_child"
-            allowClear={true}
+            allowClear
             fieldNames={{ value: "id", label: "name" }}
             mode="multiple"
             options={optionsChild}
@@ -481,122 +276,142 @@ export const ModalProduct = ({
           name="basePrice"
           type="number"
           min={0}
-          rules={[
-            {
-              required: true,
-              message: t("product.validation.basePriceRequired"),
-            },
-          ]}
+          rules={[{ required: true, message: t("product.validation.basePriceRequired") }]}
         />
 
-        {/* ═══════ PHẦN 2: CHỌN THUỘC TÍNH BIẾN THỂ ═══════ */}
-        <div className="variant-attributes-section">
-          <div className="section-title">
-            🏷️ {t("product.variantAttributes")}
-          </div>
-          <div className="variant-attributes-grid">
-            <FormSelect
-              label={t("product.size")}
-              name="selectedSizes"
-              mode="multiple"
-              placeholder={t("product.validation.placeholderSize")}
-              options={sizeOptions}
-              rules={[
-                {
-                  required: true,
-                  message: t("product.validation.selectSize"),
-                },
-              ]}
-            />
-            <FormSelect
-              label={t("product.color")}
-              name="selectedColors"
-              mode="multiple"
-              placeholder={t("product.validation.placeholderColor")}
-              options={colorOptions}
-              rules={[
-                {
-                  required: true,
-                  message: t("product.validation.selectColor"),
-                },
-              ]}
-            />
-          </div>
-        </div>
+        {/* ═══ PHẦN 2: CHỌN THUỘC TÍNH TỪ POOL ═══ */}
+        <Divider orientation="left" style={{ margin: "16px 0 8px" }}>
+          <TagsOutlined /> Chọn thuộc tính từ pool
+        </Divider>
 
-        {/* ═══════ PHẦN 3: BẢNG MA TRẬN BIẾN THỂ ═══════ */}
-        {variants && variants.length > 0 && (
+        {attributeTitles.length === 0 ? (
+          <div
+            style={{
+              background: "#fffbe6",
+              border: "1px solid #ffe58f",
+              borderRadius: 8,
+              padding: "10px 16px",
+              fontSize: 13,
+              color: "#ad6800",
+            }}
+          >
+            ⚠️ Chưa có nhóm thuộc tính nào trong pool.{" "}
+            <a href="/attribute-management" target="_blank" rel="noopener noreferrer">
+              Vào trang Attribute Pool →
+            </a>{" "}
+            để thêm trước.
+          </div>
+        ) : (
           <>
-            <Divider orientation={"left" as any} style={{ margin: "16px 0 8px" }}>
-              📦 {t("product.variantList")} ({variants.length})
+            {/* Chọn thêm nhóm */}
+            {availableTitles.length > 0 && (
+              <Form.Item style={{ marginBottom: 12 }}>
+                <Select
+                  placeholder={<><PlusOutlined /> Thêm nhóm thuộc tính...</>}
+                  style={{ width: 240 }}
+                  value={null}
+                  onChange={handleAddGroup}
+                  options={availableTitles.map((t) => ({ value: t.id, label: t.name }))}
+                />
+              </Form.Item>
+            )}
+
+            {/* Các nhóm đã chọn */}
+            {attributeGroups.map((group) => {
+              const poolValues = attributeValuePool[group.titleId] ?? [];
+              const usedValueIds = new Set(group.values.map((v) => v.id));
+              const availableValues = poolValues.filter((v) => !usedValueIds.has(v.id));
+
+              return (
+                <div key={group.titleId} className="attribute-group-card">
+                  <div className="attribute-group-header">
+                    <span className="attribute-group-title">{group.name}</span>
+                    <Button
+                      type="link"
+                      danger
+                      size="small"
+                      onClick={() => handleRemoveGroup(group.titleId)}
+                    >
+                      Bỏ nhóm này
+                    </Button>
+                  </div>
+
+                  <div className="attribute-values-list">
+                    {group.values.length === 0 && (
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        Chưa chọn giá trị nào.
+                      </Text>
+                    )}
+                    {group.values.map((val) => (
+                      <Tooltip
+                        key={val.id}
+                        title={val.price_modifier_amount !== 0
+                          ? `± ${formatCurrency(val.price_modifier_amount)}`
+                          : "Không đổi giá"}
+                      >
+                        <Tag
+                          closable
+                          color="blue"
+                          onClose={() => handleRemoveValue(group.titleId, val.id)}
+                        >
+                          {val.value}
+                        </Tag>
+                      </Tooltip>
+                    ))}
+
+                    {availableValues.length > 0 && (
+                      <Select
+                        size="small"
+                        placeholder={<><PlusOutlined /> Chọn từ pool</>}
+                        style={{ width: 160 }}
+                        value={null}
+                        onChange={(valueId: string) => handleAddValue(group.titleId, valueId)}
+                        options={availableValues.map((v) => ({
+                          value: v.id,
+                          label: `${v.value}${v.price_modifier_amount !== 0 ? ` (${v.price_modifier_amount > 0 ? "+" : ""}${(v.price_modifier_amount / 1000).toFixed(0)}k)` : ""}`,
+                        }))}
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Validation error placeholder */}
+            <Form.Item name="attr_error" style={{ margin: 0 }} />
+          </>
+        )}
+
+        {/* ═══ PHẦN 3: PREVIEW TỔ HỢP SẼ TẠO ═══ */}
+        {previewCombinations.length > 0 && (
+          <>
+            <Divider orientation="left" style={{ margin: "16px 0 8px" }}>
+              👁️ Preview tổ hợp ({generateAllCombinations(attributeGroups).length} tổ hợp)
             </Divider>
-
-            {/* Thanh Áp dụng tất cả */}
-            <div className="variant-bulk-apply">
-              <Flex vertical style={{ flex: 1 }}>
-                <label style={{ fontSize: 12, marginBottom: 4 }}>
-                  {t("product.bulkPrice")}
-                </label>
-                <InputNumber
-                  min={0}
-                  value={bulkPrice}
-                  onChange={setBulkPrice}
-                  placeholder={t("product.bulkPrice")}
-                  style={{ width: "100%" }}
-                  formatter={(value) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  }
-                  parser={(value) => Number(value?.replace(/,/g, "") ?? 0)}
-                />
-              </Flex>
-              <Flex vertical style={{ flex: 1 }}>
-                <label style={{ fontSize: 12, marginBottom: 4 }}>
-                  {t("product.bulkStock")}
-                </label>
-                <InputNumber
-                  min={0}
-                  value={bulkStock}
-                  onChange={setBulkStock}
-                  placeholder={t("product.bulkStock")}
-                  style={{ width: "100%" }}
-                />
-              </Flex>
-              <Button
-                type="primary"
-                onClick={handleBulkApply}
-                disabled={bulkPrice == null && bulkStock == null}
-                style={{ marginBottom: 0 }}
-              >
-                {t("product.apply")}
-              </Button>
-            </div>
-
-            {/* Bảng biến thể */}
-            <div className="variant-table-wrapper">
-              <Table
-                rowKey="id"
-                columns={variantColumns}
-                dataSource={variants}
-                pagination={false}
-                size="small"
-                scroll={{ x: "max-content" }}
-              />
-            </div>
-
-            {/* Summary footer */}
-            <div className="variant-summary">
-              <span>
-                {t("product.totalStock")}:{" "}
-                <strong>{variantSummary.totalStock.toLocaleString()}</strong>
-              </span>
-              <span>
-                {t("product.priceRangeSummary")}:{" "}
-                <strong>
-                  {variantSummary.minPrice === variantSummary.maxPrice
-                    ? formatCurrency(variantSummary.minPrice)
-                    : `${formatCurrency(variantSummary.minPrice)} - ${formatCurrency(variantSummary.maxPrice)}`}
-                </strong>
-              </span>
+            <div
+              style={{
+                background: "#f6ffed",
+                border: "1px solid #b7eb8f",
+                borderRadius: 8,
+                padding: "10px 16px",
+              }}
+            >
+              <Space wrap size={6}>
+                {previewCombinations.map((combo) => (
+                  <Tag key={combo.key} color="green">
+                    {combo.labels.join(" / ")}
+                    {" · "}
+                    {formatCurrency(combo.price)}
+                  </Tag>
+                ))}
+                {generateAllCombinations(attributeGroups).length > 8 && (
+                  <Tag>+{generateAllCombinations(attributeGroups).length - 8} tổ hợp khác</Tag>
+                )}
+              </Space>
+              <div style={{ marginTop: 8, fontSize: 12, color: "#52c41a" }}>
+                ✅ Tất cả tổ hợp sẽ được tạo với stock = 0. Nhập stock tại trang{" "}
+                <strong>Quản lý thuộc tính theo sản phẩm</strong>.
+              </div>
             </div>
           </>
         )}

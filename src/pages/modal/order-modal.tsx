@@ -1,17 +1,19 @@
 import React, { useMemo } from "react";
-import { Flex, Form, Modal } from "antd";
+import { Flex, Form, Modal, Input } from "antd";
 import type { FormInstance } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import type {
   CreateOrderValues,
   CustomerType,
   DataType,
+  AttributeGroup,
 } from "../../types/domain";
 import FormInput from "../../@crema/core/Form/FormInput";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import AntButton from "../../@crema/component/AntButton";
 import formatCurrency from "../../utils/formatCurrecy";
 import { useTranslation } from "react-i18next";
+import { generateCombinationKey } from "../../utils/variantEngine";
 
 type ModalCartProps = {
   open: boolean;
@@ -70,29 +72,131 @@ const getOrderProductVariants = (product?: DataType) => {
 const findOrderProduct = (products: DataType[], productId?: string | number) =>
   products.find((product) => String(product.id) === String(productId));
 
+const getProductAttributeGroups = (product?: DataType): AttributeGroup[] => {
+  if (!product) return [];
+  if (product.attribute_groups?.length) {
+    return product.attribute_groups;
+  }
+  // Construct virtual attribute groups for legacy products
+  const variants = product.variants ?? [];
+  const uniqueSizes = Array.from(new Set(variants.map((v) => v.size).filter(Boolean)));
+  const uniqueColors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean)));
+
+  const groups: AttributeGroup[] = [];
+  if (uniqueSizes.length) {
+    groups.push({
+      titleId: "size",
+      name: "Size",
+      values: uniqueSizes.map((size) => ({
+        id: size,
+        value: size,
+        price_modifier_amount: 0,
+      })),
+    });
+  }
+  if (uniqueColors.length) {
+    groups.push({
+      titleId: "color",
+      name: "Màu",
+      values: uniqueColors.map((color) => ({
+        id: color,
+        value: color,
+        price_modifier_amount: 0,
+      })),
+    });
+  }
+  return groups;
+};
+
 const findOrderVariant = (
   products: DataType[],
   item?: {
     product_id?: string | number;
-    size?: string;
-    color?: string;
+    attributes?: Record<string, string>;
   },
 ) => {
   const product = findOrderProduct(products, item?.product_id);
+  if (!product) return undefined;
 
-  return getOrderProductVariants(product).find(
-    (variant) =>
-      String(variant.size) === String(item?.size) &&
-      String(variant.color) === String(item?.color),
+  const attributeGroups = getProductAttributeGroups(product);
+  const selectedAttrs = item?.attributes ?? {};
+
+  // Check if all active attributes of this product have been selected
+  const allSelected = attributeGroups.every((g) => !!selectedAttrs[g.titleId]);
+  if (!allSelected) return undefined;
+
+  // New dynamic N-attribute system
+  if (product.variant_map && Object.keys(product.variant_map).length > 0) {
+    // Get the selected value IDs (excluding any virtual attributes)
+    const valueIds = attributeGroups
+      .map((g) => selectedAttrs[g.titleId])
+      .filter(Boolean);
+
+    const comboKey = generateCombinationKey(valueIds);
+    const stockData = product.variant_map[comboKey ?? ""];
+
+    // If combination is not found, treat it as stock = 0
+    const stock = stockData ? stockData.stock : 0;
+
+    // Calculate final price: basePrice + sum of modifiers
+    const basePrice = Number(product.basePrice ?? product.price ?? 0);
+    let price = basePrice;
+    if (product.attribute_groups) {
+      const modifierMap = new Map<string, number>();
+      for (const g of product.attribute_groups) {
+        for (const v of g.values) {
+          modifierMap.set(v.id, v.price_modifier_amount);
+        }
+      }
+      price += valueIds.reduce((sum, id) => sum + (modifierMap.get(id) ?? 0), 0);
+    }
+
+    // Build label string
+    const labelMap = new Map<string, string>();
+    if (product.attribute_groups) {
+      for (const g of product.attribute_groups) {
+        for (const v of g.values) {
+          labelMap.set(v.id, v.value);
+        }
+      }
+    }
+    const labelStr = valueIds.map((id) => labelMap.get(id) ?? id).join(" / ");
+
+    return {
+      size: labelStr,
+      color: "Default",
+      price: price,
+      stock: stock,
+      sku: product.sku,
+      comboKey: comboKey,
+      isOutOfStock: stock <= 0,
+    };
+  }
+
+  // Legacy system
+  const size = selectedAttrs["size"];
+  const color = selectedAttrs["color"];
+  const variant = (product.variants ?? []).find(
+    (v) => String(v.size) === String(size) && String(v.color) === String(color),
   );
+
+  if (!variant) return undefined;
+
+  return {
+    size: variant.size,
+    color: variant.color,
+    price: Number(variant.price),
+    stock: Number(variant.stock),
+    sku: variant.sku ?? product.sku,
+    isOutOfStock: Number(variant.stock) <= 0,
+  };
 };
 
 const getOrderTotalPrice = (
   products: DataType[],
   items?: {
     product_id?: string | number;
-    size?: string;
-    color?: string;
+    attributes?: Record<string, string>;
     quantity?: string | number;
   }[],
 ) =>
@@ -117,88 +221,35 @@ const OrderItemFieldComponent = ({
     [products],
   );
 
-  // 2. Theo dõi các giá trị của hàng hiện tại qua Form.useWatch
+  // 2. Watch values of current row via Form.useWatch
   const productId = Form.useWatch(["items", fieldName, "product_id"], form);
-  const selectedSize = Form.useWatch(["items", fieldName, "size"], form);
-  const selectedColor = Form.useWatch(["items", fieldName, "color"], form);
+  const selectedAttributes = Form.useWatch(["items", fieldName, "attributes"], form);
   const quantity = Form.useWatch(["items", fieldName, "quantity"], form);
 
-  // Tìm sản phẩm và biến thể đang chọn
+  // Find currently selected product
   const product = useMemo(
     () => findOrderProduct(productCurrent, productId),
     [productCurrent, productId],
   );
-  const variants = useMemo(() => getOrderProductVariants(product), [product]);
+
+  // Compute active attribute groups for dynamic rendering
+  const attributeGroups = useMemo(() => getProductAttributeGroups(product), [product]);
+
+  // Find currently matched variant (stock & price)
   const variant = useMemo(
     () =>
       findOrderVariant(productCurrent, {
         product_id: productId,
-        size: selectedSize,
-        color: selectedColor,
+        attributes: selectedAttributes,
       }),
-    [productCurrent, productId, selectedSize, selectedColor],
+    [productCurrent, productId, selectedAttributes],
   );
-
-  const sizeOptions = useMemo(() => {
-    const uniqueSizes = Array.from(new Set(variants.map((item) => item.size)));
-    return uniqueSizes.map((size) => {
-      let isDisabled: boolean;
-      if (selectedColor) {
-        // Nếu đã chọn màu, size này chỉ khả dụng nếu tồn tại biến thể (size, selectedColor) có stock > 0
-        const matchingVariant = variants.find(
-          (v) => v.size === size && v.color === selectedColor
-        );
-        isDisabled = !matchingVariant || Number(matchingVariant.stock ?? 0) <= 0;
-      } else {
-        // Nếu chưa chọn màu, size này bị disable nếu TẤT CẢ biến thể có size này đều hết hàng
-        const sizeVariants = variants.filter((v) => v.size === size);
-        const totalStockForSize = sizeVariants.reduce(
-          (sum, v) => sum + Number(v.stock ?? 0),
-          0
-        );
-        isDisabled = totalStockForSize <= 0;
-      }
-
-      return {
-        label: size,
-        value: size,
-        disabled: isDisabled,
-      };
-    });
-  }, [variants, selectedColor]);
-
-  const colorOptions = useMemo(() => {
-    const uniqueColors = Array.from(new Set(variants.map((item) => item.color)));
-    return uniqueColors.map((color) => {
-      let isDisabled: boolean;
-      if (selectedSize) {
-        // Nếu đã chọn size, màu này chỉ khả dụng nếu tồn tại biến thể (selectedSize, color) có stock > 0
-        const matchingVariant = variants.find(
-          (v) => v.size === selectedSize && v.color === color
-        );
-        isDisabled = !matchingVariant || Number(matchingVariant.stock ?? 0) <= 0;
-      } else {
-        // Nếu chưa chọn size, màu này bị disable nếu TẤT CẢ biến thể có màu này đều hết hàng
-        const colorVariants = variants.filter((v) => v.color === color);
-        const totalStockForColor = colorVariants.reduce(
-          (sum, v) => sum + Number(v.stock ?? 0),
-          0
-        );
-        isDisabled = totalStockForColor <= 0;
-      }
-
-      return {
-        label: color,
-        value: color,
-        disabled: isDisabled,
-      };
-    });
-  }, [variants, selectedSize]);
 
   const rowTotal = Number(variant?.price ?? 0) * Number(quantity ?? 0);
 
   return (
     <div className="order-item-row">
+      {/* Product Select */}
       <FormSelect
         {...restField}
         label={t("order.product")}
@@ -211,51 +262,74 @@ const OrderItemFieldComponent = ({
           value: item.id,
         }))}
         onChange={(val) => {
-          // Tìm sản phẩm vừa chọn để kiểm tra số lượng biến thể
           const selectedProd = productCurrent.find(
             (p) => String(p.id) === String(val),
           );
-          const prodVariants = getOrderProductVariants(selectedProd);
+          const groups = getProductAttributeGroups(selectedProd);
 
-          // Cải thiện UX: Tự động điền nếu chỉ có duy nhất 1 biến thể (hoặc hàng Default)
-          if (prodVariants.length === 1) {
-            form.setFieldValue(
-              ["items", fieldName, "size"],
-              prodVariants[0].size,
-            );
-            form.setFieldValue(
-              ["items", fieldName, "color"],
-              prodVariants[0].color,
-            );
-          } else {
-            // Đổi sản phẩm và có nhiều biến thể: xóa size/color cũ
-            form.setFieldValue(["items", fieldName, "size"], undefined);
-            form.setFieldValue(["items", fieldName, "color"], undefined);
-          }
+          // Default: Pre-select first value for each attribute group
+          const defaultAttributes: Record<string, string> = {};
+          groups.forEach((g) => {
+            if (g.values.length > 0) {
+              defaultAttributes[g.titleId] = g.values[0].id;
+            }
+          });
+
+          form.setFieldValue(["items", fieldName, "attributes"], defaultAttributes);
           form.setFieldValue(["items", fieldName, "quantity"], 1);
+          form.validateFields([["items", fieldName, "quantity"]]);
         }}
         rules={[
           { required: true, message: t("order.validation.productRequired") },
         ]}
       />
-      <FormSelect
-        {...restField}
-        label={t("order.size")}
-        name={[fieldName, "size"]}
-        options={sizeOptions}
-        rules={[
-          { required: true, message: t("order.validation.sizeRequired") },
-        ]}
-      />
-      <FormSelect
-        {...restField}
-        label={t("order.color")}
-        name={[fieldName, "color"]}
-        options={colorOptions}
-        rules={[
-          { required: true, message: t("order.validation.colorRequired") },
-        ]}
-      />
+
+      {/* Dynamic Attributes Container */}
+      <div className="order-item-attributes-container">
+        {attributeGroups.map((group) => (
+          <FormSelect
+            key={group.titleId}
+            {...restField}
+            label={group.name}
+            name={[fieldName, "attributes", group.titleId]}
+            options={group.values.map((val) => ({
+              label: val.value,
+              value: val.id,
+            }))}
+            onChange={() => {
+              form.validateFields([["items", fieldName, "quantity"]]);
+            }}
+            rules={[
+              {
+                required: true,
+                message: `Chọn ${group.name.toLowerCase()}`,
+              },
+            ]}
+          />
+        ))}
+
+        {/* Fallback place-holders if no product selected to keep grid intact */}
+        {attributeGroups.length === 0 && (
+          <>
+            <FormSelect
+              {...restField}
+              label={t("order.size")}
+              name={[fieldName, "attributes", "size"]}
+              disabled
+              options={[]}
+            />
+            <FormSelect
+              {...restField}
+              label={t("order.color")}
+              name={[fieldName, "attributes", "color"]}
+              disabled
+              options={[]}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Quantity Input */}
       <FormInput
         {...restField}
         label={t("order.quantity")}
@@ -272,11 +346,19 @@ const OrderItemFieldComponent = ({
                 throw new Error(t("order.validation.quantityMin"));
               }
 
-              if (selectedSize && selectedColor && !variant) {
-                throw new Error(t("order.validation.invalidVariant"));
+              // Must select all attributes
+              const allSelected = attributeGroups.every(
+                (g) => selectedAttributes && !!selectedAttributes[g.titleId],
+              );
+              if (!allSelected || !variant) {
+                throw new Error("Vui lòng chọn đầy đủ thuộc tính");
               }
 
-              if (variant && currentQuantity > Number(variant.stock)) {
+              if (variant.isOutOfStock || variant.stock < 1) {
+                throw new Error("Hết hàng");
+              }
+
+              if (currentQuantity > Number(variant.stock)) {
                 throw new Error(
                   t("order.validation.stockLimit", { stock: variant.stock }),
                 );
@@ -285,6 +367,8 @@ const OrderItemFieldComponent = ({
           },
         ]}
       />
+
+      {/* Info Panel */}
       <Form.Item label={t("order.info")}>
         <div className="order-item-summary">
           <span>
@@ -292,13 +376,15 @@ const OrderItemFieldComponent = ({
             {formatCurrency(Number(variant?.price ?? 0))}
           </span>
           <span>
-            {t("order.stock")}: {variant?.stock ?? 0}
+            {t("order.stock")}: {variant?.isOutOfStock ? "Hết hàng" : (variant?.stock ?? 0)}
           </span>
           <strong>
             {t("order.subtotal")}: {formatCurrency(rowTotal)}
           </strong>
         </div>
       </Form.Item>
+
+      {/* Remove Button */}
       <Form.Item label=" ">
         <AntButton
           danger

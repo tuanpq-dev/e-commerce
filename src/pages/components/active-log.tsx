@@ -63,6 +63,26 @@ const ActiveLog = () => {
       width: 100,
     },
   ];
+
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: pageSize,
+    total: totalItems,
+    showSizeChanger: true,
+    pageSizeOptions: ["5", "10", "20", "50"],
+    showTotal: (total, range) =>
+      `${t("activeLog.pagination", {
+        count: range[1] - range[0] + 1,
+        total,
+      })}`,
+    onChange: (page, size) => {
+      setSearchParams({
+        _page: String(page),
+        _per_page: String(size),
+      });
+    },
+  };
+
   return (
     <Flex className="page-stack" gap="medium" vertical>
       <div className="table-shell">
@@ -71,21 +91,7 @@ const ActiveLog = () => {
           columns={columns}
           dataSource={dataActiveLog}
           loading={isLoading}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: totalItems,
-            showSizeChanger: true,
-            pageSizeOptions: ["5", "10", "20", "50"],
-            showTotal: (total, range) =>
-              `Hiển thị ${range[1] - range[0] + 1} bản ghi trên tổng số ${total} kết quả`,
-            onChange: (page, size) => {
-              setSearchParams({
-                _page: String(page),
-                _per_page: String(size),
-              });
-            },
-          }}
+          pagination={paginationConfig}
           scroll={{ x: "max-content" }}
         />
       </div>

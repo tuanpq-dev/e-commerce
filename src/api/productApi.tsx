@@ -3,6 +3,8 @@ import type {
   ProductInitialValues,
   ProductVariant,
   ProductVariantsMap,
+  AttributeGroup,
+  VariantCombinationMap,
 } from "../types/domain";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
@@ -13,6 +15,11 @@ import {
   generateVariantSku,
   getColorCode,
 } from "../utils/skuGenerator";
+import {
+  SaveProductAttributesDetails,
+  DeleteProductAttributesDetails,
+  LoadAttributeGroupsForProduct,
+} from "./attributeApi";
 
 // ═══════════════════════════════════════════════════════
 //  GET — Lấy danh sách sản phẩm + merge variants
@@ -33,43 +40,65 @@ export const GetProducts = async (
   limit?: number,
   search?: string,
 ): Promise<PaginatedProducts> => {
-  // json-server v0.17: dùng _sort + _order thay vì prefix "-"
   const params: Record<string, string | number> = {
     _sort: "created_at",
     _order: "desc",
   };
 
-  if (page !== undefined) {
-    params._page = page;
-  }
-  if (limit !== undefined) {
-    params._limit = limit;
-  }
-  if (search && search.trim()) {
-    params.q = search.trim();
-  }
+  if (page !== undefined) params._page = page;
+  if (limit !== undefined) params._limit = limit;
+  if (search?.trim()) params.q = search.trim();
 
-  // Dùng axiosClient trực tiếp để đọc header X-Total-Count
-  const [productsRes, allVariants] = await Promise.all([
+  const [productsRes, allVariants, allAttrDetails] = await Promise.all([
     axiosClient.get<DataType[]>("/products", { params }) as Promise<AxiosResponse<DataType[]>>,
-    callApiWithRetries<ProductVariantsMap>({ url: "/product_variants" }),
+    callApiWithRetries<Record<string, VariantCombinationMap>>({ url: "/product_variants" }),
+    callApiWithRetries<Record<string, Record<string, { name: string; values: { id: string; value: string; price_modifier_amount: number }[] }>>>({
+      url: "/product_attributes_details",
+    }),
   ]);
 
-  // json-server v0.17 luôn trả về plain array
   const rawProducts: DataType[] = productsRes.data ?? [];
-
-  // Tổng số bản ghi nằm trong header X-Total-Count
   const items: number = Number(productsRes.headers["x-total-count"]) || rawProducts.length;
 
-  // Merge variants vào sản phẩm dựa trên SKU cha (product.sku)
   const merged = rawProducts.map((product) => {
     const parentSku = product.sku;
-    const variants = allVariants[parentSku] ?? product.variants ?? [];
 
-    // Loại bỏ product_id khỏi các variant con khi hiển thị/sử dụng ở client
-    const cleanedVariants = variants.map(({ product_id, ...v }) => v);
+    // ── Merge attribute_groups từ product_attributes_details ───────────
+    const attrDetails = allAttrDetails?.[parentSku];
+    const attribute_groups: AttributeGroup[] = attrDetails
+      ? Object.entries(attrDetails).map(([titleId, data]) => ({
+          titleId,
+          name: data.name,
+          values: data.values,
+        }))
+      : [];
 
-    return { ...product, variants: cleanedVariants };
+    // ── Merge variant_map (cấu trúc mới) ─────────────────────────
+    const rawVariantEntry = (allVariants as Record<string, unknown>)?.[parentSku];
+    const isNewFormat =
+      rawVariantEntry !== null &&
+      typeof rawVariantEntry === "object" &&
+      !Array.isArray(rawVariantEntry) &&
+      Object.values(rawVariantEntry as object).every(
+        (v) => typeof v === "object" && v !== null && "stock" in v,
+      );
+
+    const variant_map: VariantCombinationMap = isNewFormat
+      ? (rawVariantEntry as VariantCombinationMap)
+      : {};
+
+    // ── Backward compat: giữ variants[] cho sản phẩm legacy ──────────
+    const legacyVariants: ProductVariant[] = !isNewFormat
+      ? ((allVariants as ProductVariantsMap)?.[parentSku] ?? product.variants ?? [])
+      : [];
+    const cleanedVariants = legacyVariants.map(({ product_id, ...v }) => v);
+
+    return {
+      ...product,
+      attribute_groups,
+      variant_map,
+      variants: cleanedVariants,
+    };
   });
 
   return { data: merged, items };
@@ -152,18 +181,41 @@ const getProductSummary = (
  * Gom toàn bộ thông tin sản phẩm và các biến thể con, thực hiện đúng 1 API call để lưu biến thể.
  */
 export const handleSubmitProduct = async (values: ProductInitialValues) => {
-  // Bước 1: Sinh SKU cha độc nhất
   const parentSku = values.sku || generateUniqueParentSku("SP");
-  const productSummary = getProductSummary(values, parentSku);
 
-  // Bước 2: Payload sản phẩm chính (KHÔNG chứa variants)
+  // ── Xác định chế độ: mới (N-attribute) hay legacy (size+color) ────────
+  const isNewAttributeSystem = !!(values.attribute_groups?.length);
+
+  let price: number;
+  let stock: number;
+  let variantsPayload: ProductVariant[] | VariantCombinationMap;
+  let attrSavePromise: Promise<void> | null = null;
+
+  if (isNewAttributeSystem) {
+    // ── CHẾD ĐỘ: Lưu theo cấu trúc mới ─────────────────────────
+    const variantMap: VariantCombinationMap = values.variant_map ?? {};
+    stock = Object.values(variantMap).reduce((sum, v) => sum + (v.stock ?? 0), 0);
+    price = Number(values.basePrice) || 0;
+    variantsPayload = variantMap;
+
+    // Lưu chi tiết thuộc tính riêng
+    attrSavePromise = SaveProductAttributesDetails(parentSku, values.attribute_groups!);
+  } else {
+    // ── LEGACY: giữ nguyên code cũ ─────────────────────────────────
+    const productSummary = getProductSummary(values, parentSku);
+    price = productSummary.price;
+    stock = productSummary.stock;
+    variantsPayload = productSummary.variants;
+  }
+
   const mainProduct = {
     id: parentSku,
     sku: parentSku,
     name: values.name,
-    price: productSummary.price,
-    stock: productSummary.stock,
-    basePrice: Number(values.basePrice) || productSummary.price,
+    price,
+    stock,
+    basePrice: Number(values.basePrice) || price,
+    attribute_title_ids: values.attribute_groups?.map((g) => g.titleId) ?? [],
     selectedSizes: values.selectedSizes || [],
     selectedColors: values.selectedColors || [],
     category: values.category,
@@ -173,23 +225,18 @@ export const handleSubmitProduct = async (values: ProductInitialValues) => {
     created_at: Date.now(),
   };
 
-  // Bước 3: Payload các biến thể con (đã loại bỏ product_id trong normalizeVariants)
-  const variantsPayload = productSummary.variants;
+  const res = await axiosClient.post("/products", mainProduct);
+  await axiosClient.patch("/product_variants", { [parentSku]: variantsPayload });
+  await IncreaseCategoryProductTotal({
+    category: values.category,
+    category_child: values.category_child,
+  });
 
-  // Bước 4: Gửi 2 request chính song song (mỗi endpoint đúng 1 lần gọi)
-  const [res] = await Promise.all([
-    axiosClient.post("/products", mainProduct),
-    // Gộp toàn bộ biến thể lưu dưới key parentSku trong thực thể product_variants
-    axiosClient.patch("/product_variants", {
-      [parentSku]: variantsPayload,
-    }),
-    IncreaseCategoryProductTotal({
-      category: values.category,
-      category_child: values.category_child,
-    }),
-  ]);
+  if (attrSavePromise) {
+    await attrSavePromise;
+  }
 
-  return res.data;
+  return (res as { data: unknown }).data;
 };
 
 // Xuất CreateProduct tương thích ngược với component cũ
@@ -206,13 +253,32 @@ type UpdateProductValues = Omit<ProductInitialValues, "id"> & {
 export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
   const productId = String(id);
   const parentSku = values.sku ? String(values.sku) : productId;
-  const productSummary = getProductSummary(values, parentSku);
 
-  // Payload cập nhật sản phẩm chính (KHÔNG chứa variants)
+  const isNewAttributeSystem = !!(values.attribute_groups?.length);
+
+  let price: number;
+  let stock: number;
+  let variantsPayload: ProductVariant[] | VariantCombinationMap;
+  let attrSavePromise: Promise<void> | null = null;
+
+  if (isNewAttributeSystem) {
+    const variantMap: VariantCombinationMap = values.variant_map ?? {};
+    stock = Object.values(variantMap).reduce((sum, v) => sum + (v.stock ?? 0), 0);
+    price = Number(values.basePrice) || 0;
+    variantsPayload = variantMap;
+    attrSavePromise = SaveProductAttributesDetails(parentSku, values.attribute_groups!);
+  } else {
+    const productSummary = getProductSummary(values, parentSku);
+    price = productSummary.price;
+    stock = productSummary.stock;
+    variantsPayload = productSummary.variants;
+  }
+
   const mainPayload = {
-    price: productSummary.price,
-    stock: productSummary.stock,
-    basePrice: Number(values.basePrice) || productSummary.price,
+    price,
+    stock,
+    basePrice: Number(values.basePrice) || price,
+    attribute_title_ids: values.attribute_groups?.map((g) => g.titleId) ?? [],
     selectedSizes: values.selectedSizes || [],
     selectedColors: values.selectedColors || [],
     name: values.name,
@@ -221,18 +287,14 @@ export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
     description: values.description,
   };
 
-  // Các biến thể mới cần ghi đè cho sản phẩm này
-  const variantsPayload = productSummary.variants;
+  const res = await axiosClient.patch(`/products/${id}`, mainPayload);
+  await axiosClient.patch("/product_variants", { [parentSku]: variantsPayload });
 
-  // Cập nhật song song: thông tin sản phẩm và đè mảng variants cho key parentSku (chỉ 1 API PATCH)
-  const [res] = await Promise.all([
-    axiosClient.patch(`/products/${id}`, mainPayload),
-    axiosClient.patch("/product_variants", {
-      [parentSku]: variantsPayload,
-    }),
-  ]);
+  if (attrSavePromise) {
+    await attrSavePromise;
+  }
 
-  return res.data;
+  return (res as { data: unknown }).data;
 };
 
 // ═══════════════════════════════════════════════════════
@@ -242,30 +304,25 @@ export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
 export const DeleteProduct = async (id: number | string) => {
   const productId = String(id);
 
-  // Lấy thông tin sản phẩm để xác định SKU chính xác
   const product = await callApiWithRetries<DataType>({
     url: `/products/${productId}`,
   }).catch(() => null);
 
   const parentSku = product?.sku || productId;
 
-  // Lấy toàn bộ map các variants hiện tại
-  const allVariants = await callApiWithRetries<ProductVariantsMap>({
+  const allVariants = await callApiWithRetries<Record<string, unknown>>({
     url: "/product_variants",
   });
 
-  // Xóa key của sản phẩm này khỏi object variants
-  if (allVariants && allVariants[parentSku]) {
+  if (allVariants && parentSku in allVariants) {
     delete allVariants[parentSku];
   }
 
-  // Chạy song song: xóa sản phẩm chính + cập nhật lại object variants lên server (PUT)
-  const [res] = await Promise.all([
-    axiosClient.delete(`/products/${id}`),
-    axiosClient.put("/product_variants", allVariants),
-  ]);
+  const res = await axiosClient.delete(`/products/${id}`);
+  await axiosClient.put("/product_variants", allVariants);
+  await DeleteProductAttributesDetails(parentSku);
 
-  return res.data;
+  return (res as { data: unknown }).data;
 };
 
 // ═══════════════════════════════════════════════════════
