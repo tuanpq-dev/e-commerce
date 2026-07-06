@@ -1,1013 +1,142 @@
 {
   "products": [
     {
-      "name": "Sản phẩm áo",
-      "sku": "SKU 1781173632565",
-      "category": "DoSf-yUiv4c",
-      "variants": [
-        {
-          "size": "S",
-          "color": "Đen",
-          "price": 2000,
-          "stock": 100,
-          "sku": "SKU-S-ĐEN",
-          "id": "367529a0-5d58-4315-9cf5-6b06488363f6"
-        },
-        {
-          "size": "S",
-          "color": "Trắng",
-          "price": 2000,
-          "stock": 99,
-          "sku": "SKU-S-TRẮNG",
-          "id": "ea940483-0b5b-4b73-8606-eb75262e9340"
-        },
-        {
-          "size": "L",
-          "color": "Đen",
-          "price": 2100,
-          "stock": 100,
-          "sku": "SKU-L-ĐEN",
-          "id": "03717fd4-b0b2-46c9-8b98-50fbec1f1961"
-        },
-        {
-          "size": "L",
-          "color": "Đỏ",
-          "price": 2100,
-          "stock": 100,
-          "sku": "SKU-L-ĐỎ",
-          "id": "89c61ca7-0177-4e71-a985-6bce9475575e"
-        },
-        {
-          "size": "XL",
-          "color": "Hồng",
-          "price": 2500,
-          "stock": 100,
-          "sku": "SKU-XL-HỒNG",
-          "id": "b7728f21-79e6-46dd-8ab2-fdf029acd674"
-        },
-        {
-          "size": "L",
-          "color": "Trắng",
-          "price": 2121,
-          "stock": 100,
-          "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-TRẮNG",
-          "id": "34e67456-ac41-41cf-9d50-608579ae23cf"
-        },
-        {
-          "size": "L",
-          "color": "Cam",
-          "price": 2100,
-          "stock": 90,
-          "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-CAM",
-          "id": "f2f95b4c-f4b2-493c-a981-48dda695dcf9"
-        }
+      "id": "SPMR0F3KTJ",
+      "sku": "SPMR0F3KTJ",
+      "name": "Áo thun tay lỡ",
+      "price": 599,
+      "stock": 1348,
+      "basePrice": 599,
+      "attribute_title_ids": [
+        "title_kích_cỡ_1782809714474",
+        "title_màu_sắc_1782809723840",
+        "title_chất_liệu_1782809731376",
+        "title_họa_tiết_1782809741352"
       ],
-      "image": "",
+      "selectedSizes": [],
+      "selectedColors": [],
+      "category": 1,
       "category_child": [
-        "e53fa783-6076-4456-9bb5-6b00f7469fe9",
-        "e75dc3cb-3508-4570-b398-bc563dc85ceb"
+        "bd21867f-06f1-4df7-afc7-5c7162d339da"
       ],
-      "id": "dbIQAU0FPaU",
-      "price": 2000,
-      "stock": 689,
-      "status": "active",
-      "created_at": 1781173632565,
       "description": "",
-      "basePrice": 2000,
-      "selectedSizes": ["S", "L", "XL"],
-      "selectedColors": ["Đen", "Trắng", "Đỏ", "Hồng", "Cam"]
-    },
-    {
-      "name": "Sản phẩm Quần 2",
-      "sku": "SPQUAN 1781236735502",
-      "category": "sFGTOuTS9OA",
-      "variants": [
-        {
-          "size": "S",
-          "color": "Đen",
-          "price": 1001,
-          "stock": 70,
-          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
-          "id": "002ac883-f82b-44bf-82e5-84718429354c"
-        }
-      ],
-      "category_child": ["1a0c1568-3fe8-4e2a-984c-c80423fa592f"],
-      "id": "JQAexFpfw1w",
-      "price": 1001,
-      "stock": 70,
       "status": "active",
-      "created_at": 1781236735502,
-      "description": ""
-    },
-    {
-      "name": "Sản phẩm Quần",
-      "sku": "SPQUAN 1781488147017",
-      "category": "sFGTOuTS9OA",
-      "variants": [
-        {
-          "size": "S",
-          "color": "Đen",
-          "price": 1111,
-          "stock": 50,
-          "sku": "SPQUAN-TEST-S-ĐEN",
-          "id": "c6aedf81-58e0-495f-9ec0-062447566efd"
-        },
-        {
-          "size": "L",
-          "color": "Trắng",
-          "price": 2222,
-          "stock": 40,
-          "sku": "SPQUAN-TEST-L-TRẮNG",
-          "id": "553a9321-f24e-4c98-a217-d0a72ae60bf4"
-        },
-        {
-          "size": "XL",
-          "color": "Đen",
-          "price": 3333,
-          "stock": 50,
-          "sku": "SPQUAN-TEST-XL-ĐEN",
-          "id": "d13711ab-c5e9-4022-9a53-af3f5d79a33a"
-        }
-      ],
-      "description": "111111",
-      "category_child": [
-        "3f77cd0c-52cd-4862-97f1-3a910e3a1b64",
-        "1a0c1568-3fe8-4e2a-984c-c80423fa592f"
-      ],
-      "id": "S29TgJTDaNQ",
-      "price": 1111,
-      "stock": 140,
-      "status": "active",
-      "created_at": 1781488147017,
-      "basePrice": 1111,
-      "selectedSizes": ["S", "L", "XL"],
-      "selectedColors": ["Đen", "Trắng"]
-    },
-    {
-      "name": "Sản phẩm áo 2",
-      "sku": "SPAO2 1781756864625",
-      "category": "DoSf-yUiv4c",
-      "variants": [
-        {
-          "size": "S",
-          "color": "Đen",
-          "price": 1000,
-          "stock": 40,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-S-ĐEN",
-          "id": "2759130e-c240-47d5-a35a-0d17ca6a921e"
-        },
-        {
-          "size": "L",
-          "color": "Đen",
-          "price": 1050,
-          "stock": 100,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-L-ĐEN",
-          "id": "76605317-6ca5-4a53-bd64-fd4b6dae25ee"
-        },
-        {
-          "size": "S",
-          "color": "Trắng",
-          "price": 1000,
-          "stock": 100,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-S-TRẮNG",
-          "id": "b660928e-aee1-4eae-ad11-18ea8c386b88"
-        },
-        {
-          "size": "S",
-          "color": "Hồng",
-          "price": 1000,
-          "stock": 100,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-S-HỒNG",
-          "id": "9df1a5b7-862b-416e-831c-99a770e79e04"
-        },
-        {
-          "size": "S",
-          "color": "Be",
-          "price": 1000,
-          "stock": 100,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-S-BE",
-          "id": "d993a426-47f2-4b4b-8eae-8cd466fce8e1"
-        },
-        {
-          "size": "L",
-          "color": "Trắng",
-          "price": 1050,
-          "stock": 100,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-L-TRẮNG",
-          "id": "c679b148-5a26-4df2-871c-faf5d5383dca"
-        },
-        {
-          "size": "L",
-          "color": "Hồng",
-          "price": 1050,
-          "stock": 100,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-L-HỒNG",
-          "id": "e5d37cda-d842-4dc9-ada0-41237180d158"
-        },
-        {
-          "size": "L",
-          "color": "Cam",
-          "price": 1050,
-          "stock": 100,
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-L-CAM",
-          "id": "ad1afd44-3a74-45a3-8625-3a09d34207a0"
-        }
-      ],
-      "description": "Không có gì",
-      "category_child": [
-        "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
-        "e53fa783-6076-4456-9bb5-6b00f7469fe9"
-      ],
-      "id": "FPdhTxy01zs",
-      "price": 1000,
-      "stock": 740,
-      "status": "active",
-      "created_at": 1781756864625
-    },
-    {
-      "id": "B8Ia16S1y3c",
-      "sku": "SPMQQCOG1Y",
-      "name": "Sản Phẩm 23 tháng 6_1",
-      "price": 1000,
-      "stock": 1200,
-      "basePrice": 1000,
-      "selectedSizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "selectedColors": ["black", "white", "blue", "red"],
-      "category": "DoSf-yUiv4c",
-      "category_child": ["7f09306f-5e31-4abd-ae12-31ebd500cd0c"],
-      "description": "Test sản phẩm 23 tháng 6",
-      "status": "active",
-      "created_at": 1782201367366
-    },
-    {
-      "id": "uh5kVz2uNwA",
-      "sku": "SPMQQDVWFC",
-      "name": "Sản phẩm 23 tháng 6_2",
-      "price": 1000,
-      "stock": 400,
-      "basePrice": 1000,
-      "selectedSizes": ["XS", "S", "M", "L"],
-      "selectedColors": ["black", "white"],
-      "category": "sFGTOuTS9OA",
-      "category_child": ["1a0c1568-3fe8-4e2a-984c-c80423fa592f"],
-      "description": "Test sản phẩm 23 tháng 6_2",
-      "status": "active",
-      "created_at": 1782203498331
-    },
-    {
-      "id": "BWzohtOAlUw",
-      "sku": "SPMQRREMCY",
-      "name": "San pham 24_6",
-      "price": 1080,
-      "stock": 400,
-      "basePrice": 1000,
-      "selectedSizes": ["XS", "S"],
-      "selectedColors": ["white", "red"],
-      "category": "L0LncjdxyvU",
-      "category_child": ["768f8053-57ae-46dd-a000-1d6ef41fb105"],
-      "description": "hehehehe",
-      "status": "active",
-      "created_at": 1782286612626
-    },
-    {
-      "id": "6Sfw7Khs2_k",
-      "sku": "SPMQRUOM9X",
-      "name": "Điện thoại updateeee",
-      "price": 2999,
-      "stock": 130,
-      "basePrice": 2999,
-      "selectedSizes": ["XS", "S", "M"],
-      "selectedColors": ["white", "black"],
-      "category": "5bcazNqa_ek",
-      "category_child": ["924259f9-c4cf-494a-9b63-6b3a2113c4c7"],
-      "description": "Điện thoại",
-      "status": "active",
-      "created_at": 1782292145344
+      "created_at": 1782810163175
     }
   ],
   "category": [
     {
       "name": "Áo",
-      "total": 11,
+      "total": 2,
       "child": [
         {
-          "id": "7dbdefc6-bc11-4fdd-a21d-ea54e4dc7a86",
-          "name": "Áo khoác gió",
-          "parentId": "DoSf-yUiv4c",
-          "total": 6
-        },
-        {
-          "id": "e53fa783-6076-4456-9bb5-6b00f7469fe9",
+          "id": "bd21867f-06f1-4df7-afc7-5c7162d339da",
           "name": "Áo thun",
-          "parentId": "DoSf-yUiv4c",
-          "total": 6
-        },
-        {
-          "id": "e75dc3cb-3508-4570-b398-bc563dc85ceb",
-          "name": "Áo Bí ngô",
-          "parentId": "DoSf-yUiv4c",
-          "total": 3
-        },
-        {
-          "id": "741f8b33-a995-4bb4-a295-960cf56e8ed4",
-          "name": "Áo sơ mi",
-          "parentId": "DoSf-yUiv4c",
+          "parentId": 1,
           "total": 2
-        },
-        {
-          "id": "7f09306f-5e31-4abd-ae12-31ebd500cd0c",
-          "name": "Áo polo",
-          "parentId": "DoSf-yUiv4c",
-          "total": 3
-        },
-        {
-          "id": "c7fb0624-c531-4285-8d7b-3fde95aab5c7",
-          "name": "Áo gì đó 1",
-          "parentId": "DoSf-yUiv4c",
-          "total": 0
         }
       ],
-      "id": "DoSf-yUiv4c"
+      "id": 1
     },
     {
       "name": "Quần",
-      "total": 7,
+      "total": 0,
       "child": [
         {
-          "id": "3f77cd0c-52cd-4862-97f1-3a910e3a1b64",
-          "name": "Quần bagy",
-          "parentId": "sFGTOuTS9OA",
-          "total": 2
-        },
-        {
-          "id": "1a0c1568-3fe8-4e2a-984c-c80423fa592f",
-          "name": "Quần jeans",
-          "parentId": "sFGTOuTS9OA",
-          "total": 6
-        },
-        {
-          "id": "fda303da-0e1d-4ab0-a319-44e5f652bfa9",
-          "name": "Quần short",
-          "parentId": "sFGTOuTS9OA",
-          "total": 0
-        },
-        {
-          "id": "524e2ddc-7d50-417d-b740-c23428ab4d0b",
-          "name": "Quần kaki",
-          "parentId": "sFGTOuTS9OA",
+          "id": "5dd59f7f-d10b-45bc-8e3f-da920d39b94e",
+          "name": "Quần bò",
+          "parentId": 2,
           "total": 0
         }
       ],
-      "id": "sFGTOuTS9OA"
+      "id": 2
     },
     {
-      "name": "Phụ kiện",
-      "total": 1,
+      "name": "Phụ Kiện",
+      "total": 0,
       "child": [
         {
-          "id": "ad5432b9-d9af-422a-8247-13a69017ac4e",
-          "name": "Mũ",
-          "parentId": "5bcazNqa_ek",
+          "id": "314f3b40-ad76-4919-89ad-2fee2bd41811",
+          "name": "Vòng tay",
+          "parentId": 3,
           "total": 0
-        },
-        {
-          "id": "efb349f2-ca65-46a4-869f-9b3564198bae",
-          "name": "Kính",
-          "parentId": "5bcazNqa_ek",
-          "total": 0
-        },
-        {
-          "id": "faed55ce-0c15-43f1-80f9-518b979fe2c8",
-          "name": "Thắt lưng",
-          "parentId": "5bcazNqa_ek",
-          "total": 0
-        },
-        {
-          "id": "924259f9-c4cf-494a-9b63-6b3a2113c4c7",
-          "name": "Test",
-          "parentId": "5bcazNqa_ek",
-          "total": 1
         }
       ],
-      "id": "5bcazNqa_ek"
+      "id": 3
     },
     {
       "name": "Váy",
       "total": 0,
       "child": [
         {
-          "id": "9a9172ce-4c65-47d9-8797-c0ead15a9ed4",
-          "name": "Váy ngắn",
-          "parentId": "VizxbJbAhGg",
-          "total": 0
-        },
-        {
-          "id": "6670fa3b-ea83-4280-b483-73083f8aa4a6",
-          "name": "Váy dài",
-          "parentId": "VizxbJbAhGg",
-          "total": 0
-        },
-        {
-          "id": "a35a3b73-00dc-4e49-9c49-5d78af445b20",
+          "id": "57febae8-4ead-4b7b-8eff-7c2d3c37957d",
           "name": "Chân váy",
-          "parentId": "VizxbJbAhGg",
-          "total": 0
-        },
-        {
-          "id": "59247bde-225b-41a2-97d7-110776e1eb2c",
-          "name": "Đầm dự tiệc",
-          "parentId": "VizxbJbAhGg",
+          "parentId": 4,
           "total": 0
         }
       ],
-      "id": "VizxbJbAhGg"
+      "id": 4
     },
     {
-      "name": "Túi xách",
-      "total": 1,
-      "child": [
-        {
-          "id": "768f8053-57ae-46dd-a000-1d6ef41fb105",
-          "name": "Túi đeo chéo",
-          "parentId": "L0LncjdxyvU",
-          "total": 1
-        },
-        {
-          "id": "e15a02fb-7867-4afa-b966-0c0e360d0fcc",
-          "name": "Ví",
-          "parentId": "L0LncjdxyvU",
-          "total": 0
-        }
-      ],
-      "id": "L0LncjdxyvU"
-    },
-    {
-      "name": "Giày dép",
+      "name": "Túi",
       "total": 0,
       "child": [
         {
-          "id": "c7324306-0792-4479-9801-c83a49b4b95d",
-          "name": "Giày sneaker",
-          "parentId": "3FyNULcPqC4",
-          "total": 0
-        },
-        {
-          "id": "85634d11-7489-4fed-8b45-dcb727d68793",
-          "name": "Giày cao gót",
-          "parentId": "3FyNULcPqC4",
+          "id": "71f5e223-5e5f-44f5-a6ee-4edf140ef8d2",
+          "name": "Túi đeo chéo",
+          "parentId": 5,
           "total": 0
         }
       ],
-      "id": "3FyNULcPqC4"
+      "id": 5
     }
   ],
   "customers": [
     {
-      "id": "5",
-      "fullname": "Phùng Diệu Linh",
-      "email": "pdling@gmail.com",
-      "phone": "0369585104",
-      "address": "Văn Nhân, Phú Xuyên, Hà Nội",
-      "total_orders": 0,
-      "total_expend": 0,
-      "created_at": "2026-06-20T08:30:00Z"
-    },
-    {
-      "id": "6",
-      "fullname": "Nguyễn Thanh Tùng",
-      "email": "nttung@gmail.com",
-      "phone": "0987123456",
-      "address": "Thành Phố Thái Bình",
-      "total_orders": 0,
-      "total_expend": 0,
-      "created_at": "2026-06-21T09:15:00Z"
-    },
-    {
-      "id": "7",
-      "fullname": "Katarina",
-      "email": "katarina.aespa@gmail.com",
-      "phone": "0986543217",
-      "address": "Hàn Quốc",
-      "total_orders": 0,
-      "total_expend": 0,
-      "created_at": "2026-06-22T10:00:00Z"
-    },
-    {
-      "fullname": "Katarina3",
-      "email": "katarina.aespa3@gmail.com",
-      "phone": "0999999998",
-      "address": "Hàn xẻng",
-      "total_orders": 0,
-      "total_expend": 0,
-      "id": "upbwwHoFIII",
-      "created_at": "2026-06-23T11:20:00Z"
-    },
-    {
       "fullname": "Phạm Quang Tuấn",
       "email": "phamquangtuan.contact@gmail.com",
-      "phone": "0986325391",
-      "address": "Sơn Thanh, Xã Phú Xuyên, Hà Nội",
+      "phone": "0369585104",
+      "address": "EcoGreen, Thanh Xuân, Hà Nội",
       "total_orders": 0,
       "total_expend": 0,
-      "id": "KWDRTdrkSnQ",
-      "created_at": "2026-06-24T14:00:00Z"
-    },
-    {
-      "fullname": "Độ Mixi",
-      "email": "domixi@gmail.com",
-      "phone": "0999999991",
-      "address": "120 Yên Lãng, Đống Đa, Hà Nội",
-      "total_orders": 0,
-      "total_expend": 0,
-      "created_at": "2026-06-24T08:05:29.857Z",
-      "id": "gm655D8e4ww"
-    },
-    {
-      "fullname": "Độ Mixi 1",
-      "email": "mixigaming@gmail.com",
-      "phone": "012345987",
-      "address": "Yên Lãng",
-      "total_orders": 0,
-      "total_expend": 0,
-      "created_at": "2026-06-26T10:41:11.010Z",
-      "id": "6JTqJiz"
-    },
-    {
-      "fullname": "Độ Yên Lãng",
-      "email": "yenlang@gmail.com",
-      "phone": "0123412345",
-      "address": "Cao Bằng",
-      "total_orders": 0,
-      "total_expend": 0,
-      "created_at": "2026-06-26T10:51:02.656Z",
-      "id": "t2DO1nI"
+      "created_at": "2026-06-30T08:48:02.565Z",
+      "id": 1
     }
   ],
   "orders": [
     {
       "id": "1",
       "order_code": "ORD001",
-      "customer_id": "1",
-      "customer_name": "Quang Tuấn",
-      "customer_email": "ptuan25941@gmail.com",
-      "created_at": "2026-06-05",
-      "total_price": 1799000,
-      "status": "completed",
-      "shipping_address": "Hà Nội",
-      "items": [
-        {
-          "id": "1",
-          "product_id": "2",
-          "product_name": "Quần jeans xanh",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 420000
-        },
-        {
-          "id": "2",
-          "product_id": "3",
-          "product_name": "Giày sneaker trắng",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 690000
-        },
-        {
-          "id": "3",
-          "product_id": "4",
-          "product_name": "Mũ lưỡi trai đen",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 2,
-          "price": 99000
-        },
-        {
-          "id": "4",
-          "product_id": "5",
-          "product_name": "Áo khoác bomber",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 491000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-08T09:46:55.642Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-08T09:47:24.080Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-08T09:47:28.832Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "2",
-      "order_code": "ORD002",
-      "customer_id": "1",
-      "customer_name": "Quang Tuấn",
-      "customer_email": "ptuan25941@gmail.com",
-      "created_at": "2026-05-04",
-      "total_price": 1375000,
-      "payment_method": "VNPay",
-      "payment_status": "paid",
-      "shipping_status": "shipping",
-      "status": "completed",
-      "shipping_address": "Hà Nội",
-      "items": [
-        {
-          "id": "1",
-          "product_id": "3",
-          "product_name": "Giày sneaker trắng",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 690000
-        },
-        {
-          "id": "2",
-          "product_id": "4",
-          "product_name": "Mũ lưỡi trai đen",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 3,
-          "price": 99000
-        },
-        {
-          "id": "3",
-          "product_id": "ClbIq3Jdhpk",
-          "product_name": "Sản phẩm 26",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 2,
-          "price": 20000
-        },
-        {
-          "id": "4",
-          "product_id": "5",
-          "product_name": "Áo khoác bomber",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 348000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-08T09:47:01.497Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-08T09:47:41.856Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-08T09:48:00.688Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "3",
-      "order_code": "ORD003",
-      "customer_id": "2",
-      "customer_name": "Quang Tuấn 2",
-      "customer_email": "ptuan25942@gmail.com",
-      "created_at": "2026-04-03",
-      "total_price": 1229000,
-      "payment_method": "COD",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "completed",
-      "shipping_address": "Hồ Chí Minh",
-      "items": [
-        {
-          "id": "1",
-          "product_id": "2",
-          "product_name": "Quần jeans xanh",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 2,
-          "price": 420000
-        },
-        {
-          "id": "2",
-          "product_id": "4",
-          "product_name": "Mũ lưỡi trai đen",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 99000
-        },
-        {
-          "id": "3",
-          "product_id": "ClbIq3Jdhpk",
-          "product_name": "Sản phẩm 26",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 5,
-          "price": 20000
-        },
-        {
-          "id": "4",
-          "product_id": "swLYyZu4Dns",
-          "product_name": "New product",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 190000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-08T09:47:04.744Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-08T09:47:46.705Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-08T09:47:48.672Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "4",
-      "order_code": "ORD004",
-      "customer_id": "3",
-      "customer_name": "Quang Tuấn 3",
-      "customer_email": "ptuan25943@gmail.com",
-      "created_at": "2026-06-02",
-      "total_price": 1612000,
-      "payment_method": "Momo",
-      "payment_status": "paid",
-      "shipping_status": "delivered",
-      "status": "completed",
-      "shipping_address": "Đà Nẵng",
-      "items": [
-        {
-          "id": "1",
-          "product_id": "5",
-          "product_name": "Áo khoác bomber",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 2,
-          "price": 550000
-        },
-        {
-          "id": "2",
-          "product_id": "3",
-          "product_name": "Giày sneaker trắng",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 690000
-        },
-        {
-          "id": "3",
-          "product_id": "4",
-          "product_name": "Mũ lưỡi trai đen",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 99000
-        },
-        {
-          "id": "4",
-          "product_id": "ClbIq3Jdhpk",
-          "product_name": "Sản phẩm 26",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 6,
-          "price": 20000
-        }
-      ],
-      "user": "Phạm Quang Núi",
-      "historyDetailOrder": [
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-08T09:47:08.592Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-08T09:47:37.400Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-09T08:18:19.320Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "5",
-      "order_code": "ORD005",
-      "customer_id": "4",
-      "customer_name": "Quang Tuấn 4",
-      "customer_email": "ptuan25944@gmail.com",
-      "created_at": "2026-06-01",
-      "total_price": 1860000,
-      "payment_method": "VNPay",
-      "payment_status": "paid",
-      "shipping_status": "shipping",
-      "status": "cancelled",
-      "shipping_address": "Hải Phòng",
-      "items": [
-        {
-          "id": "1",
-          "product_id": "3",
-          "product_name": "Giày sneaker trắng",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 1,
-          "price": 690000
-        },
-        {
-          "id": "2",
-          "product_id": "5",
-          "product_name": "Áo khoác bomber",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 2,
-          "price": 550000
-        },
-        {
-          "id": "3",
-          "product_id": "4",
-          "product_name": "Mũ lưỡi trai đen",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 4,
-          "price": 99000
-        },
-        {
-          "id": "4",
-          "product_id": "ClbIq3Jdhpk",
-          "product_name": "Sản phẩm 26",
-          "image": "https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80",
-          "quantity": 2,
-          "price": 20000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "cancelled",
-          "message": "Đã đổi trạng thái sang cancelled",
-          "createdAt": "2026-06-08T09:47:32.816Z",
-          "updatedBy": {
-            "id": 2,
-            "name": "Phạm Quang Núi",
-            "email": "anui@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "6",
-      "order_code": "ORD006",
-      "customer_id": "1",
-      "customer_name": "Quang Tuấn",
-      "customer_email": "ptuan25941@gmail.com",
-      "created_at": "2026-06-15",
-      "total_price": 1111,
+      "customer_id": 1,
+      "customer_name": "Phạm Quang Tuấn",
+      "customer_email": "phamquangtuan.contact@gmail.com",
+      "created_at": "2026-06-30T09:14:48.113Z",
+      "total_price": 1278,
       "payment_method": "cod",
       "payment_status": "unpaid",
       "shipping_status": "pending",
       "status": "processing",
-      "shipping_address": "48 - Sơn Thanh - Xã Phú Xuyên - Hà Nội",
+      "shipping_address": "EcoGreen, Thanh Xuân, Hà Nội",
+      "note": "Gửi hỏa tốc dùm tui he",
       "items": [
         {
-          "id": "a8a5025a-41b0-4b3e-aa06-f7fcff6273af",
-          "product_id": "S29TgJTDaNQ",
-          "product_name": "Test",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPQUAN-TEST-S-ĐEN",
+          "id": "e8defa68-af46-46a5-bd3d-0fb45f8e6b75",
+          "product_id": "SPMR0F3KTJ",
+          "product_name": "Áo thun tay lỡ",
+          "size": "L / Xanh Navy / Cotton / Không họa tiết",
+          "color": "Default",
+          "sku": "SPMR0F3KTJ",
           "image": "",
-          "quantity": 1,
-          "price": 1111
+          "quantity": 2,
+          "price": 639,
+          "comboKey": "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_l_mr0ewtiw-v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz"
         }
       ],
       "historyDetailOrder": [
         {
           "status": "pending",
           "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-15T03:34:43.014Z"
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-15T03:47:20.130Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "7",
-      "order_code": "ORD007",
-      "customer_id": "5",
-      "customer_name": "Phùng Diệu Linh",
-      "customer_email": "pdling@gmail.com",
-      "created_at": "2026-06-15",
-      "total_price": 3433,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "shipping",
-      "shipping_address": "Văn Nhân, Phú Xuyên, Hà Nội",
-      "items": [
-        {
-          "id": "2d467b59-b463-4376-a81a-b2f263a73820",
-          "product_id": "S29TgJTDaNQ",
-          "product_name": "Test",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPQUAN-TEST-S-ĐEN",
-          "image": "",
-          "quantity": 3,
-          "price": 1111
-        },
-        {
-          "id": "23424d83-ae51-4a71-8734-6c814d0a1340",
-          "product_id": "JQAexFpfw1w",
-          "product_name": "SP Demo",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
-          "image": "",
-          "quantity": 1,
-          "price": 100
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-15T04:25:17.320Z",
+          "createdAt": "2026-06-30T09:14:48.113Z",
           "updatedBy": {
             "name": "System"
           }
@@ -1015,700 +144,7 @@
         {
           "status": "processing",
           "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-15T04:31:00.962Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-15T04:41:37.073Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "8",
-      "order_code": "ORD008",
-      "customer_id": "6",
-      "customer_name": "Nguyễn Thanh Tùng",
-      "customer_email": "nttung@gmail.com",
-      "created_at": "2026-06-15",
-      "total_price": 10599,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "cancelled",
-      "shipping_address": "Thành Phố Thái Bình",
-      "note": "Nothing",
-      "items": [
-        {
-          "id": "366d682b-112e-4c85-93a5-c34dc5811c16",
-          "product_id": "S29TgJTDaNQ",
-          "product_name": "Test",
-          "size": "XL",
-          "color": "Đen",
-          "sku": "SPQUAN-TEST-XL-ĐEN",
-          "image": "",
-          "quantity": 3,
-          "price": 3333
-        },
-        {
-          "id": "a4f31d48-6bd9-4515-b87e-242914b10ec1",
-          "product_id": "JQAexFpfw1w",
-          "product_name": "SP Demo",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
-          "image": "",
-          "quantity": 6,
-          "price": 100
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-15T07:26:41.503Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "cancelled",
-          "message": "Đã đổi trạng thái sang cancelled",
-          "createdAt": "2026-06-16T10:53:16.250Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "9",
-      "order_code": "ORD009",
-      "customer_id": "5",
-      "customer_name": "Phùng Diệu Linh",
-      "customer_email": "pdling@gmail.com",
-      "created_at": "2026-06-15T07:30:58.622Z",
-      "total_price": 11110,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "completed",
-      "shipping_address": "Văn Nhân, Phú Xuyên, Hà Nội",
-      "items": [
-        {
-          "id": "b236a0db-0096-4edb-b52c-ff073d6c5c20",
-          "product_id": "S29TgJTDaNQ",
-          "product_name": "Test",
-          "size": "L",
-          "color": "Trắng",
-          "sku": "SPQUAN-TEST-L-TRẮNG",
-          "image": "",
-          "quantity": 5,
-          "price": 2222
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-15T07:30:58.622Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-15T07:51:56.311Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-15T07:51:59.574Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-15T07:52:01.847Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "10",
-      "order_code": "ORD010",
-      "customer_id": "5",
-      "customer_name": "Phùng Diệu Linh",
-      "customer_email": "pdling@gmail.com",
-      "created_at": "2026-06-16T09:01:28.263Z",
-      "total_price": 3333,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "shipping",
-      "shipping_address": "Văn Nhân, Phú Xuyên, Hà Nội",
-      "items": [
-        {
-          "id": "8c195ee5-2705-47ec-9dc6-ae814a5d1fdb",
-          "product_id": "S29TgJTDaNQ",
-          "product_name": "Test",
-          "size": "XL",
-          "color": "Đen",
-          "sku": "SPQUAN-TEST-XL-ĐEN",
-          "image": "",
-          "quantity": 1,
-          "price": 3333
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-16T09:01:28.263Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-16T09:01:37.693Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-16T09:05:16.918Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "11",
-      "order_code": "ORD011",
-      "customer_id": "6",
-      "customer_name": "Nguyễn Thanh Tùng",
-      "customer_email": "nttung@gmail.com",
-      "created_at": "2026-06-16T10:53:00.720Z",
-      "total_price": 19593,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "completed",
-      "shipping_address": "Thành Phố Thái Bình",
-      "items": [
-        {
-          "id": "7f0dda4e-09c3-4a1c-9c85-e8a184a698ee",
-          "product_id": "dbIQAU0FPaU",
-          "product_name": "Test sản phẩm",
-          "size": "L",
-          "color": "Trắng",
-          "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-TRẮNG",
-          "image": "",
-          "quantity": 5,
-          "price": 2121
-        },
-        {
-          "id": "8f57a037-81b3-4ba3-98ef-0d8f4553ab82",
-          "product_id": "JQAexFpfw1w",
-          "product_name": "SP Demo",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
-          "image": "",
-          "quantity": 1,
-          "price": 100
-        },
-        {
-          "id": "6b580c10-66a5-4b71-a690-43e57bee4229",
-          "product_id": "S29TgJTDaNQ",
-          "product_name": "Test",
-          "size": "L",
-          "color": "Trắng",
-          "sku": "SPQUAN-TEST-L-TRẮNG",
-          "image": "",
-          "quantity": 4,
-          "price": 2222
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-16T10:53:00.720Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-16T10:53:31.290Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-17T07:02:23.210Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-24T08:11:45.698Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "O4dWQ6CjuM4",
-      "order_code": "ORD012",
-      "customer_id": "EtUJZ5DCphA",
-      "customer_name": "Katarina2",
-      "customer_email": "katarina.aespa2@gmail.com",
-      "created_at": "2026-06-18T04:56:56.930Z",
-      "total_price": 2000,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "cancelled",
-      "shipping_address": "Hàn Quốc 2",
-      "items": [
-        {
-          "id": "b4bf726e-30a0-47a1-8abc-136a0bab706c",
-          "product_id": "dbIQAU0FPaU",
-          "product_name": "Sản phẩm áo",
-          "size": "S",
-          "color": "Trắng",
-          "sku": "SKU-S-TRẮNG",
-          "image": "",
-          "quantity": 1,
-          "price": 2000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-18T04:56:56.930Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "cancelled",
-          "message": "Đã đổi trạng thái sang cancelled",
-          "createdAt": "2026-06-18T07:10:02.077Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "eECIEethhL4",
-      "order_code": "ORD013",
-      "customer_id": "7",
-      "customer_name": "Katarina",
-      "customer_email": "katarina.aespa@gmail.com",
-      "created_at": "2026-06-18T04:57:23.473Z",
-      "total_price": 21000,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "processing",
-      "shipping_address": "Hàn Quốc",
-      "items": [
-        {
-          "id": "e7fc9a42-70f4-4d60-83d6-54439548361a",
-          "product_id": "dbIQAU0FPaU",
-          "product_name": "Sản phẩm áo",
-          "size": "L",
-          "color": "Cam",
-          "sku": "SKU-1781173632565-TEST-SẢN-PHẨM-L-CAM",
-          "image": "",
-          "quantity": 10,
-          "price": 2100
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-18T04:57:23.473Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-18T07:04:48.093Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "fg1Sx0SBP4Y",
-      "order_code": "ORD014",
-      "customer_id": "upbwwHoFIII",
-      "customer_name": "Katarina3",
-      "customer_email": "katarina.aespa3@gmail.com",
-      "created_at": "2026-06-18T08:26:44.009Z",
-      "total_price": 1000,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "completed",
-      "shipping_address": "Hàn xẻng",
-      "items": [
-        {
-          "id": "c61871b8-db34-4ec0-8f2e-9033a59a91bc",
-          "product_id": "FPdhTxy01zs",
-          "product_name": "Sản phẩm áo 2",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-S-ĐEN",
-          "image": "",
-          "quantity": 1,
-          "price": 1000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-18T08:26:44.009Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-18T08:26:49.672Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-18T08:26:50.888Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-18T08:26:52.088Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "pdGDE-hvH-s",
-      "order_code": "ORD015",
-      "customer_id": "KWDRTdrkSnQ",
-      "customer_name": "Phạm Quang Tuấn",
-      "customer_email": "phamquangtuan.contact@gmail.com",
-      "created_at": "2026-06-18T08:30:28.112Z",
-      "total_price": 41230,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "completed",
-      "shipping_address": "Sơn Thanh, Xã Phú Xuyên, Hà Nội",
-      "items": [
-        {
-          "id": "7f695638-58e7-4900-88bc-f5857200cdfc",
-          "product_id": "S29TgJTDaNQ",
-          "product_name": "Sản phẩm Quần",
-          "size": "L",
-          "color": "Trắng",
-          "sku": "SPQUAN-TEST-L-TRẮNG",
-          "image": "",
-          "quantity": 10,
-          "price": 2222
-        },
-        {
-          "id": "65d4d3c0-33bb-41c0-9bf0-3e3fd27fb7db",
-          "product_id": "JQAexFpfw1w",
-          "product_name": "Sản phẩm Quần 2",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
-          "image": "",
-          "quantity": 10,
-          "price": 1001
-        },
-        {
-          "id": "a2cd34e2-7121-48dc-8cd9-42983d2a7884",
-          "product_id": "FPdhTxy01zs",
-          "product_name": "Sản phẩm áo 2",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-S-ĐEN",
-          "image": "",
-          "quantity": 9,
-          "price": 1000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-18T08:30:28.112Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-19T04:57:28.649Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-19T04:57:31.567Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-19T04:57:32.951Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "RZI7C5SZ6dY",
-      "order_code": "ORD016",
-      "customer_id": "KWDRTdrkSnQ",
-      "customer_name": "Phạm Quang Tuấn",
-      "customer_email": "phamquangtuan.contact@gmail.com",
-      "created_at": "2026-06-19T04:58:20.407Z",
-      "total_price": 20020,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "cancelled",
-      "shipping_address": "Sơn Thanh, Xã Phú Xuyên, Hà Nội",
-      "items": [
-        {
-          "id": "d818a83d-8526-42cc-b9f9-26fec2d69547",
-          "product_id": "JQAexFpfw1w",
-          "product_name": "Sản phẩm Quần 2",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPQUAN-SP-DEMO-S-ĐEN",
-          "image": "",
-          "quantity": 20,
-          "price": 1001
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-19T04:58:20.406Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "cancelled",
-          "message": "Đã đổi trạng thái sang cancelled",
-          "createdAt": "2026-06-24T08:11:23.971Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "7SWBiZ6d_g8",
-      "order_code": "ORD017",
-      "customer_id": "KWDRTdrkSnQ",
-      "customer_name": "Phạm Quang Tuấn",
-      "customer_email": "phamquangtuan.contact@gmail.com",
-      "created_at": "2026-06-23T04:36:03.165Z",
-      "total_price": 1050,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "completed",
-      "shipping_address": "Sơn Thanh, Xã Phú Xuyên, Hà Nội",
-      "items": [
-        {
-          "id": "c2b1192f-0d61-48ff-b77c-c1f41af0a97c",
-          "product_id": "tc2k2i5Sdc0",
-          "product_name": "Sản phẩm 23 tháng 6",
-          "size": "S",
-          "color": "black",
-          "sku": "SP2306-SẢN-PHẨM-23-THÁNG-6-S-BLACK",
-          "image": "",
-          "quantity": 1,
-          "price": 1050
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-23T04:36:03.165Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "processing",
-          "message": "Đã đổi trạng thái sang processing",
-          "createdAt": "2026-06-24T08:11:03.627Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "shipping",
-          "message": "Đã đổi trạng thái sang shipping",
-          "createdAt": "2026-06-24T08:11:09.194Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        },
-        {
-          "status": "completed",
-          "message": "Đã đổi trạng thái sang completed",
-          "createdAt": "2026-06-24T08:11:12.514Z",
-          "updatedBy": {
-            "id": 1,
-            "name": "Phạm Quang Tuấn",
-            "email": "ptuan2594@gmail.com"
-          }
-        }
-      ]
-    },
-    {
-      "id": "6_7kFvRFF4Y",
-      "order_code": "ORD018",
-      "customer_id": "6",
-      "customer_name": "Nguyễn Thanh Tùng",
-      "customer_email": "nttung@gmail.com",
-      "created_at": "2026-06-24T08:22:37.347Z",
-      "total_price": 50000,
-      "payment_method": "cod",
-      "payment_status": "unpaid",
-      "shipping_status": "pending",
-      "status": "cancelled",
-      "shipping_address": "Thành Phố Thái Bình",
-      "items": [
-        {
-          "id": "c48ae9cd-1ca9-4945-a883-88ba1282d204",
-          "product_id": "FPdhTxy01zs",
-          "product_name": "Sản phẩm áo 2",
-          "size": "S",
-          "color": "Đen",
-          "sku": "SPAO2-SẢN-PHẨM-ÁO-2-S-ĐEN",
-          "image": "",
-          "quantity": 50,
-          "price": 1000
-        }
-      ],
-      "historyDetailOrder": [
-        {
-          "status": "pending",
-          "message": "Đã tạo đơn hàng",
-          "createdAt": "2026-06-24T08:22:37.347Z",
-          "updatedBy": {
-            "name": "System"
-          }
-        },
-        {
-          "status": "cancelled",
-          "message": "Đã đổi trạng thái sang cancelled",
-          "createdAt": "2026-06-24T09:52:14.008Z",
+          "createdAt": "2026-06-30T09:16:08.680Z",
           "updatedBy": {
             "id": 1,
             "name": "Phạm Quang Tuấn",
@@ -1720,1428 +156,467 @@
   ],
   "active_logs": [
     {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T07:34:44.444Z",
-      "id": "HMCsYOxF6iM"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-09T07:39:00.294Z",
-      "id": "ebhEi9NwiPs"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-09T07:51:04.870Z",
-      "id": "38eO9Ib-siM"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T07:58:52.191Z",
-      "id": "m5oJEsUO_dk"
-    },
-    {
-      "module": "Detail Order - Status - 4",
-      "action": "UPDATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T08:18:19.350Z",
-      "id": "BaDVHMvVpYQ"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T08:19:04.899Z",
-      "id": "zfaG4xPgKLI"
-    },
-    {
-      "module": "Profile",
-      "action": "UPDATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T08:21:38.497Z",
-      "id": "yJDNF5-8g9I"
-    },
-    {
-      "module": "Profile - Avatar",
-      "action": "UPLOAD",
-      "user": "Phạm Quang Núi 1",
-      "created_at": "2026-06-09T08:21:52.139Z",
-      "id": "t9YF9rx9Z-M"
-    },
-    {
-      "module": "Profile",
-      "action": "UPDATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T08:22:57.026Z",
-      "id": "GeTnZJO4HcY"
-    },
-    {
-      "module": "Profile",
-      "action": "UPDATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T08:23:29.184Z",
-      "id": "Zo6mQjrXm6s"
-    },
-    {
-      "module": "Profile - Avatar",
-      "action": "UPLOAD",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T10:03:15.056Z",
-      "id": "HljvOG3Q9O4"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Núi",
-      "created_at": "2026-06-09T10:04:29.965Z",
-      "id": "l8_ezbY73hM"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T04:08:28.837Z",
-      "id": "KR2oU2yVwzM"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T04:09:07.166Z",
-      "id": "ImHTFZvQmxY"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T04:09:37.388Z",
-      "id": "OH25QzmjWdA"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T10:27:12.569Z",
-      "id": "mtLSaV_8GZk"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T10:49:17.299Z",
-      "id": "joQOkLCqBOw"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T10:53:29.517Z",
-      "id": "9O6kyoDf7FY"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T10:54:10.602Z",
-      "id": "ubMnbk2Z3Ac"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T10:58:29.877Z",
-      "id": "y07CRjFbcUs"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-11T10:58:55.489Z",
-      "id": "-FxQbQC1ZiQ"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-12T03:05:31.312Z",
-      "id": "EZUYakqRn10"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-12T03:06:19.630Z",
-      "id": "9H0fDpKDLQU"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-12T03:09:14.442Z",
-      "id": "RMHDVOE3MzM"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-12T03:58:55.504Z",
-      "id": "QRVh0ajgbzA"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T01:49:07.020Z",
-      "id": "JXKEYQXgfvU"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T03:34:42.927Z",
-      "id": "UOPGu_Or-Ds"
-    },
-    {
-      "module": "Detail Order - Status - 6",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T03:47:20.196Z",
-      "id": "g6XhTIbVCw0"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T04:25:17.352Z",
-      "id": "_zqrdrhCzfo"
-    },
-    {
-      "module": "Detail Order - Status - 7",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T04:31:00.979Z",
-      "id": "-DVwL3FXeRk"
-    },
-    {
-      "module": "Detail Order - Status - 7",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T04:41:37.092Z",
-      "id": "6yaXJc7nTZo"
-    },
-    {
       "module": "Customer",
       "action": "CREATE",
       "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T07:25:47.711Z",
-      "id": "1LYrFLEK01Q"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T07:26:41.526Z",
-      "id": "4SZH49SZgq8"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T07:30:58.644Z",
-      "id": "yeSzuS5wiEE"
-    },
-    {
-      "module": "Detail Order - Status - 9",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T07:51:56.333Z",
-      "id": "E8ZkaG_6XIg"
-    },
-    {
-      "module": "Detail Order - Status - 9",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T07:51:59.599Z",
-      "id": "F6OHyaRXxSM"
-    },
-    {
-      "module": "Detail Order - Status - 9",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-15T07:52:01.867Z",
-      "id": "jjJ7PCXOAqM"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T09:01:28.292Z",
-      "id": "ihY0HotqmLY"
-    },
-    {
-      "module": "Detail Order - Status - 10",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T09:01:37.723Z",
-      "id": "S2XpSpBQRIE"
-    },
-    {
-      "module": "Detail Order - Status - 10",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T09:05:16.970Z",
-      "id": "LzjFx-rlgC0"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:35:54.818Z",
-      "id": "_zSAlpC2l_M"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - dbIQAU0FPaU",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:36:32.428Z",
-      "id": "TVomh1bRtc4"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:38:26.811Z",
-      "id": "bFHprX3HOcQ"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:39:05.619Z",
-      "id": "8n4lW0YMsjM"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:40:45.607Z",
-      "id": "LHBIsVKG1Cg"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:45:07.698Z",
-      "id": "LQmnWv7uwps"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - dbIQAU0FPaU",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:46:32.155Z",
-      "id": "wh4Nq2YKj6Y"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:46:40.881Z",
-      "id": "qzD_CYHg8W0"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:53:00.660Z",
-      "id": "enZTu4FTxVU"
-    },
-    {
-      "module": "Detail Order - Status - 8",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:53:16.266Z",
-      "id": "UrcH6qFhbHM"
-    },
-    {
-      "module": "Detail Order - Status - 11",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-16T10:53:31.305Z",
-      "id": "Bo4Qeh0Sk3o"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-17T07:04:30.844Z",
-      "id": "qq5hyiPwPdc"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T03:58:43.295Z",
-      "id": "BlivR9otiL4"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T03:58:45.206Z",
-      "id": "LBja7I7Tz20"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T03:58:46.750Z",
-      "id": "hR4y6vfoDSc"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T03:58:50.886Z",
-      "id": "QqvA46gYFvg"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T03:58:53.774Z",
-      "id": "7CvhPf6QfZY"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T03:58:55.478Z",
-      "id": "A61CyA1tAq4"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:20:34.443Z",
-      "id": "Q3WLmaWKSjo"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:20:46.976Z",
-      "id": "fSBkrDjuZH8"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:21:01.920Z",
-      "id": "Ce7dxAAtr3A"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:27:44.626Z",
-      "id": "mWf_33d5xLw"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:31:59.772Z",
-      "id": "R7eCaAGCMdw"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:36:06.376Z",
-      "id": "I6LLoN0KTR0"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:38:20.153Z",
-      "id": "2S_ARnIAE9M"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:38:53.145Z",
-      "id": "UbJoTr9vCwM"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:39:10.787Z",
-      "id": "F5SydverV1g"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:39:20.277Z",
-      "id": "1Gi40EX1qNs"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:40:50.031Z",
-      "id": "D9X0vKMxG3A"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:42:33.780Z",
-      "id": "ZxMIF280O9g"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:49:00.529Z",
-      "id": "-WhRbuz2CZo"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:56:38.527Z",
-      "id": "gUnoR-O3gaU"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:56:56.859Z",
-      "id": "MVyEyhuaSw8"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - FPdhTxy01zs",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:57:03.934Z",
-      "id": "25VwlOCOXHs"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T04:57:23.397Z",
-      "id": "37jxMPHfGB4"
-    },
-    {
-      "module": "Detail Order - Status - eECIEethhL4",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T07:04:48.116Z",
-      "id": "Sh0YqgeR-SY"
-    },
-    {
-      "module": "Detail Order - Status - O4dWQ6CjuM4",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T07:10:02.093Z",
-      "id": "kxu2JcZSGEk"
-    },
-    {
-      "module": "Customer",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T07:40:29.605Z",
-      "id": "a5ULzA-SNMg"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T07:42:02.798Z",
-      "id": "iU5YUgAg05Y"
-    },
-    {
-      "module": "Customer",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T07:44:45.140Z",
-      "id": "VyviKgKfVow"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T07:47:44.234Z",
-      "id": "ssCjy74Goew"
-    },
-    {
-      "module": "Customer",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T07:47:48.844Z",
-      "id": "Lh5fv5c3NQM"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:26:20.134Z",
-      "id": "z6QKdExeUFA"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:26:43.929Z",
-      "id": "LTYAoHDIWNY"
-    },
-    {
-      "module": "Detail Order - Status - fg1Sx0SBP4Y",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:26:49.703Z",
-      "id": "4pR9Xv1LppQ"
-    },
-    {
-      "module": "Detail Order - Status - fg1Sx0SBP4Y",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:26:50.912Z",
-      "id": "fWgzMYnj5RE"
-    },
-    {
-      "module": "Detail Order - Status - fg1Sx0SBP4Y",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:26:52.117Z",
-      "id": "jLXztnhp2pM"
-    },
-    {
-      "module": "Customer",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:27:12.650Z",
-      "id": "2TZT7kMg4II"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:28:43.465Z",
-      "id": "luQPx7Q9iTk"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T08:30:28.064Z",
-      "id": "43qHRNG5ZAU"
+      "created_at": "2026-06-30T08:48:02.591Z",
+      "id": 1
     },
     {
       "module": "Category",
       "action": "CREATE",
       "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:30:18.036Z",
-      "id": "7YxF-G9WVWg"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:30:30.041Z",
-      "id": "SMTtp2mK_fc"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:31:30.569Z",
-      "id": "Z26zkeZHfoo"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:31:37.762Z",
-      "id": "yNzyRwj3lI4"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:31:47.138Z",
-      "id": "u1I04qg2v04"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:31:53.137Z",
-      "id": "1afon4kRCMk"
+      "created_at": "2026-06-30T08:48:14.590Z",
+      "id": 2
     },
     {
       "module": "Category",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:48:20.877Z",
+      "id": 3
+    },
+    {
+      "module": "Category",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:48:26.693Z",
+      "id": 4
+    },
+    {
+      "module": "Category",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:48:32.725Z",
+      "id": 5
+    },
+    {
+      "module": "Category",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:48:39.436Z",
+      "id": 6
+    },
+    {
+      "module": "Category - Child",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:48:49.057Z",
+      "id": 7
+    },
+    {
+      "module": "Category - Child",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:48:58.314Z",
+      "id": 8
+    },
+    {
+      "module": "Category - Child",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:49:13.313Z",
+      "id": 9
+    },
+    {
+      "module": "Category - Child",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:49:20.137Z",
+      "id": 10
+    },
+    {
+      "module": "Category - Child",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T08:49:27.226Z",
+      "id": 11
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T09:02:43.177Z",
+      "id": 12
+    },
+    {
+      "module": "Product",
+      "action": "CREATE",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T09:08:25.240Z",
+      "id": 13
+    },
+    {
+      "module": "Product",
+      "action": "UPDATE status - SPMR0F9JE3",
+      "user": "Phạm Quang Tuấn",
+      "created_at": "2026-06-30T09:09:26.962Z",
+      "id": 14
+    },
+    {
+      "module": "Product",
       "action": "DELETE",
       "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:34:54.317Z",
-      "id": "yw10jx3LZSw"
+      "created_at": "2026-06-30T09:09:55.650Z",
+      "id": 15
     },
     {
-      "module": "Category",
-      "action": "CREATE",
+      "module": "Product",
+      "action": "UPDATE status - SPMR0F3KTJ",
       "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:35:24.486Z",
-      "id": "51YZBB5ZU7M"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:35:32.675Z",
-      "id": "1Mb679d7geE"
-    },
-    {
-      "module": "Category",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:35:36.973Z",
-      "id": "qAxN1u8fkq0"
-    },
-    {
-      "module": "Category",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:37:12.124Z",
-      "id": "Tv-BdHHrovI"
-    },
-    {
-      "module": "Category - Child",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:37:18.896Z",
-      "id": "HSJAoJQQoyw"
-    },
-    {
-      "module": "Category",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:37:23.315Z",
-      "id": "0FQ4BEtbwVw"
-    },
-    {
-      "module": "Category",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:44:35.037Z",
-      "id": "iBzMqW6xkjg"
-    },
-    {
-      "module": "Category",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-18T09:44:38.432Z",
-      "id": "cyhxBYzxJAM"
-    },
-    {
-      "module": "Detail Order - Status - pdGDE-hvH-s",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-19T04:57:28.692Z",
-      "id": "CrUd9Gnal2k"
-    },
-    {
-      "module": "Detail Order - Status - pdGDE-hvH-s",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-19T04:57:31.589Z",
-      "id": "Jl4QBjz-ZFI"
-    },
-    {
-      "module": "Detail Order - Status - pdGDE-hvH-s",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-19T04:57:32.983Z",
-      "id": "rfAEs1L3MUA"
+      "created_at": "2026-06-30T09:13:36.208Z",
+      "id": 16
     },
     {
       "module": "Order",
       "action": "CREATE",
       "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-19T04:58:20.331Z",
-      "id": "9rQhk5XGqwk"
+      "created_at": "2026-06-30T09:14:48.077Z",
+      "id": 17
     },
     {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T04:29:19.801Z",
-      "id": "ofzuOx4W7Zg"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - tc2k2i5Sdc0",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T04:32:48.689Z",
-      "id": "-nY2p2ZSzxs"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T04:36:03.076Z",
-      "id": "9vXRqstyB_0"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T07:56:07.382Z",
-      "id": "DINhRqvDJDc"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T08:23:50.171Z",
-      "id": "DkrnxFTsXxk"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T08:31:38.334Z",
-      "id": "F4lJsMZXqkI"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T08:33:00.768Z",
-      "id": "5owW7BFIthY"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T08:43:53.979Z",
-      "id": "cq8WbCooHMc"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T08:52:27.838Z",
-      "id": "7Yz99UuITKc"
-    },
-    {
-      "module": "Product",
+      "module": "Detail Order - Status - 1",
       "action": "UPDATE",
       "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T08:59:43.916Z",
-      "id": "ua9O5q_wYMY"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:00:29.345Z",
-      "id": "-MXNQuxaNfo"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:01:11.069Z",
-      "id": "DX3WDHMzUco"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:08:10.146Z",
-      "id": "KhTlVVLczKg"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:10:34.082Z",
-      "id": "-vsZroqbmyM"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:14:06.801Z",
-      "id": "d-VpUr7kIXQ"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:18:18.858Z",
-      "id": "tFxCsJdpmig"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:18:27.797Z",
-      "id": "8Ty05noQtgU"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:19:39.565Z",
-      "id": "C7NrV9PLu2g"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:21:40.415Z",
-      "id": "xFjYLSEhxIA"
-    },
-    {
-      "module": "Product",
-      "action": "DELETE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-23T09:21:48.862Z",
-      "id": "dN4dmO58mac"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T07:36:52.628Z",
-      "id": "KqRrHvAEuQQ"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:05:29.870Z",
-      "id": "a_z47huCnxs"
-    },
-    {
-      "module": "Detail Order - Status - 7SWBiZ6d_g8",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:11:03.648Z",
-      "id": "pSI89LI0nj8"
-    },
-    {
-      "module": "Detail Order - Status - 7SWBiZ6d_g8",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:11:09.212Z",
-      "id": "R_D7uE_bhzc"
-    },
-    {
-      "module": "Detail Order - Status - 7SWBiZ6d_g8",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:11:12.542Z",
-      "id": "0uWlK2EjyHg"
-    },
-    {
-      "module": "Detail Order - Status - RZI7C5SZ6dY",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:11:24.002Z",
-      "id": "DdI5AXv6ayk"
-    },
-    {
-      "module": "Detail Order - Status - 11",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:11:45.733Z",
-      "id": "wYmWOrA04eE"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:14:53.916Z",
-      "id": "fyJ1suKCrUA"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:17:07.858Z",
-      "id": "uNwadzK4kN4"
-    },
-    {
-      "module": "Order",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T08:22:37.262Z",
-      "id": "pRovwMo7VNQ"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:03:41.737Z",
-      "id": "729jgmGUmio"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - B8Ia16S1y3c",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:04:42.349Z",
-      "id": "CKxAqqJIYBk"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - uh5kVz2uNwA",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:04:43.621Z",
-      "id": "7N9J8fHgERw"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - BWzohtOAlUw",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:04:44.829Z",
-      "id": "0hoBKYz14nY"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:06:29.265Z",
-      "id": "cY3G19plP_k"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:06:41.968Z",
-      "id": "HLpxsrpTEos"
-    },
-    {
-      "module": "Product",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:09:05.346Z",
-      "id": "x3EeYL_2AAw"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:21:37.369Z",
-      "id": "OtYmSefwbfg"
-    },
-    {
-      "module": "Detail Order - Status - 6_7kFvRFF4Y",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-24T09:52:14.025Z",
-      "id": "Izsxx20m3AU"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE status - 6Sfw7Khs2_k",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-25T02:53:47.701Z",
-      "id": "fS_e3f1tDss"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-25T02:53:59.366Z",
-      "id": "pf8Kmzawv6U"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-25T02:57:21.738Z",
-      "id": "bPi2_4YfL_E"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-25T02:58:55.117Z",
-      "id": "uazDTDxyshc"
-    },
-    {
-      "module": "Product",
-      "action": "UPDATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-25T07:49:33.987Z",
-      "id": "ZKb3krnlzk4"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-26T10:41:11.071Z",
-      "id": "wgXEHJy"
-    },
-    {
-      "module": "Customer",
-      "action": "CREATE",
-      "user": "Phạm Quang Tuấn",
-      "created_at": "2026-06-26T10:51:02.679Z",
-      "id": "LVD6lIM"
+      "created_at": "2026-06-30T09:16:08.723Z",
+      "id": 18
     }
   ],
   "product_variants": {
-    "SPMQQCOG1Y": [
-      {
-        "id": "SlCkhroyzcM",
-        "size": "XS",
-        "color": "black",
-        "price": 1000,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XS-BLK"
+    "SPMR0F3KTJ": {
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xs_mr0ew9bo-v_màu_sắc_1782809723840_en_mr0exhcn": {
+        "stock": 50
       },
-      {
-        "id": "9cl7Rcj4xZ0",
-        "size": "XS",
-        "color": "white",
-        "price": 1000,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XS-WHT"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xs_mr0ew9bo-v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe": {
+        "stock": 50
       },
-      {
-        "id": "Fcg4HlZ4yxA",
-        "size": "XS",
-        "color": "blue",
-        "price": 1000,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XS-BLU"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xs_mr0ew9bo-v_màu_sắc_1782809723840_be_mr0eyygk": {
+        "stock": 50
       },
-      {
-        "id": "S5k2k5H3S1Q",
-        "size": "XS",
-        "color": "red",
-        "price": 1000,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XS-RED"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xs_mr0ew9bo-v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz": {
+        "stock": 50
       },
-      {
-        "id": "FBG8Mw6bWLI",
-        "size": "S",
-        "color": "white",
-        "price": 1050,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-S-WHT"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xs_mr0ew9bo-v_màu_sắc_1782809723840_trang_mr0f0868": {
+        "stock": 50
       },
-      {
-        "id": "FRcOf4zQhFU",
-        "size": "S",
-        "color": "black",
-        "price": 1050,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-S-BLK"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_s_mr0ewgdv-v_màu_sắc_1782809723840_en_mr0exhcn": {
+        "stock": 50
       },
-      {
-        "id": "Kn9DZdqTBU0",
-        "size": "S",
-        "color": "blue",
-        "price": 1050,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-S-BLU"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_s_mr0ewgdv-v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe": {
+        "stock": 50
       },
-      {
-        "id": "F5lvVymOb7o",
-        "size": "S",
-        "color": "red",
-        "price": 1050,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-S-RED"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_s_mr0ewgdv-v_màu_sắc_1782809723840_be_mr0eyygk": {
+        "stock": 50
       },
-      {
-        "id": "5UzsZs-jO9g",
-        "size": "M",
-        "color": "black",
-        "price": 1100,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-M-BLK"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_s_mr0ewgdv-v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz": {
+        "stock": 50
       },
-      {
-        "id": "WbJdXohL1G8",
-        "size": "M",
-        "color": "white",
-        "price": 1100,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-M-WHT"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_s_mr0ewgdv-v_màu_sắc_1782809723840_trang_mr0f0868": {
+        "stock": 50
       },
-      {
-        "id": "PUv5MOBzv8U",
-        "size": "M",
-        "color": "blue",
-        "price": 1100,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-M-BLU"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_m_mr0ewmal-v_màu_sắc_1782809723840_en_mr0exhcn": {
+        "stock": 50
       },
-      {
-        "id": "3auEhn2jhsk",
-        "size": "M",
-        "color": "red",
-        "price": 1100,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-M-RED"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_m_mr0ewmal-v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe": {
+        "stock": 50
       },
-      {
-        "id": "wRAKF_dF0p0",
-        "size": "L",
-        "color": "black",
-        "price": 1150,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-L-BLK"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_m_mr0ewmal-v_màu_sắc_1782809723840_be_mr0eyygk": {
+        "stock": 50
       },
-      {
-        "id": "TLnhKjVrqTw",
-        "size": "L",
-        "color": "white",
-        "price": 1150,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-L-WHT"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_m_mr0ewmal-v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz": {
+        "stock": 50
       },
-      {
-        "id": "XXD4vSahJI8",
-        "size": "L",
-        "color": "red",
-        "price": 1150,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-L-RED"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_m_mr0ewmal-v_màu_sắc_1782809723840_trang_mr0f0868": {
+        "stock": 50
       },
-      {
-        "id": "sYOJOPGxmKk",
-        "size": "XL",
-        "color": "white",
-        "price": 1200,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XL-WHT"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_l_mr0ewtiw-v_màu_sắc_1782809723840_en_mr0exhcn": {
+        "stock": 50
       },
-      {
-        "id": "ivhm0uPohwk",
-        "size": "L",
-        "color": "blue",
-        "price": 1150,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-L-BLU"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_l_mr0ewtiw-v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe": {
+        "stock": 50
       },
-      {
-        "id": "3AxkQ9UUDxQ",
-        "size": "XL",
-        "color": "blue",
-        "price": 1200,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XL-BLU"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_l_mr0ewtiw-v_màu_sắc_1782809723840_be_mr0eyygk": {
+        "stock": 50
       },
-      {
-        "id": "bfUggemuOVU",
-        "size": "XL",
-        "color": "red",
-        "price": 1200,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XL-RED"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_l_mr0ewtiw-v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz": {
+        "stock": 48
       },
-      {
-        "id": "XmJHgMtAiAc",
-        "size": "XXL",
-        "color": "black",
-        "price": 1300,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XXL-BLK"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_l_mr0ewtiw-v_màu_sắc_1782809723840_trang_mr0f0868": {
+        "stock": 50
       },
-      {
-        "id": "xfPZ4DqUAWg",
-        "size": "XXL",
-        "color": "white",
-        "price": 1300,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XXL-WHT"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xl_mr0ewzhq-v_màu_sắc_1782809723840_en_mr0exhcn": {
+        "stock": 50
       },
-      {
-        "id": "prLldzpkAK0",
-        "size": "XXL",
-        "color": "blue",
-        "price": 1300,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XXL-BLU"
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xl_mr0ewzhq-v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe": {
+        "stock": 50
       },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xl_mr0ewzhq-v_màu_sắc_1782809723840_be_mr0eyygk": {
+        "stock": 50
+      },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xl_mr0ewzhq-v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz": {
+        "stock": 50
+      },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xl_mr0ewzhq-v_màu_sắc_1782809723840_trang_mr0f0868": {
+        "stock": 50
+      },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xxl_mr0ex4vc-v_màu_sắc_1782809723840_en_mr0exhcn": {
+        "stock": 50
+      },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xxl_mr0ex4vc-v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe": {
+        "stock": 0
+      },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xxl_mr0ex4vc-v_màu_sắc_1782809723840_be_mr0eyygk": {
+        "stock": 0
+      },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xxl_mr0ex4vc-v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz": {
+        "stock": 0
+      },
+      "v_chất_liệu_1782809731376_cotton_mr0f15qk-v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl-v_kích_cỡ_1782809714474_xxl_mr0ex4vc-v_màu_sắc_1782809723840_trang_mr0f0868": {
+        "stock": 50
+      }
+    },
+    "test_sku": {
+      "stock": 10
+    }
+  },
+  "$schema": "./node_modules/json-server/schema.json",
+  "attribute_titles": [
+    {
+      "id": "title_kích_cỡ_1782809714474",
+      "name": "Kích cỡ"
+    },
+    {
+      "id": "title_màu_sắc_1782809723840",
+      "name": "Màu sắc"
+    },
+    {
+      "id": "title_chất_liệu_1782809731376",
+      "name": "Chất liệu"
+    },
+    {
+      "id": "title_họa_tiết_1782809741352",
+      "name": "Họa tiết"
+    }
+  ],
+  "attribute_values": {
+    "title_kích_cỡ_1782809402900": [
       {
-        "id": "74szo7w5New",
-        "size": "XXL",
-        "color": "red",
-        "price": 1300,
-        "stock": 50,
-        "sku": "SPMQQCOG1Y-XXL-RED"
+        "id": "v_kích_cỡ_1782809402900_s_mr0esu3k",
+        "value": "S",
+        "price_modifier_amount": 0
       }
     ],
-    "SPMQQDVWFC": [
+    "title_kích_cỡ_1782809714474": [
       {
-        "id": "420d8430-6e71-4691-a59f-471132de5d89",
-        "size": "XS",
-        "color": "black",
-        "price": 1000,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-XS-BLK"
+        "id": "v_kích_cỡ_1782809714474_xs_mr0ew9bo",
+        "value": "XS",
+        "price_modifier_amount": 0
       },
       {
-        "id": "12b8d9dd-1fdc-4579-8d6b-504d8aaefefd",
-        "size": "XS",
-        "color": "white",
-        "price": 1000,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-XS-WHT"
+        "id": "v_kích_cỡ_1782809714474_s_mr0ewgdv",
+        "value": "S",
+        "price_modifier_amount": 5
       },
       {
-        "id": "62ea36ab-54c4-40e8-881f-5b2c11203f37",
-        "size": "S",
-        "color": "black",
-        "price": 1030,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-S-BLK"
+        "id": "v_kích_cỡ_1782809714474_m_mr0ewmal",
+        "value": "M",
+        "price_modifier_amount": 10
       },
       {
-        "id": "b8384725-d194-4295-b9e5-29f672130a46",
-        "size": "S",
-        "color": "white",
-        "price": 1030,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-S-WHT"
+        "id": "v_kích_cỡ_1782809714474_l_mr0ewtiw",
+        "value": "L",
+        "price_modifier_amount": 15
       },
       {
-        "id": "3e7870fc-1d32-4edf-a4de-684f122cf3c3",
-        "size": "M",
-        "color": "black",
-        "price": 1040,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-M-BLK"
+        "id": "v_kích_cỡ_1782809714474_xl_mr0ewzhq",
+        "value": "XL",
+        "price_modifier_amount": 20
       },
       {
-        "id": "c67907db-9910-4248-b6fe-ccfb45a1cdd8",
-        "size": "M",
-        "color": "white",
-        "price": 1040,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-M-WHT"
-      },
-      {
-        "id": "4fde96d3-821a-4669-9ba6-92415c0f4a4c",
-        "size": "L",
-        "color": "black",
-        "price": 1050,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-L-BLK"
-      },
-      {
-        "id": "def4a16e-3674-4be0-bab9-0b0a96887295",
-        "size": "L",
-        "color": "white",
-        "price": 1050,
-        "stock": 50,
-        "sku": "SPMQQDVWFC-L-WHT"
+        "id": "v_kích_cỡ_1782809714474_xxl_mr0ex4vc",
+        "value": "XXL",
+        "price_modifier_amount": 30
       }
     ],
-    "SPMQRREMCY": [
+    "title_màu_sắc_1782809723840": [
       {
-        "id": "1680c8bb-073f-4ce2-83b7-5c052d116268",
-        "size": "XS",
-        "color": "white",
-        "price": 1080,
-        "stock": 100,
-        "sku": "SPMQRREMCY-XS-WHT"
+        "id": "v_màu_sắc_1782809723840_en_mr0exhcn",
+        "value": "Đen",
+        "price_modifier_amount": 0
       },
       {
-        "id": "42b5eeae-7f43-4f77-af36-4e5e2b714e9b",
-        "size": "XS",
-        "color": "red",
-        "price": 1080,
-        "stock": 100,
-        "sku": "SPMQRREMCY-XS-RED"
+        "id": "v_màu_sắc_1782809723840_o_mr0exwio",
+        "value": "Đỏ",
+        "price_modifier_amount": 0
       },
       {
-        "id": "67a88a80-bf49-4dd4-9f44-664d54337a04",
-        "size": "S",
-        "color": "white",
-        "price": 1080,
-        "stock": 100,
-        "sku": "SPMQRREMCY-S-WHT"
+        "id": "v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe",
+        "value": "Xanh dương",
+        "price_modifier_amount": 5
       },
       {
-        "id": "5c3b13a8-aea1-400c-a5d9-676cda17b700",
-        "size": "S",
-        "color": "red",
-        "price": 1080,
-        "stock": 100,
-        "sku": "SPMQRREMCY-S-RED"
+        "id": "v_màu_sắc_1782809723840_be_mr0eyygk",
+        "value": "Be",
+        "price_modifier_amount": 10
+      },
+      {
+        "id": "v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz",
+        "value": "Xanh Navy",
+        "price_modifier_amount": 15
+      },
+      {
+        "id": "v_màu_sắc_1782809723840_hong_mr0ezhp1",
+        "value": "Hồng",
+        "price_modifier_amount": 5
+      },
+      {
+        "id": "v_màu_sắc_1782809723840_cam_mr0ezyda",
+        "value": "Cam",
+        "price_modifier_amount": 0
+      },
+      {
+        "id": "v_màu_sắc_1782809723840_tim_mr0f025s",
+        "value": "Tím",
+        "price_modifier_amount": 0
+      },
+      {
+        "id": "v_màu_sắc_1782809723840_trang_mr0f0868",
+        "value": "Trắng",
+        "price_modifier_amount": 0
+      },
+      {
+        "id": "v_màu_sắc_1782809723840_vang_mr0f0grm",
+        "value": "Vàng",
+        "price_modifier_amount": 0
+      },
+      {
+        "id": "v_màu_sắc_1782809723840_xanh_la_mr0f0wid",
+        "value": "Xanh lá",
+        "price_modifier_amount": 5
       }
     ],
-    "SPMQRUOM9X": [
+    "title_chất_liệu_1782809731376": [
       {
-        "id": "2637b784-4725-48ff-8077-3f5f2fe01c85",
-        "size": "XS",
-        "color": "white",
-        "price": 3499,
-        "stock": 30,
-        "sku": "SPMQRUOM9X-XS-WHT"
+        "id": "v_chất_liệu_1782809731376_cotton_mr0f15qk",
+        "value": "Cotton",
+        "price_modifier_amount": 10
       },
       {
-        "id": "8ee0a56a-1f0e-4bdd-a598-692d1eac1e67",
-        "size": "XS",
-        "color": "black",
-        "price": 2999,
-        "stock": 20,
-        "sku": "SPMQRUOM9X-XS-BLK"
+        "id": "v_chất_liệu_1782809731376_long_cuu_mr0f1hyv",
+        "value": "Lông cừu",
+        "price_modifier_amount": 20
       },
       {
-        "id": "a6a76c14-aca0-45ad-8a46-c119754133fc",
-        "size": "S",
-        "color": "white",
-        "price": 3499,
-        "stock": 30,
-        "sku": "SPMQRUOM9X-S-WHT"
+        "id": "v_chất_liệu_1782809731376_lua_mr0f2hcy",
+        "value": "Lụa",
+        "price_modifier_amount": 5
+      }
+    ],
+    "title_họa_tiết_1782809741352": [
+      {
+        "id": "v_họa_tiết_1782809741352_ai_bang_mr0f2rt6",
+        "value": "Đại bàng",
+        "price_modifier_amount": 10
       },
       {
-        "id": "258434ab-fa28-4c6f-afcf-819365969ba5",
-        "size": "S",
-        "color": "black",
-        "price": 2999,
-        "stock": 20,
-        "sku": "SPMQRUOM9X-S-BLK"
+        "id": "v_họa_tiết_1782809741352_soc_ke_mr0f31qr",
+        "value": "Sọc kẻ",
+        "price_modifier_amount": 0
       },
       {
-        "id": "c52cbf6b-e2ff-4fee-9a5a-55a5c1d60152",
-        "size": "M",
-        "color": "white",
-        "price": 3499,
-        "stock": 30,
-        "sku": "SPMQRUOM9X-M-WHT"
-      },
-      {
-        "id": "c456ef9a-fd08-4a0b-8cfa-b783af5a9c36",
-        "size": "M",
-        "color": "black",
-        "price": 2999,
-        "stock": 0,
-        "sku": "SPMQRUOM9X-M-BLK"
+        "id": "v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl",
+        "value": "Không họa tiết",
+        "price_modifier_amount": 0
       }
     ]
   },
-  "$schema": "./node_modules/json-server/schema.json"
+  "product_attributes_details": {
+    "SPMR0F3KTJ": {
+      "title_kích_cỡ_1782809714474": {
+        "name": "Kích cỡ",
+        "values": [
+          {
+            "id": "v_kích_cỡ_1782809714474_xs_mr0ew9bo",
+            "value": "XS",
+            "price_modifier_amount": 0
+          },
+          {
+            "id": "v_kích_cỡ_1782809714474_s_mr0ewgdv",
+            "value": "S",
+            "price_modifier_amount": 5
+          },
+          {
+            "id": "v_kích_cỡ_1782809714474_m_mr0ewmal",
+            "value": "M",
+            "price_modifier_amount": 10
+          },
+          {
+            "id": "v_kích_cỡ_1782809714474_l_mr0ewtiw",
+            "value": "L",
+            "price_modifier_amount": 15
+          },
+          {
+            "id": "v_kích_cỡ_1782809714474_xl_mr0ewzhq",
+            "value": "XL",
+            "price_modifier_amount": 20
+          },
+          {
+            "id": "v_kích_cỡ_1782809714474_xxl_mr0ex4vc",
+            "value": "XXL",
+            "price_modifier_amount": 30
+          }
+        ]
+      },
+      "title_màu_sắc_1782809723840": {
+        "name": "Màu sắc",
+        "values": [
+          {
+            "id": "v_màu_sắc_1782809723840_en_mr0exhcn",
+            "value": "Đen",
+            "price_modifier_amount": 0
+          },
+          {
+            "id": "v_màu_sắc_1782809723840_xanh_duong_mr0eyhwe",
+            "value": "Xanh dương",
+            "price_modifier_amount": 5
+          },
+          {
+            "id": "v_màu_sắc_1782809723840_be_mr0eyygk",
+            "value": "Be",
+            "price_modifier_amount": 10
+          },
+          {
+            "id": "v_màu_sắc_1782809723840_xanh_navy_mr0ez8rz",
+            "value": "Xanh Navy",
+            "price_modifier_amount": 15
+          },
+          {
+            "id": "v_màu_sắc_1782809723840_trang_mr0f0868",
+            "value": "Trắng",
+            "price_modifier_amount": 0
+          }
+        ]
+      },
+      "title_chất_liệu_1782809731376": {
+        "name": "Chất liệu",
+        "values": [
+          {
+            "id": "v_chất_liệu_1782809731376_cotton_mr0f15qk",
+            "value": "Cotton",
+            "price_modifier_amount": 10
+          }
+        ]
+      },
+      "title_họa_tiết_1782809741352": {
+        "name": "Họa tiết",
+        "values": [
+          {
+            "id": "v_họa_tiết_1782809741352_khong_hoa_tiet_mr0f3asl",
+            "value": "Không họa tiết",
+            "price_modifier_amount": 0
+          }
+        ]
+      }
+    }
+  }
 }

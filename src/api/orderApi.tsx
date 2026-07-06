@@ -9,6 +9,7 @@ import type {
 import type { AxiosResponse } from "axios";
 import axiosClient from "./axiosClient";
 import callApiWithRetries from "./callApiWithRetries";
+import { generateCombinationKey } from "../utils/variantEngine";
 
 const getNextOrderCode = (orders: OrderType[]) => {
   const nextNumber =
@@ -59,18 +60,78 @@ const getProductVariants = (product: DataType) =>
 
 const getVariant = (
   product: DataType,
-  item: Pick<CreateOrderItemValues, "size" | "color">,
-) =>
-  getProductVariants(product).find(
-    (variant) =>
-      String(variant.size) === String(item.size) &&
-      String(variant.color) === String(item.color),
-  );
+  item: Pick<CreateOrderItemValues, "size" | "color" | "attributes">,
+) => {
+  const selectedAttrs = item.attributes ?? {};
 
-const getOrderItemKey = (item: CreateOrderItemValues) =>
-  [item.product_id, item.size, item.color]
+  // New dynamic N-attribute system
+  if (product.variant_map && Object.keys(product.variant_map).length > 0) {
+    const attributeGroups = product.attribute_groups ?? [];
+    const valueIds = attributeGroups
+      .map((g) => selectedAttrs[g.titleId])
+      .filter(Boolean);
+
+    const comboKey = generateCombinationKey(valueIds);
+    const stockData = product.variant_map[comboKey ?? ""];
+    if (!stockData) return undefined;
+
+    // Calculate final price: basePrice + sum of modifiers
+    const basePrice = Number(product.basePrice ?? product.price ?? 0);
+    let price = basePrice;
+    if (product.attribute_groups) {
+      const modifierMap = new Map<string, number>();
+      for (const g of product.attribute_groups) {
+        for (const v of g.values) {
+          modifierMap.set(v.id, v.price_modifier_amount);
+        }
+      }
+      price += valueIds.reduce((sum, id) => sum + (modifierMap.get(id) ?? 0), 0);
+    }
+
+    // Build label string
+    const labelMap = new Map<string, string>();
+    if (product.attribute_groups) {
+      for (const g of product.attribute_groups) {
+        for (const v of g.values) {
+          labelMap.set(v.id, v.value);
+        }
+      }
+    }
+    const labelStr = valueIds.map((id) => labelMap.get(id) ?? id).join(" / ");
+
+    return {
+      size: labelStr,
+      color: "Default",
+      price: price,
+      stock: stockData.stock,
+      sku: product.sku,
+      comboKey: comboKey, // Pass comboKey through for stock deduction
+    };
+  }
+
+  // Legacy system
+  const size = selectedAttrs["size"] ?? item.size;
+  const color = selectedAttrs["color"] ?? item.color;
+
+  return getProductVariants(product).find(
+    (variant) =>
+      String(variant.size) === String(size) &&
+      String(variant.color) === String(color),
+  );
+};
+
+const getOrderItemKey = (item: CreateOrderItemValues) => {
+  if (item.attributes) {
+    const attrKeys = Object.entries(item.attributes)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([k, v]) => `${k}:${v}`)
+      .join(",");
+    return `${item.product_id}|attrs:${attrKeys}`;
+  }
+  return [item.product_id, item.size, item.color]
     .map((value) => String(value))
     .join("|");
+};
 
 export type PaginatedOrders = {
   data: OrderType[];
@@ -127,7 +188,7 @@ export const CreateOrder = async (
 
   const groupedItems = Array.from(
     (values.items ?? [])
-      .filter((item) => item.product_id && item.size && item.color)
+      .filter((item) => item.product_id && (item.attributes || (item.size && item.color)))
       .reduce((acc, item) => {
         const key = getOrderItemKey(item);
         const current = acc.get(key);
@@ -182,6 +243,7 @@ export const CreateOrder = async (
       image: getFirstImage(product.image),
       quantity,
       price: Number(variant.price),
+      comboKey: (variant as any).comboKey, // Pass comboKey through for stock deduction
     };
   });
 
@@ -223,11 +285,41 @@ export const CreateOrder = async (
     orderItems.some((item) => String(item.product_id) === String(product.id)),
   );
 
-  await Promise.all(
-    affectedProducts.map((product) => {
-      const productOrderItems = orderItems.filter(
-        (item) => String(item.product_id) === String(product.id),
+  for (const product of affectedProducts) {
+    const productOrderItems = orderItems.filter(
+      (item) => String(item.product_id) === String(product.id),
+    );
+
+    const isNewSystem = !!product.variant_map && Object.keys(product.variant_map).length > 0;
+
+    if (isNewSystem) {
+      // ── New dynamic N-attribute system ──
+      // 1. Deduct stock from the dynamic variant_map
+      const updatedVariantMap = { ...product.variant_map };
+      for (const item of productOrderItems) {
+        const comboKey = item.comboKey;
+        if (comboKey && updatedVariantMap[comboKey]) {
+          updatedVariantMap[comboKey] = {
+            stock: Math.max(0, updatedVariantMap[comboKey].stock - item.quantity),
+          };
+        }
+      }
+
+      // 2. Sum up total stock
+      const totalStock = Object.values(updatedVariantMap).reduce(
+        (sum, v) => sum + v.stock,
+        0,
       );
+
+      // 3. Update both /products and /product_variants sequentially
+      await axiosClient.patch(`/products/${product.id}`, {
+        stock: totalStock,
+      });
+      await axiosClient.patch("/product_variants", {
+        [product.sku]: updatedVariantMap,
+      });
+    } else {
+      // ── Legacy system ──
       const variants = product.variants?.length
         ? product.variants.map((variant) => {
             const orderedQuantity = productOrderItems
@@ -252,12 +344,12 @@ export const CreateOrder = async (
             0,
           );
 
-      return axiosClient.patch(`/products/${product.id}`, {
+      await axiosClient.patch(`/products/${product.id}`, {
         stock,
         variants,
       });
-    }),
-  );
+    }
+  }
 
   return res.data;
 };

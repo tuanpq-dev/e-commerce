@@ -8,7 +8,20 @@
     "save": "Lưu",
     "confirm": "Xác nhận",
     "success": "Thành công",
-    "failed": "Thất bại"
+    "failed": "Thất bại",
+    "name": "Tên",
+    "updateAvatar": "Cập nhật ảnh nền"
+  },
+  "sider": {
+    "Dashboard": "Biểu đồ",
+    "Product": "Sản phẩm",
+    "Category": "Danh mục",
+    "Order": "Đơn hàng",
+    "Customer": "Khách hàng",
+    "Active": "Hành động",
+    "Profile": "Thông tin cá nhân",
+    "AttributePool": "Thuộc tính sản phẩm",
+    "ProductAttributes": "Quản lý thuộc tính sản phẩm"
   },
   "product": {
     "columns": {
@@ -116,7 +129,8 @@
       "cream": "Kem",
       "gold": "Vàng kim",
       "silver": "Bạc"
-    }
+    },
+    "pagination": "Hiển thị {{count}} sản phẩm trên tổng số {{total}} kết quả"
   },
   "order": {
     "title": "Thêm mới đơn hàng",
@@ -135,6 +149,7 @@
     "product": "Sản phẩm",
     "size": "Size",
     "color": "Màu",
+    "variant": "Biến thể",
     "quantity": "Số lượng",
     "unitPrice": "Đơn giá",
     "stock": "Tồn kho",
@@ -182,6 +197,7 @@
       "productRequired": "Vui lòng chọn sản phẩm",
       "sizeRequired": "Vui lòng chọn size",
       "colorRequired": "Vui lòng chọn màu",
+      "variantRequired": "Vui lòng chọn biến thể",
       "quantityRequired": "Vui lòng nhập số lượng",
       "quantityMin": "Số lượng tối thiểu là 1",
       "stockLimit": "Tồn kho còn {{stock}}",
@@ -206,11 +222,13 @@
         "productName": "Tên sản phẩm",
         "size": "Size",
         "color": "Màu",
+        "attributes": "Thuộc tính",
         "quantity": "Số lượng",
         "price": "Giá",
         "total": "Tổng tiền"
       }
-    }
+    },
+    "pagination": "Hiển thị {{count}} đơn hàng trên tổng số {{total}} kết quả"
   },
   "customer": {
     "titleCreate": "Thêm mới khách hàng",
@@ -257,7 +275,8 @@
       "notFound": "Không tìm thấy khách hàng",
       "orderCreatedAt": "Ngày tạo đơn",
       "orderList": "Danh sách đơn hàng"
-    }
+    },
+    "pagination": "Hiển thị {{count}} khách hàng trên tổng số {{total}} kết quả"
   },
   "category": {
     "titleCreateParent": "Thêm mới danh mục cha",
@@ -300,7 +319,8 @@
       "childNameMin": "Tên danh mục con tối thiểu 1 ký tự",
       "childNameMax": "Tên danh mục con tối đa 30 ký tự",
       "parentRequired": "Vui lòng chọn danh mục cha"
-    }
+    },
+    "pagination": "Hiển thị {{count}} danh mục trên tổng số {{total}} kết quả"
   },
   "activeLog": {
     "columns": {
@@ -308,7 +328,8 @@
       "user": "Người dùng",
       "module": "Phân hệ",
       "action": "Hành động"
-    }
+    },
+    "pagination": "Hiển thị {{count}} bản ghi trên tổng số {{total}} kết quả"
   },
   "dashboard": {
     "stats": {

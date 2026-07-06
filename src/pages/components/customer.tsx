@@ -313,7 +313,7 @@ const Customer: React.FC = () => {
             showSizeChanger: true,
             pageSizeOptions: ["5", "10", "20", "50"],
             showTotal: (total, range) =>
-              `Hiển thị ${range[1] - range[0] + 1} khách hàng trên tổng số ${total} kết quả`,
+              t("customer.pagination", { count: range[1] - range[0] + 1, total }),
             onChange: (page, size) => {
               setSearchParams({
                 _page: String(page),

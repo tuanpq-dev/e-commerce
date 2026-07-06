@@ -4,6 +4,7 @@ import { Flex, Grid, Image, Input, Select, Space, Table } from "antd";
 import type { TableProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import type {
+  AttributeTitle,
   CategoryType,
   DataType,
   ProductInitialValues,
@@ -18,6 +19,7 @@ import {
   UpdateProduct,
   UpdateStatusProduct,
 } from "../../api/productApi";
+import { GetAttributeTitles, GetAllAttributeValues } from "../../api/attributeApi";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { GetCategories } from "../../api/categoryApi";
 import AntButton from "../../@crema/component/AntButton";
@@ -59,19 +61,36 @@ const formatProductPrice = (record: DataType) => {
 };
 
 const formatProductVariants = (record: DataType) => {
+  // ── Cấu trúc mới: hiển thị tổ hợp từ variant_map ────────────────
+  if (record.variant_map) {
+    const keys = Object.keys(record.variant_map);
+    if (!keys.length) return "Chưa có tổ hợp";
+    if (keys.length > 4) return `${keys.length} tổ hợp`;
+
+    // Dùng value labels từ attribute_groups nếu có
+    if (record.attribute_groups?.length) {
+      const labelMap = new Map<string, string>();
+      for (const g of record.attribute_groups) {
+        for (const v of g.values) labelMap.set(v.id, v.value);
+      }
+      return keys
+        .slice(0, 4)
+        .map((key) =>
+          key
+            .split("-")
+            .map((id) => labelMap.get(id) ?? id)
+            .join(" / "),
+        )
+        .join(", ");
+    }
+    return keys.slice(0, 4).join(", ");
+  }
+
+  // ── Legacy: hiển thị variants[] ────────────────────────────────
   const variants = getProductVariants(record);
-
-  if (!variants.length) {
-    return "Default";
-  }
-
-  if (variants.length > 3) {
-    return `${variants.length} variants`;
-  }
-
-  return variants
-    .map((variant) => `${variant.size}/${variant.color}`)
-    .join(", ");
+  if (!variants.length) return "Default";
+  if (variants.length > 3) return `${variants.length} variants`;
+  return variants.map((v) => `${v.size}/${v.color}`).join(", ");
 };
 
 const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
@@ -105,6 +124,8 @@ const Product: React.FC = () => {
   const [product, setProduct] = useState<DataType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState<CategoryType[]>([]);
+  const [attributeTitles, setAttributeTitles] = useState<AttributeTitle[]>([]);
+  const [attributeValuePool, setAttributeValuePool] = useState<Record<string, import("../../types/domain").AttributeValueItem[]>>({});
   const { isAdmin } = UserPermission();
 
   // ─── Pagination đồng bộ URL ───────────────────────────
@@ -168,6 +189,12 @@ const Product: React.FC = () => {
   useEffect(() => {
     GetCategories()
       .then((res) => setCategory(res.data))
+      .catch(console.error);
+    Promise.all([GetAttributeTitles(), GetAllAttributeValues()])
+      .then(([titles, pool]) => {
+        setAttributeTitles(titles);
+        setAttributeValuePool(pool ?? {});
+      })
       .catch(console.error);
   }, []);
 
@@ -237,14 +264,12 @@ const Product: React.FC = () => {
 
     setIsDeleting(true);
 
-    await Promise.all([
-      DeleteProduct(rowData.id),
-      CreateActiveLog({
-        module: "Product",
-        action: "DELETE",
-        user: userInfo?.name,
-      }),
-    ]);
+    await DeleteProduct(rowData.id);
+    await CreateActiveLog({
+      module: "Product",
+      action: "DELETE",
+      user: userInfo?.name,
+    });
 
     await fetchProducts();
     setIsDeleting(false);
@@ -271,19 +296,19 @@ const Product: React.FC = () => {
       selectedColors: values.selectedColors,
       variants: values.variants,
       description: values.description || "",
+      attribute_groups: values.attribute_groups,
+      variant_map: values.variant_map,
     });
   };
 
   const handleChangeStatus = async (status: string, id: number | string) => {
     try {
-      await Promise.all([
-        UpdateStatusProduct(status, id),
-        CreateActiveLog({
-          module: "Product",
-          action: `UPDATE status - ${id}`,
-          user: userInfo?.name,
-        }),
-      ]);
+      await UpdateStatusProduct(status, id);
+      await CreateActiveLog({
+        module: "Product",
+        action: `UPDATE status - ${id}`,
+        user: userInfo?.name,
+      });
       await fetchProducts();
       openNotification("success", {
         message: t("common.success"),
@@ -439,14 +464,12 @@ const Product: React.FC = () => {
         return;
       }
 
-      await Promise.all([
-        UpdateProduct({ ...values, id: rowData.id }),
-        CreateActiveLog({
-          module: "Product",
-          action: "UPDATE",
-          user: userInfo?.name,
-        }),
-      ]);
+      await UpdateProduct({ ...values, id: rowData.id });
+      await CreateActiveLog({
+        module: "Product",
+        action: "UPDATE",
+        user: userInfo?.name,
+      });
 
       await fetchProducts();
       setIsOpenModal(false);
@@ -458,14 +481,12 @@ const Product: React.FC = () => {
         description: t("product.notification.updateSuccess"),
       });
     } else {
-      await Promise.all([
-        CreateProduct(values),
-        CreateActiveLog({
-          module: "Product",
-          action: "CREATE",
-          user: userInfo?.name,
-        }),
-      ]);
+      await CreateProduct(values);
+      await CreateActiveLog({
+        module: "Product",
+        action: "CREATE",
+        user: userInfo?.name,
+      });
 
       await fetchProducts();
       setIsOpenModal(false);
@@ -536,7 +557,7 @@ const Product: React.FC = () => {
               showSizeChanger: true,
               pageSizeOptions: ["5", "10", "20", "50"],
               showTotal: (total, range) =>
-                `Hiển thị ${range[1] - range[0] + 1} sản phẩm trên tổng số ${total} kết quả`,
+                t("product.pagination", { count: range[1] - range[0] + 1, total }),
               onChange: (page, size) => {
                 setSearchParams({
                   _page: String(page),
@@ -556,6 +577,8 @@ const Product: React.FC = () => {
         onCancel={handleCancel}
         isUpdate={isUpdate}
         options={category}
+        attributeTitles={attributeTitles}
+        attributeValuePool={attributeValuePool}
       />
 
       <ModalConfirm

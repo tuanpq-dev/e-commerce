@@ -2,13 +2,26 @@
   "common": {
     "add": "Add",
     "update": "Update",
+    "updateAvatar": "Update Avatar",
     "delete": "Delete",
     "search": "Search",
     "cancel": "Cancel",
     "save": "Save",
     "confirm": "Confirm",
     "success": "Success",
-    "failed": "Failed"
+    "failed": "Failed",
+    "name": "Name"
+  },
+  "sider": {
+    "Dashboard": "Dashboard",
+    "Product": "Product",
+    "Category": "Category",
+    "Order": "Order",
+    "Customer": "Customer",
+    "Active": "Active",
+    "Profile": "Profile",
+    "AttributePool": "Attribute Pool",
+    "ProductAttributes": "Product Attribute Management"
   },
   "product": {
     "columns": {
@@ -114,7 +127,8 @@
       "cream": "Cream",
       "gold": "Gold",
       "silver": "Silver"
-    }
+    },
+    "pagination": "Showing {{count}} products out of {{total}} results"
   },
   "order": {
     "title": "Create Order",
@@ -133,6 +147,7 @@
     "product": "Product",
     "size": "Size",
     "color": "Color",
+    "variant": "Variant",
     "quantity": "Quantity",
     "unitPrice": "Unit Price",
     "stock": "Stock",
@@ -180,6 +195,7 @@
       "productRequired": "Please select a product",
       "sizeRequired": "Please select a size",
       "colorRequired": "Please select a color",
+      "variantRequired": "Please select a variant",
       "quantityRequired": "Please enter quantity",
       "quantityMin": "Minimum quantity is 1",
       "stockLimit": "Only {{stock}} items in stock",
@@ -204,11 +220,13 @@
         "productName": "Product Name",
         "size": "Size",
         "color": "Color",
+        "attributes": "Attributes",
         "quantity": "Quantity",
         "price": "Price",
         "total": "Total"
       }
-    }
+    },
+    "pagination": "Showing {{count}} orders out of {{total}} results"
   },
   "customer": {
     "titleCreate": "Add Customer",
@@ -255,7 +273,8 @@
       "notFound": "Customer not found",
       "orderCreatedAt": "Order Created At",
       "orderList": "Order List"
-    }
+    },
+    "pagination": "Showing {{count}} customers out of {{total}} results"
   },
   "category": {
     "titleCreateParent": "Add Parent Category",
@@ -298,7 +317,8 @@
       "childNameMin": "Subcategory name must be at least 1 character",
       "childNameMax": "Subcategory name must be at most 30 characters",
       "parentRequired": "Please select parent category"
-    }
+    },
+    "pagination": "Showing {{count}} categories out of {{total}} results"
   },
   "activeLog": {
     "columns": {
@@ -306,7 +326,8 @@
       "user": "User",
       "module": "Module",
       "action": "Action"
-    }
+    },
+    "pagination": "Showing {{count}} records out of {{total}} results"
   },
   "dashboard": {
     "stats": {

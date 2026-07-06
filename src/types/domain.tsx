@@ -1,3 +1,49 @@
+// ═══════════════════════════════════════════════════════
+//  THUỘC TÍNH ĐỘNG (N-attribute system)
+// ═══════════════════════════════════════════════════════
+
+/** Nhóm tên thuộc tính toàn hệ thống, lưu trong /attribute_titles */
+export type AttributeTitle = {
+  id: string;    // "title_size"
+  name: string;  // "Size"
+};
+
+/** Một giá trị thuộc tính cụ thể kèm modifier giá */
+export type AttributeValueItem = {
+  id: string;                    // "v_m"
+  value: string;                 // "M"
+  price_modifier_amount: number; // ±VNĐ so với base_price
+};
+
+/** Một nhóm thuộc tính của sản phẩm (Size, Màu, ...) kèm danh sách giá trị */
+export type AttributeGroup = {
+  titleId: string;               // "title_size"
+  name: string;                  // "Size"
+  values: AttributeValueItem[];
+};
+
+/**
+ * Map lưu trữ chi tiết nhóm thuộc tính của từng sản phẩm.
+ * Key = titleId, Value = { name, values[] }
+ * Lưu tại endpoint /product_attributes_details
+ */
+export type ProductAttributesDetails = Record<
+  string,
+  { name: string; values: AttributeValueItem[] }
+>;
+
+/**
+ * Map lưu stock theo combination key.
+ * Key = sort(value_ids).join("-"),  ví dụ "v_m-v_red"
+ * Lưu tại endpoint /product_variants
+ */
+export type VariantCombinationMap = Record<string, { stock: number }>;
+
+// ═══════════════════════════════════════════════════════
+//  VARIANT CŨ (giữ lại để backward-compat với code API cũ)
+// ═══════════════════════════════════════════════════════
+
+
 export type ProductVariant = {
   id?: string | number;
   product_id?: string;
@@ -21,7 +67,15 @@ export interface DataType {
   price: number;
   stock: number;
   basePrice?: number;
+  /** [MỚI] ID các nhóm thuộc tính sản phẩm này dùng, ví dụ ["title_size", "title_color"] */
+  attribute_title_ids?: string[];
+  /** [MỚI] Chi tiết nhóm thuộc tính đã được merge vào product khi fetch */
+  attribute_groups?: AttributeGroup[];
+  /** [MỚI] Map stock theo combination key, đã được merge vào product khi fetch */
+  variant_map?: VariantCombinationMap;
+  /** [LEGACY] selectedSizes — giữ để backward compat */
   selectedSizes?: string[];
+  /** [LEGACY] selectedColors — giữ để backward compat */
   selectedColors?: string[];
   status?: string;
   description?: string;
@@ -44,6 +98,11 @@ export type ProductInitialValues = {
   price?: number | string;
   stock?: number | string;
   basePrice?: number | string;
+  /** [MỚI] Danh sách nhóm thuộc tính động */
+  attribute_groups?: AttributeGroup[];
+  /** [MỚI] Map stock theo combination key */
+  variant_map?: VariantCombinationMap;
+  /** [LEGACY] */
   selectedSizes?: string[];
   selectedColors?: string[];
   description?: string;
@@ -104,6 +163,7 @@ export type CreateOrderItemValues = {
   size?: string;
   color?: string;
   quantity: number | string;
+  attributes?: Record<string, string>;
 };
 
 export type CreateOrderValues = {

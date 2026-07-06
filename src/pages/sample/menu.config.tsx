@@ -5,6 +5,7 @@ import {
   OrderedListOutlined,
   ProductOutlined,
   SettingOutlined,
+  TagsOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import config from "../../config";
@@ -19,6 +20,16 @@ export const menuConfig = [
     icon: <ProductOutlined />,
     path: config.routes.PRODUCT_MANAGEMENT,
     label: "Product",
+  },
+  {
+    icon: <TagsOutlined />,
+    path: config.routes.ATTRIBUTE_MANAGEMENT,
+    label: "AttributePool",
+  },
+  {
+    icon: <TagsOutlined />,
+    path: config.routes.PRODUCT_ATTRIBUTE_MANAGEMENT,
+    label: "ProductAttributes",
   },
   {
     icon: <FolderOpenOutlined />,

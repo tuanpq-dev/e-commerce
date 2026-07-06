@@ -6,21 +6,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { menuConfig } from "../../../pages/sample/menu.config";
 import { useThemeMode } from "../../../contexts/ThemeContext";
+import { useTranslation } from "react-i18next";
 
 type AppLayoutProps = React.PropsWithChildren;
 
 const siderStyle: React.CSSProperties = {
   textAlign: "center",
-  lineHeight: "120px",
+  lineHeight: "120px",  
   color: "#fff",
   backgroundColor: "var(--app-surface-muted)",
 };
-
-const MenuHorizontal: MenuProps["items"] = menuConfig.map((item) => ({
-  key: item.path,
-  label: `${item.label}`,
-  icon: item.icon,
-}));
 
 const menuStyle: React.CSSProperties = {
   minWidth: 0,
@@ -56,6 +51,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const selectedKey = location.pathname.split("/")[1];
   const { Sider } = Layout;
   const { mode } = useThemeMode();
+  const { t } = useTranslation();
+
+  const MenuHorizontal: MenuProps["items"] = menuConfig.map((item) => ({
+    key: item.path,
+    label: t(`sider.${item.label}`),
+    icon: item.icon,
+  }));
 
   const handleRedirect = (key: string) => {
     navigate(`/${key}`);
