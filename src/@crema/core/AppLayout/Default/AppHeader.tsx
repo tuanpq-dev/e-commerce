@@ -6,7 +6,6 @@ import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import config from "../../../../config";
-import { LogoutApi } from "../../../../services/auth.service";
 import { useAuth } from "../../../../contexts/AuthContext";
 import ThemeToggle from "../../../component/ThemeToggle";
 import LanguageToggle from "../../../component/LanguageToggle";
@@ -21,6 +20,7 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
   const userName = userInfo?.name ?? "You";
+  const { logout } = useAuth();
 
   const headerStyle = {
     alignItems: "center",
@@ -46,7 +46,7 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
 
   const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
     if (key === "logout") {
-      LogoutApi();
+      logout()
       navigate("/");
     } else {
       navigate(`/${key}`);

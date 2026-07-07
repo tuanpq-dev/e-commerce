@@ -212,6 +212,12 @@ export type LoginPayload = {
   password: string;
 };
 
+export type RegisterPayload = {
+  email: string;
+  password: string;
+  name: string;
+};
+
 export type UpdateStatusValues = {
   id: string | number;
   status: string;
