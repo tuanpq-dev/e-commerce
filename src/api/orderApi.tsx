@@ -139,27 +139,24 @@ export type PaginatedOrders = {
 };
 
 export const GetOrders = async (
-  page?: number,
-  pageSize?: number,
-  search?: string,
 ): Promise<PaginatedOrders> => {
   // json-server v0.17: dùng _sort + _order thay vì prefix "-"
-  const params: Record<string, string | number> = {
-    _sort: "created_at",
-    _order: "desc",
-  };
-  if (page !== undefined) {
-    params._page = page;
-  }
-  if (pageSize !== undefined) {
-    params._limit = pageSize;
-  }
-  if (search && search.trim()) {
-    params.q = search.trim();
-  }
+  // const params: Record<string, string | number> = {
+  //   _sort: "created_at",
+  //   _order: "desc",
+  // };
+  // if (page !== undefined) {
+  //   params._page = page;
+  // }
+  // if (pageSize !== undefined) {
+  //   params._limit = pageSize;
+  // }
+  // if (search && search.trim()) {
+  //   params.q = search.trim();
+  // }
 
   // Dùng axiosClient trực tiếp để đọc header X-Total-Count
-  const response = await axiosClient.get<OrderType[]>("/orders", { params }) as AxiosResponse<OrderType[]>;
+  const response = await axiosClient.get<OrderType[]>("/order") as AxiosResponse<OrderType[]>;
 
   const data: OrderType[] = response.data ?? [];
   const items: number = Number(response.headers["x-total-count"]) || data.length;
@@ -168,7 +165,7 @@ export const GetOrders = async (
 };
 
 export const GetOrderById = async (id: string | number) => {
-  const data = await callApiWithRetries({ url: `/orders/${id}` });
+  const data = await axiosClient.get(`/order/${id}`)
   return data;
 };
 

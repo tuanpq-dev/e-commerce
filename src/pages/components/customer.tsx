@@ -25,6 +25,7 @@ import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { useTranslation } from "react-i18next";
+import axiosClient from "../../api/axiosClient";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 5;
@@ -79,28 +80,28 @@ const Customer: React.FC = () => {
   const fetchCustomer = async () => {
     setIsLoading(true);
     try {
-      const [customers, orders] = await Promise.all([
-        GetCustomers(currentPage, pageSize, searchQuery),
-        GetOrders(),
-      ]);
-      const orderList: OrderType[] = orders.data ?? [];
-      const data = (customers.data ?? []).map((customer: CustomerType) => {
-        const customerOrders = orderList.filter(
-          (order) => String(order.customer_id) === String(customer.id),
-        );
-        const totalExpend = customerOrders.reduce((total, order) => {
-          return total + Number(order.total_price ?? 0);
-        }, 0);
+      const customers = await axiosClient.get('/customer')
+      // const [orders] = await Promise.all([
+      //   GetOrders(),
+      // ]);
+      // const orderList: OrderType[] = orders.data ?? [];
+      // const data = (customers.data ?? []).map((customer: CustomerType) => {
+      //   const customerOrders = orderList.filter(
+      //     (order) => String(order.customer_id) === String(customer.id),
+      //   );
+      //   const totalExpend = customerOrders.reduce((total, order) => {
+      //     return total + Number(order.total_price ?? 0);
+      //   }, 0);
 
-        return {
-          ...customer,
-          total_orders: customerOrders.length,
-          total_expend: totalExpend,
-        };
-      });
+      //   return {
+      //     ...customer,
+      //     total_orders: customerOrders.length,
+      //     total_expend: totalExpend,
+      //   };
+      // });
 
-      setDataCustomer(data);
-      setTotalItems(customers.items);
+      setDataCustomer(customers.data);
+      // setTotalItems(customers.items);
     } catch (err) {
       console.log(err);
     } finally {
@@ -233,14 +234,14 @@ const Customer: React.FC = () => {
     },
     {
       title: t("customer.columns.totalOrders"),
-      dataIndex: "total_orders",
+      dataIndex: "totalOrders",
       key: "total_orders",
       align: "center",
       width: 100,
     },
     {
       title: t("customer.columns.totalExpend"),
-      dataIndex: "total_expend",
+      dataIndex: "totalExpend",
       key: "total_expend",
       align: "center",
       width: 100,

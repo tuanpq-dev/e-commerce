@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         payload,
         { withCredentials: true },
       );
-      const { accessToken, user } = res.data;
+      const { accessToken, user } = await res.data;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));

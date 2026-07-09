@@ -4,24 +4,21 @@ import type { TableProps } from "antd";
 import type { CategoryType } from "../../types/domain";
 import {
   CreateCategory,
-  CreateCategoryChild,
   DeleteCategory,
-  GetCategories,
   UpdateCategory,
 } from "../../api/categoryApi";
 import { ModalCategory, ModalCategoryChild } from "../modal";
 import { useState, useCallback, useEffect } from "react";
-import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import openNotification from "../../@crema/core/Notification";
 import AntButton from "../../@crema/component/AntButton";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import config from "../../config";
+import {  useSearchParams } from "react-router-dom";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
-import { UserPermission } from "../../api/userPermission";
 import useDebounce from "../../@crema/core/hook/useDebounce";
 import { useTranslation } from "react-i18next";
+import axiosClient from "../../api/axiosClient";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 5;
@@ -32,17 +29,14 @@ const Category: React.FC = () => {
   const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
-  const navigate = useNavigate();
   const [rowData, setRowData] = useState<CategoryType>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenModalChild, setIsOpenModalChild] = useState(false);
   const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
   const [category, setCategory] = useState<CategoryType[]>([]);
   const [allCategories, setAllCategories] = useState<CategoryType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [totalItems, setTotalItems] = useState(0);
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
   const searchQuery = searchParams.get("q") ?? "";
@@ -76,34 +70,28 @@ const Category: React.FC = () => {
 
   const fetchAllCategories = useCallback(async () => {
     try {
-      const { data } = await GetCategories();
-      setAllCategories(data);
+      const { data } = await axiosClient('/category/tree');
+      const processed = (data ?? []).map((parent: CategoryType) => {
+        const children = parent.children?.map((child: CategoryType) => ({
+          ...child,
+          parentId: parent.id,
+          children: undefined,
+        })) ?? [];
+        return {
+          ...parent,
+          children: children.length > 0 ? children : undefined,
+        };
+      });
+      setAllCategories(processed);
+      setCategory(processed);
     } catch (err) {
       console.error(err);
     }
   }, []);
 
-  const fetchCategories = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const { data, items } = await GetCategories(currentPage, pageSize, searchQuery);
-      setCategory(data);
-      setTotalItems(items);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentPage, pageSize, searchQuery]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
   useEffect(() => {
     fetchAllCategories();
   }, [fetchAllCategories]);
-  const { isAdmin } = UserPermission();
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -126,7 +114,11 @@ const Category: React.FC = () => {
   const handleDelete = async () => {
     if (!rowData?.id) return;
 
-    if (rowData?.child && rowData.child.length > 0) {
+    const hasChildren =
+      (rowData?.children && rowData.children.length > 0) ||
+      (rowData?.child && rowData.child.length > 0);
+
+    if (hasChildren) {
       openNotification("error", {
         message: t("common.failed"),
         description: t("category.notification.deleteParentHasChildren"),
@@ -137,13 +129,13 @@ const Category: React.FC = () => {
     try {
       await DeleteCategory(rowData.id);
 
-      await CreateActiveLog({
-        module: "Category",
-        action: "DELETE",
-        user: userInfo?.name ?? "Unknown",
-      });
+      // await CreateActiveLog({
+      //   module: "Category",
+      //   action: "DELETE",
+      //   user: userInfo?.name ?? "Unknown",
+      // });
 
-      await Promise.all([fetchCategories(), fetchAllCategories()]);
+      await Promise.all([fetchAllCategories()]);
 
       setIsOpenModalDelete(false);
 
@@ -170,8 +162,8 @@ const Category: React.FC = () => {
       title: t("category.columns.no"),
       fixed: !isMobile ? "start" : false,
       width: 20,
-      render: (_value, _record, index) =>
-        (currentPage - 1) * pageSize + index + 1,
+      render: (_value, record, index) =>
+        record.parentId ? "" : (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: t("category.columns.name"),
@@ -186,7 +178,7 @@ const Category: React.FC = () => {
       key: "category_child",
       width: 100,
       render: (_, record) => {
-        return record?.child ? record?.child.length : 0;
+        return record.parentId ? "-" : (record.children ? record.children.length : 0);
       },
     },
     {
@@ -206,43 +198,28 @@ const Category: React.FC = () => {
           <>
             <Space size="medium">
               <AntButton
-                tooltip={t("category.tooltip.viewChildren")}
-                icon={<EyeOutlined />}
+                tooltip={t("common.update")}
+                icon={<EditOutlined />}
                 onClick={() => {
-                  if (!record.id) {
-                    return;
+                  handleUpdate(record);
+                  setIsUpdate(true);
+                  if (record.parentId) {
+                    setIsOpenModalChild(true);
+                  } else {
+                    setIsOpenModal(true);
                   }
-
-                  navigate(`/${config.routes.CATEGORY_CHILD(record.id)}`);
                 }}
               />
-              {isAdmin && (
-                <AntButton
-                  tooltip={t("common.update")}
-                  icon={<EditOutlined />}
-                  onClick={() => {
-                    handleUpdate(record);
-                    setIsUpdate(true);
-                    setIsOpenModal(true);
-                  }}
-                />
-              )}
 
-              {isAdmin && (
-                <AntButton
-                  danger
-                  tooltip={t("common.delete")}
-                  icon={<DeleteOutlined />}
-                  onClick={() => {
-                    setIsOpenModalDelete(true);
-                    setRowData({
-                      id: record.id,
-                      name: record.name,
-                      child: record.child,
-                    });
-                  }}
-                />
-              )}
+              <AntButton
+                danger
+                tooltip={t("common.delete")}
+                icon={<DeleteOutlined />}
+                onClick={() => {
+                  setIsOpenModalDelete(true);
+                  setRowData(record);
+                }}
+              />
             </Space>
           </>
         );
@@ -267,7 +244,7 @@ const Category: React.FC = () => {
         }),
       ]);
 
-      await Promise.all([fetchCategories(), fetchAllCategories()]);
+      await Promise.all([fetchAllCategories()]);
       setIsOpenModal(false);
       setIsUpdate(false);
       setRowData({});
@@ -279,13 +256,8 @@ const Category: React.FC = () => {
     } else {
       await Promise.all([
         CreateCategory(values),
-        CreateActiveLog({
-          module: "Category",
-          action: "CREATE",
-          user: userInfo?.name,
-        }),
       ]);
-      await Promise.all([fetchCategories(), fetchAllCategories()]);
+      await Promise.all([fetchAllCategories()]);
 
       setIsOpenModal(false);
       openNotification("success", {
@@ -296,21 +268,54 @@ const Category: React.FC = () => {
   };
 
   const handleOkChild = async (values: CategoryType) => {
-    await Promise.all([
-      CreateCategoryChild(values),
-      CreateActiveLog({
-        module: "Category - Child",
-        action: "CREATE",
-        user: userInfo?.name,
-      }),
-    ]);
-    await Promise.all([fetchCategories(), fetchAllCategories()]);
-    setIsOpenModalChild(false);
-    openNotification("success", {
-      message: t("common.success"),
-      description: t("category.notification.createChildSuccess"),
-    });
+    if (isUpdate) {
+      if (!rowData?.id) {
+        return;
+      }
+      await Promise.all([
+        UpdateCategory({ id: rowData.id, ...values }),
+      ]);
+      await Promise.all([fetchAllCategories()]);
+      setIsOpenModalChild(false);
+      setIsUpdate(false);
+      setRowData({});
+      openNotification("success", {
+        message: t("common.success"),
+        description: t("category.notification.updateChildSuccess"),
+      });
+    } else {
+      await Promise.all([
+        CreateCategory(values),
+      ]);
+      await Promise.all([fetchAllCategories()]);
+      setIsOpenModalChild(false);
+      openNotification("success", {
+        message: t("common.success"),
+        description: t("category.notification.createChildSuccess"),
+      });
+    }
   };
+
+  // Lọc dữ liệu cây danh mục theo ô tìm kiếm ở frontend
+  const filteredCategory = category.filter((cat) => {
+    const matchesParent = cat.name?.toLowerCase().includes(debouncedSearch.toLowerCase());
+    const matchedChildren = cat.children?.filter((child) =>
+      child.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
+    ) ?? [];
+    
+    return !!(matchesParent || matchedChildren.length > 0);
+  }).map((cat) => {
+    const matchesParent = cat.name?.toLowerCase().includes(debouncedSearch.toLowerCase());
+    if (matchesParent) {
+      return cat;
+    }
+    return {
+      ...cat,
+      children: cat.children?.filter((child) =>
+        child.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      ) ?? [],
+    };
+  });
 
   return (
     <>
@@ -323,8 +328,7 @@ const Category: React.FC = () => {
             onChange={(e) => setSearchInput(e.target.value)}
             className="page-search"
           />
-          {isAdmin && (
-            <div className="page-toolbar-actions">
+          <div className="page-toolbar-actions">
               <AntButton
                 tooltip={t("common.add")}
                 type="primary"
@@ -340,18 +344,20 @@ const Category: React.FC = () => {
                 {t("category.addParent")}
               </AntButton>
             </div>
-          )}
         </div>
         <div className="table-shell">
           <Table<CategoryType>
             rowKey="id"
             columns={columns}
-            dataSource={category}
-            loading={isLoading}
+            dataSource={filteredCategory}
+            expandable={{
+              expandIconColumnIndex: 1,
+              rowExpandable: (record) => !!record.children && record.children.length > 0,
+            }}
             pagination={{
               current: currentPage,
               pageSize: pageSize,
-              total: totalItems,
+              total: filteredCategory.length,
               showSizeChanger: true,
               pageSizeOptions: ["5", "10", "20", "50"],
               showTotal: (total, range) =>

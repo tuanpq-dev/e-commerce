@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {  useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Flex, Grid, Image, Input, Select, Space, Table } from "antd";
 import type { TableProps } from "antd";
@@ -14,21 +14,17 @@ import openNotification from "../../@crema/core/Notification";
 import formatCurrency from "../../utils/formatCurrecy";
 import {
   CreateProduct,
-  DeleteProduct,
-  GetProducts,
   UpdateProduct,
   UpdateStatusProduct,
 } from "../../api/productApi";
-import { GetAttributeTitles, GetAllAttributeValues } from "../../api/attributeApi";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
-import { GetCategories } from "../../api/categoryApi";
 import AntButton from "../../@crema/component/AntButton";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import formatDate from "../../utils/formatDate";
-import { UserPermission } from "../../api/userPermission";
 import { useTranslation } from "react-i18next";
 import useDebounce from "../../@crema/core/hook/useDebounce";
+import axiosClient from "../../api/axiosClient";
 
 const getProductVariants = (record: DataType) => record.variants ?? [];
 
@@ -116,21 +112,17 @@ const Product: React.FC = () => {
   const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>();
   const [selectedStatus, setSelectedStatus] = useState<string>();
   const [selectedPrice, setSelectedPrice] = useState<string>();
   const [product, setProduct] = useState<DataType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState<CategoryType[]>([]);
   const [attributeTitles, setAttributeTitles] = useState<AttributeTitle[]>([]);
   const [attributeValuePool, setAttributeValuePool] = useState<Record<string, import("../../types/domain").AttributeValueItem[]>>({});
-  const { isAdmin } = UserPermission();
 
   // ─── Pagination đồng bộ URL ───────────────────────────
   const [searchParams, setSearchParams] = useSearchParams();
-  const [totalItems, setTotalItems] = useState(0);
 
   // Bóc tách _page và _per_page từ URL, fallback về giá trị mặc định
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
@@ -164,38 +156,41 @@ const Product: React.FC = () => {
     }
   }, [debouncedSearchText, searchText, setSearchParams]);
 
-  const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const { data, items } = await GetProducts(
-        currentPage,
-        pageSize,
-        searchText,
-      );
-      setProduct(data);
-      setTotalItems(items);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentPage, pageSize, searchText]);
-
-  // Gọi API khi page/pageSize (từ URL) thay đổi
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    Promise.all([
+      axiosClient.get('/product'),
+      axiosClient.get('/category/tree'),
+      axiosClient.get('/attribute/pool')
+    ]).then(([productRes, categoryRes, attributeRes]) => {
+      setProduct(productRes.data);
 
-  useEffect(() => {
-    GetCategories()
-      .then((res) => setCategory(res.data))
-      .catch(console.error);
-    Promise.all([GetAttributeTitles(), GetAllAttributeValues()])
-      .then(([titles, pool]) => {
-        setAttributeTitles(titles);
-        setAttributeValuePool(pool ?? {});
-      })
-      .catch(console.error);
+      const mapCategoryNode = (node: any): any => {
+        const children = node.children || node.child || [];
+        return {
+          ...node,
+          child: children.map(mapCategoryNode),
+          children: children.map(mapCategoryNode)
+        };
+      };
+      setCategory((categoryRes.data || []).map(mapCategoryNode));
+
+      const mappedTitles = (attributeRes.data || []).map((item: any) => ({
+        id: String(item.id),
+        name: item.name
+      }));
+
+      const mappedPool: Record<string, import("../../types/domain").AttributeValueItem[]> = {};
+      (attributeRes.data || []).forEach((item: any) => {
+        mappedPool[String(item.id)] = (item.attributeValues || []).map((val: any) => ({
+          id: String(val.id),
+          value: val.value,
+          price_modifier_amount: val.priceModifierAmount ?? 0
+        }));
+      });
+
+      setAttributeTitles(mappedTitles);
+      setAttributeValuePool(mappedPool);
+    }).catch(console.error);
   }, []);
 
   const categoryMap = useMemo(() => {
@@ -262,19 +257,14 @@ const Product: React.FC = () => {
       return;
     }
 
-    setIsDeleting(true);
+    await axiosClient.delete(`/product/${rowData.id}`);
+    // await CreateActiveLog({
+    //   module: "Product",
+    //   action: "DELETE",
+    //   user: userInfo?.name,
+    // });
 
-    await DeleteProduct(rowData.id);
-    await CreateActiveLog({
-      module: "Product",
-      action: "DELETE",
-      user: userInfo?.name,
-    });
-
-    await fetchProducts();
-    setIsDeleting(false);
     setIsDeleteModal(false);
-    setRowData(null);
 
     openNotification("success", {
       message: t("common.success"),
@@ -309,7 +299,6 @@ const Product: React.FC = () => {
         action: `UPDATE status - ${id}`,
         user: userInfo?.name,
       });
-      await fetchProducts();
       openNotification("success", {
         message: t("common.success"),
         description: t("product.notification.updateStatus"),
@@ -427,7 +416,7 @@ const Product: React.FC = () => {
       key: "action",
       fixed: !isMobile ? "end" : false,
       width: 100,
-      hidden: !isAdmin,
+      // hidden: !isAdmin,
       align: "center",
       render: (_, record) => {
         return (
@@ -471,7 +460,6 @@ const Product: React.FC = () => {
         user: userInfo?.name,
       });
 
-      await fetchProducts();
       setIsOpenModal(false);
       setIsUpdate(false);
       setRowData(null);
@@ -482,13 +470,12 @@ const Product: React.FC = () => {
       });
     } else {
       await CreateProduct(values);
-      await CreateActiveLog({
-        module: "Product",
-        action: "CREATE",
-        user: userInfo?.name,
-      });
+      // await CreateActiveLog({
+      //   module: "Product",
+      //   action: "CREATE",
+      //   user: userInfo?.name,
+      // });
 
-      await fetchProducts();
       setIsOpenModal(false);
       openNotification("success", {
         message: t("common.success"),
@@ -534,7 +521,7 @@ const Product: React.FC = () => {
               className="page-control"
             />
           </div>
-          {isAdmin && (
+          {/* {isAdmin && ( */}
             <AntButton
               tooltip={t("common.add")}
               type="primary"
@@ -542,18 +529,16 @@ const Product: React.FC = () => {
             >
               {t("common.add")}
             </AntButton>
-          )}
+          {/* )} */}
         </div>
         <div className="table-shell">
           <Table<DataType>
             rowKey="sku"
             columns={columns}
             dataSource={product}
-            loading={isLoading}
             pagination={{
               current: currentPage,
               pageSize: pageSize,
-              total: totalItems,
               showSizeChanger: true,
               pageSizeOptions: ["5", "10", "20", "50"],
               showTotal: (total, range) =>
@@ -583,7 +568,6 @@ const Product: React.FC = () => {
 
       <ModalConfirm
         open={isDeleteModal}
-        confirmLoading={isDeleting}
         disabled={!rowData?.id}
         targetName={rowData?.name}
         onOk={handleDelete}

@@ -34,6 +34,7 @@ import exportToCSV from "../../@crema/core/ExportToCSV";
 import { useTranslation } from "react-i18next";
 import { getOrderStatuses } from "../../shared/constant/orderStatus";
 import { GetProducts } from "../../api/productApi";
+import axiosClient from "../../api/axiosClient";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 5;
@@ -102,13 +103,9 @@ const Order: React.FC = () => {
   const fetchDataOrder = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, items } = await GetOrders(
-        currentPage,
-        pageSize,
-        searchQuery,
-      );
+      const { data } = await axiosClient.get(`/order`)
       setData(data);
-      setTotalItems(items);
+      // setTotalItems(items);
     } catch (err) {
       console.log(err);
     } finally {

@@ -152,7 +152,7 @@ export const ModalCategoryChild = ({
         {!isUpdate && (
           <FormSelect
             label={t("category.name")}
-            name="id"
+            name="parentId"
             options={parentOptions}
             placeholder={t("category.placeholder.selectParent")}
             rules={[

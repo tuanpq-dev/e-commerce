@@ -18,8 +18,8 @@ import {
 import {
   SaveProductAttributesDetails,
   DeleteProductAttributesDetails,
-  LoadAttributeGroupsForProduct,
 } from "./attributeApi";
+import { calculateFinalPrice } from "../utils/variantEngine";
 
 // ═══════════════════════════════════════════════════════
 //  GET — Lấy danh sách sản phẩm + merge variants
@@ -186,57 +186,83 @@ export const handleSubmitProduct = async (values: ProductInitialValues) => {
   // ── Xác định chế độ: mới (N-attribute) hay legacy (size+color) ────────
   const isNewAttributeSystem = !!(values.attribute_groups?.length);
 
-  let price: number;
-  let stock: number;
-  let variantsPayload: ProductVariant[] | VariantCombinationMap;
-  let attrSavePromise: Promise<void> | null = null;
-
   if (isNewAttributeSystem) {
-    // ── CHẾD ĐỘ: Lưu theo cấu trúc mới ─────────────────────────
+    // ── CHẾ ĐỘ: Lưu theo cấu trúc mới (NestJS Backend DTO) ───────────
     const variantMap: VariantCombinationMap = values.variant_map ?? {};
-    stock = Object.values(variantMap).reduce((sum, v) => sum + (v.stock ?? 0), 0);
-    price = Number(values.basePrice) || 0;
-    variantsPayload = variantMap;
+    const stock = Object.values(variantMap).reduce((sum, v) => sum + (v.stock ?? 0), 0);
+    const price = Number(values.basePrice) || 0;
 
-    // Lưu chi tiết thuộc tính riêng
-    attrSavePromise = SaveProductAttributesDetails(parentSku, values.attribute_groups!);
+    // Map attributesDetails
+    const attributesDetails: Record<string, any> = {};
+    for (const group of values.attribute_groups!) {
+      attributesDetails[group.titleId] = {
+        name: group.name,
+        values: group.values.map(val => ({
+          id: String(val.id),
+          value: val.value,
+          price_modifier_amount: val.price_modifier_amount
+        }))
+      };
+    }
+
+    // Map variants to flat array expected by BE
+    const variantsArray = Object.entries(variantMap).map(([comboKey, info]) => ({
+      comboKey,
+      stock: Number(info.stock),
+      price: calculateFinalPrice(
+        price,
+        values.attribute_groups!,
+        comboKey.split("-")
+      )
+    }));
+
+    const createProductDto = {
+      sku: parentSku,
+      name: values.name,
+      price,
+      basePrice: price,
+      stock,
+      description: values.description || "",
+      categoryId: Number(values.category),
+      attributesDetails,
+      variants: variantsArray
+    };
+
+    const res = await axiosClient.post("/product", createProductDto);
+    return (res as { data: unknown }).data;
   } else {
     // ── LEGACY: giữ nguyên code cũ ─────────────────────────────────
     const productSummary = getProductSummary(values, parentSku);
-    price = productSummary.price;
-    stock = productSummary.stock;
-    variantsPayload = productSummary.variants;
+    const price = productSummary.price;
+    const stock = productSummary.stock;
+    const variantsPayload = productSummary.variants;
+
+    const mainProduct = {
+      id: values.id,
+      sku: parentSku,
+      name: values.name,
+      price,
+      stock,
+      basePrice: Number(values.basePrice) || price,
+      attribute_title_ids: values.attribute_groups?.map((g) => g.titleId) ?? [],
+      selectedSizes: values.selectedSizes || [],
+      selectedColors: values.selectedColors || [],
+      category: values.category,
+      category_child: values?.category_child || [],
+      description: values.description || "",
+      status: "pending",
+      created_at: Date.now(),
+    };
+
+    const res = await axiosClient.post("/product", mainProduct);
+    await axiosClient.patch("/product_variants", { [parentSku]: variantsPayload });
+    await IncreaseCategoryProductTotal({
+      category: values.category,
+      category_child: values.category_child,
+    });
+
+    return (res as { data: unknown }).data;
   }
-
-  const mainProduct = {
-    id: parentSku,
-    sku: parentSku,
-    name: values.name,
-    price,
-    stock,
-    basePrice: Number(values.basePrice) || price,
-    attribute_title_ids: values.attribute_groups?.map((g) => g.titleId) ?? [],
-    selectedSizes: values.selectedSizes || [],
-    selectedColors: values.selectedColors || [],
-    category: values.category,
-    category_child: values?.category_child || [],
-    description: values.description || "",
-    status: "pending",
-    created_at: Date.now(),
-  };
-
-  const res = await axiosClient.post("/products", mainProduct);
-  await axiosClient.patch("/product_variants", { [parentSku]: variantsPayload });
-  await IncreaseCategoryProductTotal({
-    category: values.category,
-    category_child: values.category_child,
-  });
-
-  if (attrSavePromise) {
-    await attrSavePromise;
-  }
-
-  return (res as { data: unknown }).data;
 };
 
 // Xuất CreateProduct tương thích ngược với component cũ
@@ -305,7 +331,7 @@ export const DeleteProduct = async (id: number | string) => {
   const productId = String(id);
 
   const product = await callApiWithRetries<DataType>({
-    url: `/products/${productId}`,
+    url: `/product/${productId}`,
   }).catch(() => null);
 
   const parentSku = product?.sku || productId;

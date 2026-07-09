@@ -1,21 +1,19 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Card,
   Descriptions,
-  Empty,
   Spin,
   Table,
   Tag,
+  Empty,
   type TableProps,
 } from "antd";
-
-import { GetOrders } from "../../api/orderApi";
-import { GetCustomers } from "../../api/customerApi";
-import type { CustomerType, OrderType } from "../../types/domain";
-import formatCurrency from "../../utils/formatCurrecy";
-import formatDate from "../../utils/formatDate";
+import type { OrderType, CustomerType } from "../../types/domain";
 import { useTranslation } from "react-i18next";
+import axiosClient from "../../api/axiosClient";
+import formatDate from "../../utils/formatDate";
+import formatCurrency from "../../utils/formatCurrecy";
 import { getOrderStatuses } from "../../shared/constant/orderStatus";
 
 const DetailCustomer = () => {
@@ -30,18 +28,15 @@ const DetailCustomer = () => {
 
     setLoading(true);
     try {
-      const [{ data: dataCustomers }, { data: dataOrders }] = await Promise.all(
-        [GetCustomers(), GetOrders()],
-      );
-      const customerData = (dataCustomers ?? []).find(
-        (item: CustomerType) => String(item.id) === id,
-      );
-      const customerOrders = (dataOrders ?? []).filter(
-        (item: OrderType) => String(item.customer_id) === id,
-      );
-
-      setCustomer(customerData ?? null);
-      setOrders(customerOrders);
+      const { data } = await axiosClient.get(`/order/${id}`);
+      setOrders([data]);
+      setCustomer({
+        id: data.customerId,
+        fullname: data.customerName,
+        email: data.customerEmail,
+        phone: data.customerPhone || data.customer_phone,
+        address: data.shippingAddress,
+      });
     } catch (err) {
       console.log(err);
     } finally {
@@ -50,7 +45,6 @@ const DetailCustomer = () => {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDataDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -60,20 +54,27 @@ const DetailCustomer = () => {
   const columns: TableProps<OrderType>["columns"] = [
     {
       title: t("order.columns.code"),
-      dataIndex: "order_code",
-      key: "order_code",
+      dataIndex: "orderCode",
+      key: "orderCode",
+      render: (_value, record) => record.orderCode || record.order_code,
     },
     {
       title: t("customer.detail.orderCreatedAt"),
-      dataIndex: "created_at",
-      key: "created_at",
-      render: (created_at) => formatDate(created_at),
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (_value, record) => {
+        const date = record.createdAt || record.created_at;
+        return date ? formatDate(date as string) : "";
+      },
     },
     {
       title: t("order.columns.totalPrice"),
-      dataIndex: "total_price",
-      key: "total_price",
-      render: (totalPrice) => formatCurrency(Number(totalPrice ?? 0)),
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      render: (_value, record) => {
+        const price = record.totalPrice !== undefined ? record.totalPrice : record.total_price;
+        return formatCurrency(Number(price ?? 0));
+      },
     },
     {
       title: t("order.columns.status"),
@@ -92,12 +93,15 @@ const DetailCustomer = () => {
     },
   ];
 
+  const totalExpend = useMemo(() => {
+    return orders.reduce((total, order) => {
+      const price = order.totalPrice !== undefined ? order.totalPrice : order.total_price;
+      return total + Number(price ?? 0);
+    }, 0);
+  }, [orders]);
+
   if (loading) return <Spin />;
   if (!customer) return <Empty description={t("customer.detail.notFound")} />;
-
-  const totalExpend = orders.reduce((total, order) => {
-    return total + Number(order.total_price ?? 0);
-  }, 0);
 
   return (
     <Card title={t("customer.detail.title")}>
@@ -129,7 +133,7 @@ const DetailCustomer = () => {
           <Table
             rowKey="id"
             columns={columns}
-            dataSource={orders.reverse()}
+            dataSource={orders}
             pagination={false}
             scroll={{ x: "max-content" }}
           />
