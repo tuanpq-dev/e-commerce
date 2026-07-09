@@ -13,7 +13,7 @@ import {
 import type { TableProps } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { GetOrderById, UpdateStatusDetailOrder } from "../../api/orderApi";
+import {  UpdateStatusDetailOrder } from "../../api/orderApi";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import formatCurrency from "../../utils/formatCurrecy";
 import FormSelect from "../../@crema/core/Form/FormSelect";
@@ -27,6 +27,7 @@ import {
   getOrderStatuses,
   type OrderStatusKey,
 } from "../../shared/constant/orderStatus";
+import axiosClient from "../../api/axiosClient";
 
 type OrderItemType = {
   id: string;
@@ -109,7 +110,8 @@ const DetailOrder = () => {
     if (!id) return;
     try {
       setLoading(true);
-      const dataDetailOrder = await GetOrderById(id);
+      const dataDetailOrder = await axiosClient.get(`/order/${id}`);
+      console.log(dataDetailOrder)
       setData(dataDetailOrder);
       form.setFieldsValue({ status: dataDetailOrder?.status });
     } catch (err) {
@@ -321,7 +323,7 @@ const DetailOrder = () => {
             <Table
               rowKey="id"
               columns={columns}
-              dataSource={data.items}
+              dataSource={data}
               pagination={false}
               scroll={{ x: "max-content" }}
             />

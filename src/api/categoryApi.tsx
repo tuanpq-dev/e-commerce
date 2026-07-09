@@ -46,6 +46,7 @@ export const GetCategoryById = async (id: number | string) => {
 export const CreateCategory = async (values: CategoryType) => {
   const res = await axiosClient.post(`/category`, {
     name: values.name,
+    parentId: values.parentId,
     total: 0,
     child: [],
   });

@@ -70,7 +70,7 @@ export interface DataType {
   /** [MỚI] ID các nhóm thuộc tính sản phẩm này dùng, ví dụ ["title_size", "title_color"] */
   attribute_title_ids?: string[];
   /** [MỚI] Chi tiết nhóm thuộc tính đã được merge vào product khi fetch */
-  attribute_groups?: AttributeGroup[];
+  attributesDetails?: AttributeGroup[];
   /** [MỚI] Map stock theo combination key, đã được merge vào product khi fetch */
   variant_map?: VariantCombinationMap;
   /** [LEGACY] selectedSizes — giữ để backward compat */
@@ -117,6 +117,7 @@ export type CategoryType = {
   total?: number | string;
   parentId?: number | string;
   child?: CategoryType[];
+  children?: CategoryType[];
   category_child?: number;
   total_prod?: number | string;
 };
@@ -124,16 +125,28 @@ export type CategoryType = {
 export type OrderType = {
   id?: number | string;
   order_code?: number | string;
+  orderCode?: number | string;
   customer_id?: number | string;
+  customerId?: number | string;
   customer_name?: string;
+  customerName?: string;
   customer_email?: string;
+  customerEmail?: string;
+  customer_phone?: string | number;
+  customerPhone?: string | number;
   created_at?: string;
+  createdAt?: string;
   total_price?: number | string;
+  totalPrice?: number | string;
   payment_method?: string;
+  paymentMethod?: string;
   payment_status?: "paid" | "unpaid";
+  paymentStatus?: "paid" | "unpaid";
   shipping_status?: "pending" | "shipping" | "delivered";
+  shippingStatus?: "pending" | "shipping" | "delivered";
   status?: string;
   shipping_address?: string;
+  shippingAddress?: string;
   note?: string;
   items?: {
     id: string | number;
@@ -210,6 +223,12 @@ export type UpdateUserPayload = {
 export type LoginPayload = {
   email: string;
   password: string;
+};
+
+export type RegisterPayload = {
+  email: string;
+  password: string;
+  name: string;
 };
 
 export type UpdateStatusValues = {

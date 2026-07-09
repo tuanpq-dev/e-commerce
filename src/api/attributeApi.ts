@@ -11,7 +11,7 @@ import callApiWithRetries from "./callApiWithRetries";
 
 /** Lấy toàn bộ danh sách tên nhóm thuộc tính */
 export const GetAttributeTitles = async (): Promise<AttributeTitle[]> => {
-  return callApiWithRetries<AttributeTitle[]>({ url: "/attribute_titles" });
+  return callApiWithRetries<AttributeTitle[]>({ url: "/attribute/pool" });
 };
 
 /** Tạo nhóm thuộc tính mới */

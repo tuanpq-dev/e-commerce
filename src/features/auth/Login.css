@@ -70,3 +70,23 @@
     font-size: 24px;
   }
 }
+
+.login-toggle {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--app-text-muted);
+}
+
+.login-toggle-link {
+  color: var(--app-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.login-toggle-link:hover {
+  color: var(--app-primary-hover, #40a9ff);
+  text-decoration: underline;
+}
+

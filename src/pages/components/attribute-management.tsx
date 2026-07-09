@@ -38,16 +38,15 @@ import {
 import type { AttributeTitle, AttributeValueItem } from "../../types/domain";
 import openNotification from "../../@crema/core/Notification";
 import {
-  GetAttributeTitles,
   CreateAttributeTitle,
   DeleteAttributeTitle,
-  GetAllAttributeValues,
   AddAttributeValue,
   UpdateAttributeValueModifier,
   DeleteAttributeValue,
   CountProductsUsingValue,
 } from "../../api/attributeApi";
 import formatCurrency from "../../utils/formatCurrecy";
+import axiosClient from "../../api/axiosClient";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -89,12 +88,25 @@ const AttributeManagement: React.FC = () => {
   const fetchAll = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [titlesRes, valuesRes] = await Promise.all([
-        GetAttributeTitles(),
-        GetAllAttributeValues(),
-      ]);
-      setTitles(titlesRes);
-      setValuePool(valuesRes ?? {});
+      await axiosClient.get('/attribute/pool').then((res) => {
+        const data = res.data || [];
+        
+        const mappedTitles = data.map((item: any) => ({
+          id: String(item.id),
+          name: item.name
+        }));
+        setTitles(mappedTitles);
+
+        const pool: Record<string, AttributeValueItem[]> = {};
+        data.forEach((item: any) => {
+          pool[String(item.id)] = (item.attributeValues || []).map((val: any) => ({
+            id: String(val.id),
+            value: val.value,
+            price_modifier_amount: val.priceModifierAmount ?? val.price_modifier_amount ?? 0
+          }));
+        });
+        setValuePool(pool);
+      })
     } catch {
       openNotification("error", {
         message: "Lỗi",
@@ -379,7 +391,7 @@ const AttributeManagement: React.FC = () => {
         </Card>
       ) : (
         <Collapse
-          defaultActiveKey={titles.map((t) => t.id)}
+          defaultActiveKey={[]}
           style={{ background: "transparent" }}
         >
           {titles.map((title) => {

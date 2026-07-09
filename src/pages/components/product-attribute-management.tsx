@@ -40,10 +40,8 @@ import type {
   VariantCombinationMap,
 } from "../../types/domain";
 import openNotification from "../../@crema/core/Notification";
-import { GetProducts, UpdateProduct } from "../../api/productApi";
+import {  UpdateProduct } from "../../api/productApi";
 import {
-  GetAttributeTitles,
-  GetAllAttributeValues,
   SaveProductAttributesDetails,
 } from "../../api/attributeApi";
 import formatCurrency from "../../utils/formatCurrecy";
@@ -55,6 +53,7 @@ import {
   countAffectedCombinations,
   type ResolvedCombination,
 } from "../../utils/variantEngine";
+import axiosClient from "../../api/axiosClient";
 
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
@@ -91,9 +90,64 @@ const ProductAttributeManagement: React.FC = () => {
   const fetchProducts = useCallback(async () => {
     setIsLoadingProducts(true);
     try {
-      const { data } = await GetProducts();
-      // Chỉ hiển thị sản phẩm đã có attribute_groups (new system)
-      setProducts(data);
+      const { data } = await axiosClient.get('/product');
+      
+      const mappedData = (data || []).map((prod: any) => {
+        const vMap: VariantCombinationMap = {};
+        (prod.variants || []).forEach((variant: any) => {
+          if (variant.comboKey) {
+            vMap[variant.comboKey] = {
+              stock: variant.stock ?? 0,
+            };
+          }
+        });
+        return {
+          ...prod,
+          variant_map: vMap,
+        };
+      });
+
+      setProducts(mappedData);
+
+      const titlesMap = new Map<string, string>();
+      const valuePoolMap: Record<string, AttributeValueItem[]> = {};
+
+      (data || []).forEach((prod: any) => {
+        if (prod.attributesDetails) {
+          Object.entries(prod.attributesDetails).forEach(([titleId, groupObj]: [string, any]) => {
+            if (groupObj && groupObj.name) {
+              const strTitleId = String(titleId);
+              titlesMap.set(strTitleId, groupObj.name);
+
+              if (!valuePoolMap[strTitleId]) {
+                valuePoolMap[strTitleId] = [];
+              }
+
+              (groupObj.values || []).forEach((val: any) => {
+                const strValId = String(val.id);
+                const exists = valuePoolMap[strTitleId].some(
+                  (v) => String(v.id) === strValId
+                );
+                if (!exists) {
+                  valuePoolMap[strTitleId].push({
+                    id: strValId,
+                    value: val.value,
+                    price_modifier_amount: val.price_modifier_amount ?? val.priceModifierAmount ?? 0,
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+
+      setAllTitles(
+        Array.from(titlesMap.entries()).map(([id, name]) => ({
+          id,
+          name,
+        }))
+      );
+      setAllValuePool(valuePoolMap);
     } catch {
       openNotification("error", {
         message: "Lỗi",
@@ -106,19 +160,25 @@ const ProductAttributeManagement: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
-    Promise.all([GetAttributeTitles(), GetAllAttributeValues()])
-      .then(([titles, pool]) => {
-        setAllTitles(titles);
-        setAllValuePool(pool ?? {});
-      })
-      .catch(console.error);
   }, [fetchProducts]);
 
   // ── Mở Drawer ─────────────────────────────────────────────
   const openDrawer = (product: DataType) => {
     setSelectedProduct(product);
-    const groups = product.attribute_groups ?? [];
+
+    // Convert attributesDetails object to AttributeGroup[]
+    const groups: AttributeGroup[] = Object.entries((product as any).attributesDetails || {}).map(([titleId, groupObj]: [string, any]) => ({
+      titleId: String(titleId),
+      name: groupObj.name,
+      values: (groupObj.values || []).map((val: any) => ({
+        id: String(val.id),
+        value: val.value,
+        price_modifier_amount: val.price_modifier_amount ?? val.priceModifierAmount ?? 0,
+      })),
+    }));
+
     const vMap = product.variant_map ?? {};
+
     setDraftGroups(groups);
     setDraftVariantMap(vMap);
     setPrevGroups(groups);
@@ -361,13 +421,10 @@ const ProductAttributeManagement: React.FC = () => {
     {
       title: "Nhóm thuộc tính",
       render: (_: unknown, record: DataType) => {
-        const groups = record.attribute_groups ?? [];
-        if (!groups.length) return <Text type="secondary">Chưa có</Text>;
+        const groups =  Object.keys(record.attributesDetails ?? []).length;
         return (
           <Space wrap size={4}>
-            {groups.map((g) => (
-              <Tag key={g.titleId}>{g.name}</Tag>
-            ))}
+              <Tag>{groups} thuộc tính</Tag>
           </Space>
         );
       },
@@ -376,7 +433,7 @@ const ProductAttributeManagement: React.FC = () => {
       title: "Tổ hợp",
       width: 90,
       render: (_: unknown, record: DataType) => {
-        const count = Object.keys(record.variant_map ?? {}).length;
+        const count = (record.variants ?? {}).length;
         return (
           <Tag color={count > 0 ? "green" : "default"}>{count} tổ hợp</Tag>
         );
