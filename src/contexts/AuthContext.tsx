@@ -27,6 +27,7 @@ type User = {
   username: string;
   role: string;
   avatar: string;
+  profile: any;
 };
 
 type AuthContextType = {

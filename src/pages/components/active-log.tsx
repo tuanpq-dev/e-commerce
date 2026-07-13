@@ -1,17 +1,17 @@
 import { Flex, Table, type TableProps } from "antd";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { GetActiveLogs } from "../../api/activeLogApi";
 import type { ActiveLogType } from "../../types/domain";
 import formatDate from "../../utils/formatDate";
 import { useTranslation } from "react-i18next";
+import axiosClient from "../../api/axiosClient";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 10;
 
 const ActiveLog = () => {
   const { t } = useTranslation();
-  const [dataActiveLog, setDataActiveLog] = useState<ActiveLogType[]>([]);
+  const [dataActiveLog, setDataActiveLog] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
@@ -21,9 +21,11 @@ const ActiveLog = () => {
   const fetchLogs = async () => {
     setIsLoading(true);
     try {
-      const { data, items } = await GetActiveLogs(currentPage, pageSize);
+      const payload = { page: currentPage, pageSize };
+      const { data, meta } = await axiosClient.post('/active-log/search', payload);
+      console.log(meta)
       setDataActiveLog(data);
-      setTotalItems(items);
+      setTotalItems(meta.totalItems);
     } catch (err) {
       console.log(err);
     } finally {
@@ -38,11 +40,11 @@ const ActiveLog = () => {
   const columns: TableProps<ActiveLogType>["columns"] = [
     {
       title: t("activeLog.columns.time"),
-      dataIndex: "created_at",
-      key: "created_at",
+      dataIndex: "createdAt",
+      key: "createdAt",
       width: 100,
       render: (_, record) =>
-        record.created_at ? formatDate(record.created_at) : "",
+        record.createdAt ? formatDate(record.createdAt) : "",
     },
     {
       title: t("activeLog.columns.user"),
@@ -75,10 +77,10 @@ const ActiveLog = () => {
         count: range[1] - range[0] + 1,
         total,
       })}`,
-    onChange: (page, size) => {
+    onChange: (page, pageSize) => {
       setSearchParams({
         _page: String(page),
-        _per_page: String(size),
+        _per_page: String(pageSize),
       });
     },
   };

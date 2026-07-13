@@ -52,6 +52,7 @@ export type ProductVariant = {
   price: number | string;
   stock: number | string;
   sku?: string;
+  comboKey: any;
 };
 
 /** Map dạng Record — dùng khi group variants theo product_id ở phía client */
@@ -80,7 +81,7 @@ export interface DataType {
   status?: string;
   description?: string;
   variants?: ProductVariant[];
-  created_at?: string | number;
+  createdAt?: string | number;
 }
 
 export type FieldType = {
@@ -150,8 +151,11 @@ export type OrderType = {
   note?: string;
   items?: {
     id: string | number;
+    orderId?: string | number;
     product_id?: string | number;
+    productId?: string | number;
     product_name?: string;
+    productName?: string;
     size?: string;
     color?: string;
     sku?: string;
@@ -160,42 +164,42 @@ export type OrderType = {
     price: number;
   }[];
   historyDetailOrder?: {
+    id?: string | number;
+    orderId?: string | number;
     status: string;
     message: string;
     createdAt: string;
-    updatedBy?: {
-      id?: string | number;
-      name?: string;
-      email?: string;
-    };
+    updateBy?: string;
   }[];
 };
 
 export type CreateOrderItemValues = {
-  product_id: string | number;
+  productId: string | number;
   size?: string;
   color?: string;
   quantity: number | string;
   attributes?: Record<string, string>;
+  variantId?: number | string;
 };
 
 export type CreateOrderValues = {
-  customer_id: string | number;
+  customerId: string | number;
   items: CreateOrderItemValues[];
-  payment_method: string;
-  shipping_address: string;
+  paymentMethod: string;
+  shippingAddress: string;
   note?: string;
 };
 
 export type CustomerType = {
   id?: number | string;
-  fullname?: string;
-  email?: string;
-  address?: string;
-  phone?: number | string;
+  customerName?: string;
+  customerEmail?: string;
+  customerAddress?: string;
+  customerPhone?: number | string;
   total_orders?: number | string;
-  total_expend?: number | string;
+  totalPrice?: number | string;
   created_at?: number | string;
+  items: any,
 };
 
 export type CreateCustomerValues = {
@@ -210,7 +214,7 @@ export type ActiveLogType = {
   user?: string;
   action?: string;
   module?: string;
-  created_at?: string;
+  createdAt?: string;
 };
 
 export type UpdateUserPayload = {
@@ -232,7 +236,7 @@ export type RegisterPayload = {
 };
 
 export type UpdateStatusValues = {
-  id: string | number;
+  // id: string | number;
   status: string;
   historyDetailOrder?: {
     status: string;

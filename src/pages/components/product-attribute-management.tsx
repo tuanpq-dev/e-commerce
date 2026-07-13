@@ -11,6 +11,8 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import {
   Button,
   Collapse,
@@ -41,9 +43,7 @@ import type {
 } from "../../types/domain";
 import openNotification from "../../@crema/core/Notification";
 import {  UpdateProduct } from "../../api/productApi";
-import {
-  SaveProductAttributesDetails,
-} from "../../api/attributeApi";
+
 import formatCurrency from "../../utils/formatCurrecy";
 import {
   resolveCombinations,
@@ -62,7 +62,16 @@ const { Panel } = Collapse;
 // COMPONENT
 // ─────────────────────────────────────────────────────────────
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 10;
+
 const ProductAttributeManagement: React.FC = () => {
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
+  const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
+  const [totalItems, setTotalItems] = useState(0);
+
   // ── Danh sách sản phẩm ─────────────────────────────────────
   const [products, setProducts] = useState<DataType[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
@@ -90,9 +99,15 @@ const ProductAttributeManagement: React.FC = () => {
   const fetchProducts = useCallback(async () => {
     setIsLoadingProducts(true);
     try {
-      const { data } = await axiosClient.get('/product');
-      
-      const mappedData = (data || []).map((prod: any) => {
+      const { data, meta } = await axiosClient.post('/product/search', {
+        page: currentPage,
+        pageSize,
+      });
+      if(!data) {
+        return 'Không có dữ liệu'
+      }
+      setTotalItems(meta?.totalItems ?? 0);
+      const mappedData = data.map((prod: any) => {
         const vMap: VariantCombinationMap = {};
         (prod.variants || []).forEach((variant: any) => {
           if (variant.comboKey) {
@@ -156,7 +171,7 @@ const ProductAttributeManagement: React.FC = () => {
     } finally {
       setIsLoadingProducts(false);
     }
-  }, []);
+  }, [currentPage, pageSize]);
 
   useEffect(() => {
     fetchProducts();
@@ -305,19 +320,16 @@ const ProductAttributeManagement: React.FC = () => {
         finalMap[combo.key] = { stock: combo.stock };
       }
 
-      await Promise.all([
-        UpdateProduct({
-          id: selectedProduct.id!,
-          sku: selectedProduct.sku,
-          name: selectedProduct.name,
-          basePrice: selectedProduct.basePrice ?? selectedProduct.price,
-          category: selectedProduct.category,
-          category_child: selectedProduct.category_child,
-          attribute_groups: draftGroups,
-          variant_map: finalMap,
-        }),
-        SaveProductAttributesDetails(selectedProduct.sku, draftGroups),
-      ]);
+      await UpdateProduct({
+        id: selectedProduct.id!,
+        sku: selectedProduct.sku,
+        name: selectedProduct.name,
+        basePrice: selectedProduct.basePrice ?? selectedProduct.price,
+        category: selectedProduct.category,
+        category_child: selectedProduct.category_child,
+        attribute_groups: draftGroups,
+        variant_map: finalMap,
+      });
 
       openNotification("success", {
         message: "Đã lưu",
@@ -433,7 +445,7 @@ const ProductAttributeManagement: React.FC = () => {
       title: "Tổ hợp",
       width: 90,
       render: (_: unknown, record: DataType) => {
-        const count = (record.variants ?? {}).length;
+        const count = (record.variants ?? []).length;
         return (
           <Tag color={count > 0 ? "green" : "default"}>{count} tổ hợp</Tag>
         );
@@ -497,7 +509,24 @@ const ProductAttributeManagement: React.FC = () => {
         dataSource={products}
         loading={isLoadingProducts}
         size="middle"
-        pagination={{ pageSize: 10, showSizeChanger: false }}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalItems,
+          showSizeChanger: true,
+          pageSizeOptions: ["5", "10", "20", "50"],
+          showTotal: (total, range) =>
+            `${t("activeLog.pagination", {
+              count: range[1] - range[0] + 1,
+              total,
+            })}`,
+          onChange: (page, size) => {
+            setSearchParams({
+              _page: String(page),
+              _per_page: String(size),
+            });
+          },
+        }}
         scroll={{ x: "max-content" }}
         onRow={(record) => ({
           style: { cursor: "pointer" },
@@ -545,7 +574,6 @@ const ProductAttributeManagement: React.FC = () => {
 
               <Flex wrap gap={8} style={{ marginBottom: 10 }}>
                 {draftGroups.map((group) => {
-                  console.log("group", group);
                   const affected = countAffectedCombinations(
                     draftVariantMap,
                     group,

@@ -3,21 +3,17 @@ import type React from "react";
 import type {
   CreateCustomerValues,
   CustomerType,
-  OrderType,
 } from "../../types/domain";
 import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import {
   CreateCustomer,
   DeleteCustomer,
-  GetCustomers,
 } from "../../api/customerApi";
-import { GetOrders } from "../../api/orderApi";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AntButton from "../../@crema/component/AntButton";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../../config";
 import formatCurrency from "../../utils/formatCurrecy";
-import useDebounce from "../../@crema/core/hook/useDebounce";
 import { UserPermission } from "../../api/userPermission";
 import { ModalCustomer } from "../modal";
 import openNotification from "../../@crema/core/Notification";
@@ -48,71 +44,28 @@ const Customer: React.FC = () => {
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
   const [totalItems, setTotalItems] = useState(0);
-  const searchQuery = searchParams.get("q") ?? "";
 
-  // State quản lý giá trị đang gõ vào ô tìm kiếm (debounce 500ms)
-  const [searchInput, setSearchInput] = useState(searchQuery);
-  const debouncedSearch = useDebounce(searchInput, 500);
-
-  // Khi URL thay đổi từ bên ngoài, đồng bộ lại input
-  useEffect(() => {
-    setSearchInput(searchQuery);
-  }, [searchQuery]);
-
-  // Khi debounce thay đổi, cập nhật URL params
-  useEffect(() => {
-    if (debouncedSearch.trim() !== searchQuery.trim()) {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        const keyword = debouncedSearch.trim();
-        if (keyword) {
-          next.set("q", keyword);
-          next.set("_page", String(DEFAULT_PAGE));
-        } else {
-          next.delete("q");
-          next.delete("_page");
-        }
-        return next;
-      });
-    }
-  }, [debouncedSearch, searchQuery, setSearchParams]);
-
-  const fetchCustomer = async () => {
+  const fetchCustomer = useCallback(async () => {
     setIsLoading(true);
     try {
-      const customers = await axiosClient.get('/customer')
-      // const [orders] = await Promise.all([
-      //   GetOrders(),
-      // ]);
-      // const orderList: OrderType[] = orders.data ?? [];
-      // const data = (customers.data ?? []).map((customer: CustomerType) => {
-      //   const customerOrders = orderList.filter(
-      //     (order) => String(order.customer_id) === String(customer.id),
-      //   );
-      //   const totalExpend = customerOrders.reduce((total, order) => {
-      //     return total + Number(order.total_price ?? 0);
-      //   }, 0);
+      const { data, meta } = await axiosClient.post('/customer/search', {
+        page: currentPage,
+        pageSize,
+      })
 
-      //   return {
-      //     ...customer,
-      //     total_orders: customerOrders.length,
-      //     total_expend: totalExpend,
-      //   };
-      // });
-
-      setDataCustomer(customers.data);
-      // setTotalItems(customers.items);
+      setDataCustomer(data);
+      setTotalItems(meta.totalItems);
     } catch (err) {
       console.log(err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [ pageSize, currentPage]);
 
   useEffect(() => {
     fetchCustomer();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, searchQuery]);
+  }, [fetchCustomer]);
 
   const handleAdd = () => {
     setIsOpenModal(true);
@@ -284,13 +237,13 @@ const Customer: React.FC = () => {
   return (
     <Flex className="page-stack" gap="medium" vertical>
       <div className="page-toolbar">
-        <Search
+        {/* <Search
           allowClear={true}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder={t("customer.placeholder.search")}
           className="page-search"
-        />
+        /> */}
         {isAdmin && (
           <AntButton
             tooltip={t("common.add")}

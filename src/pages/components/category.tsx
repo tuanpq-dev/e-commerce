@@ -16,7 +16,6 @@ import {  useSearchParams } from "react-router-dom";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
-import useDebounce from "../../@crema/core/hook/useDebounce";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../api/axiosClient";
 
@@ -27,50 +26,25 @@ const Category: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const { t } = useTranslation();
   const isMobile = !screens.md;
-  const { Search } = Input;
   const { userInfo } = useAuth();
   const [rowData, setRowData] = useState<CategoryType>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isOpenModalChild, setIsOpenModalChild] = useState(false);
   const [isOpenModalDelete, setIsOpenModalDelete] = useState(false);
-  const [category, setCategory] = useState<CategoryType[]>([]);
-  const [allCategories, setAllCategories] = useState<CategoryType[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
   const [isUpdate, setIsUpdate] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [totalItems, setTotalItems] = useState(0);
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
-  const searchQuery = searchParams.get("q") ?? "";
-
-  // State quản lý giá trị đang gõ vào ô tìm kiếm (debounce 500ms)
-  const [searchInput, setSearchInput] = useState(searchQuery);
-  const debouncedSearch = useDebounce(searchInput, 500);
-
-  // Khi URL thay đổi từ bên ngoài, đồng bộ lại input
-  useEffect(() => {
-    setSearchInput(searchQuery);
-  }, [searchQuery]);
-
-  // Khi debounce thay đổi, cập nhật URL params
-  useEffect(() => {
-    if (debouncedSearch.trim() !== searchQuery.trim()) {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        const keyword = debouncedSearch.trim();
-        if (keyword) {
-          next.set("q", keyword);
-          next.set("_page", String(DEFAULT_PAGE));
-        } else {
-          next.delete("q");
-          next.delete("_page");
-        }
-        return next;
-      });
-    }
-  }, [debouncedSearch, searchQuery, setSearchParams]);
 
   const fetchAllCategories = useCallback(async () => {
     try {
-      const { data } = await axiosClient('/category/tree');
+      const { data, meta } = await axiosClient.post('/category/search', {
+        page: currentPage, 
+        pageSize
+      });
+
       const processed = (data ?? []).map((parent: CategoryType) => {
         const children = parent.children?.map((child: CategoryType) => ({
           ...child,
@@ -82,12 +56,12 @@ const Category: React.FC = () => {
           children: children.length > 0 ? children : undefined,
         };
       });
-      setAllCategories(processed);
-      setCategory(processed);
+      setTotalItems(meta.totalItems)
+      setCategories(processed);
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [currentPage, pageSize]);
 
   useEffect(() => {
     fetchAllCategories();
@@ -296,38 +270,10 @@ const Category: React.FC = () => {
     }
   };
 
-  // Lọc dữ liệu cây danh mục theo ô tìm kiếm ở frontend
-  const filteredCategory = category.filter((cat) => {
-    const matchesParent = cat.name?.toLowerCase().includes(debouncedSearch.toLowerCase());
-    const matchedChildren = cat.children?.filter((child) =>
-      child.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
-    ) ?? [];
-    
-    return !!(matchesParent || matchedChildren.length > 0);
-  }).map((cat) => {
-    const matchesParent = cat.name?.toLowerCase().includes(debouncedSearch.toLowerCase());
-    if (matchesParent) {
-      return cat;
-    }
-    return {
-      ...cat,
-      children: cat.children?.filter((child) =>
-        child.name?.toLowerCase().includes(debouncedSearch.toLowerCase())
-      ) ?? [],
-    };
-  });
-
   return (
     <>
       <Flex className="page-stack" gap="medium" vertical>
         <div className="page-toolbar">
-          <Search
-            allowClear={true}
-            placeholder={t("category.placeholder.search")}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="page-search"
-          />
           <div className="page-toolbar-actions">
               <AntButton
                 tooltip={t("common.add")}
@@ -349,7 +295,7 @@ const Category: React.FC = () => {
           <Table<CategoryType>
             rowKey="id"
             columns={columns}
-            dataSource={filteredCategory}
+            dataSource={categories}
             expandable={{
               expandIconColumnIndex: 1,
               rowExpandable: (record) => !!record.children && record.children.length > 0,
@@ -357,15 +303,15 @@ const Category: React.FC = () => {
             pagination={{
               current: currentPage,
               pageSize: pageSize,
-              total: filteredCategory.length,
+              total: totalItems,
               showSizeChanger: true,
-              pageSizeOptions: ["5", "10", "20", "50"],
+              pageSizeOptions: ["2","5", "10", "20", "50"],
               showTotal: (total, range) =>
                 t("category.pagination", { count: range[1] - range[0] + 1, total }),
-              onChange: (page, size) => {
+              onChange: (page, pageSize) => {
                 setSearchParams({
                   _page: String(page),
-                  _per_page: String(size),
+                  _per_page: String(pageSize),
                 });
               },
             }}
@@ -388,7 +334,7 @@ const Category: React.FC = () => {
         onOk={handleOkChild}
         onCancel={handleCancel}
         isUpdate={isUpdate}
-        options={allCategories}
+        options={categories}
       />
 
       <ModalConfirm

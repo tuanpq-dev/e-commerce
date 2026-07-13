@@ -9,7 +9,7 @@ import {
   Empty,
   type TableProps,
 } from "antd";
-import type { OrderType, CustomerType } from "../../types/domain";
+import type { OrderType } from "../../types/domain";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../api/axiosClient";
 import formatDate from "../../utils/formatDate";
@@ -19,8 +19,7 @@ import { getOrderStatuses } from "../../shared/constant/orderStatus";
 const DetailCustomer = () => {
   const { t } = useTranslation();
   const { id } = useParams();
-  const [customer, setCustomer] = useState<CustomerType | null>(null);
-  const [orders, setOrders] = useState<OrderType[]>([]);
+  const [dataCustomer, setDataCustomer] = useState<OrderType | null>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchDataDetail = async () => {
@@ -28,15 +27,8 @@ const DetailCustomer = () => {
 
     setLoading(true);
     try {
-      const { data } = await axiosClient.get(`/order/${id}`);
-      setOrders([data]);
-      setCustomer({
-        id: data.customerId,
-        fullname: data.customerName,
-        email: data.customerEmail,
-        phone: data.customerPhone || data.customer_phone,
-        address: data.shippingAddress,
-      });
+      const data = await axiosClient.get<OrderType>(`/order/${id}`);
+      setDataCustomer(data);
     } catch (err) {
       console.log(err);
     } finally {
@@ -51,7 +43,7 @@ const DetailCustomer = () => {
 
   const statusOrder = useMemo(() => getOrderStatuses(t), [t]);
 
-  const columns: TableProps<OrderType>["columns"] = [
+  const columns: TableProps["columns"] = [
     {
       title: t("order.columns.code"),
       dataIndex: "orderCode",
@@ -93,33 +85,26 @@ const DetailCustomer = () => {
     },
   ];
 
-  const totalExpend = useMemo(() => {
-    return orders.reduce((total, order) => {
-      const price = order.totalPrice !== undefined ? order.totalPrice : order.total_price;
-      return total + Number(price ?? 0);
-    }, 0);
-  }, [orders]);
-
   if (loading) return <Spin />;
-  if (!customer) return <Empty description={t("customer.detail.notFound")} />;
+  if (!dataCustomer) return <Empty description={t("customer.detail.notFound")} />;
 
   return (
     <Card title={t("customer.detail.title")}>
       <Descriptions column={{ xs: 1, sm: 1, md: 2 }} bordered>
         <Descriptions.Item label={t("customer.fullname")}>
-          {customer.fullname}
+          {dataCustomer.customerName}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.email")}>
-          {customer.email}
+          {dataCustomer.customerEmail}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.phone")}>
-          {customer.phone}
+          {dataCustomer.customerPhone}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.columns.totalOrders")}>
-          {orders.length}
+          {dataCustomer.items.length}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.columns.totalExpend")}>
-          {formatCurrency(totalExpend)}
+          {formatCurrency(dataCustomer.totalPrice)}
         </Descriptions.Item>
       </Descriptions>
 
@@ -133,7 +118,7 @@ const DetailCustomer = () => {
           <Table
             rowKey="id"
             columns={columns}
-            dataSource={orders}
+            dataSource={[dataCustomer]}
             pagination={false}
             scroll={{ x: "max-content" }}
           />

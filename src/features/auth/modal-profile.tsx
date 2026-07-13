@@ -18,6 +18,7 @@ const ModalProfile = ({ form, initialValues, isUpdate }: ModalProfileProps) => {
     <Form form={form} layout="vertical">
       <FormInput label="Tên" name="name" />
       <FormInput label="Email" name="email" disabled={isUpdate} />
+      <FormInput label="Số điện thoại" name="phone" />
     </Form>
   );
 };
