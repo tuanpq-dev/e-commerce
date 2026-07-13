@@ -32,9 +32,9 @@ export const CreateActiveLog = async (values: ActiveLogType) => {
     module: values.module,
     action: values.action,
     user: values.user ?? "Unknown",
-    created_at: new Date().toISOString(),
+    // created_at: new Date().toISOString(),
   };
 
-  const res = await axiosClient.post("/active_logs", payload);
+  const res = await axiosClient.post("/active-log", payload);
   return res.data;
 };

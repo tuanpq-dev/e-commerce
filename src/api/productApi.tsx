@@ -15,10 +15,7 @@ import {
   generateVariantSku,
   getColorCode,
 } from "../utils/skuGenerator";
-import {
-  SaveProductAttributesDetails,
-  DeleteProductAttributesDetails,
-} from "./attributeApi";
+
 import { calculateFinalPrice } from "../utils/variantEngine";
 
 // ═══════════════════════════════════════════════════════
@@ -216,20 +213,32 @@ export const handleSubmitProduct = async (values: ProductInitialValues) => {
       )
     }));
 
-    const createProductDto = {
+    let finalCategoryId = typeof values.category === "object" && values.category !== null
+      ? Number((values.category as any).id)
+      : Number(values.category);
+
+    if (values.category_child && values.category_child.length > 0) {
+      const firstChild = values.category_child[0];
+      finalCategoryId = Number(typeof firstChild === "object" ? (firstChild as any).id : firstChild);
+    }
+
+    const createProductDto: any = {
       sku: parentSku,
       name: values.name,
       price,
       basePrice: price,
       stock,
       description: values.description || "",
-      categoryId: Number(values.category),
       attributesDetails,
       variants: variantsArray
     };
 
+    if (!isNaN(finalCategoryId)) {
+      createProductDto.categoryId = finalCategoryId;
+    }
+
     const res = await axiosClient.post("/product", createProductDto);
-    return (res as { data: unknown }).data;
+    return res;
   } else {
     // ── LEGACY: giữ nguyên code cũ ─────────────────────────────────
     const productSummary = getProductSummary(values, parentSku);
@@ -261,7 +270,7 @@ export const handleSubmitProduct = async (values: ProductInitialValues) => {
       category_child: values.category_child,
     });
 
-    return (res as { data: unknown }).data;
+    return res;
   }
 };
 
@@ -277,50 +286,67 @@ type UpdateProductValues = Omit<ProductInitialValues, "id"> & {
 };
 
 export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
-  const productId = String(id);
-  const parentSku = values.sku ? String(values.sku) : productId;
-
   const isNewAttributeSystem = !!(values.attribute_groups?.length);
 
-  let price: number;
-  let stock: number;
-  let variantsPayload: ProductVariant[] | VariantCombinationMap;
-  let attrSavePromise: Promise<void> | null = null;
+  let price = Number(values.price) || 0;
+  let stock = Number(values.stock) || 0;
+  let variantsArray: any[] = [];
+  let attributesDetails: any = {};
 
   if (isNewAttributeSystem) {
     const variantMap: VariantCombinationMap = values.variant_map ?? {};
     stock = Object.values(variantMap).reduce((sum, v) => sum + (v.stock ?? 0), 0);
     price = Number(values.basePrice) || 0;
-    variantsPayload = variantMap;
-    attrSavePromise = SaveProductAttributesDetails(parentSku, values.attribute_groups!);
-  } else {
-    const productSummary = getProductSummary(values, parentSku);
-    price = productSummary.price;
-    stock = productSummary.stock;
-    variantsPayload = productSummary.variants;
+
+    // Convert attribute_groups to attributesDetails
+    for (const group of values.attribute_groups!) {
+      attributesDetails[group.titleId] = {
+        name: group.name,
+        values: group.values.map(val => ({
+          id: String(val.id),
+          value: val.value,
+          price_modifier_amount: val.price_modifier_amount
+        }))
+      };
+    }
+
+    // Map variants to flat array expected by BE
+    variantsArray = Object.entries(variantMap).map(([comboKey, info]) => ({
+      comboKey,
+      stock: Number(info.stock),
+      price: calculateFinalPrice(
+        price,
+        values.attribute_groups!,
+        comboKey.split("-")
+      )
+    }));
   }
 
-  const mainPayload = {
-    price,
-    stock,
-    basePrice: Number(values.basePrice) || price,
-    attribute_title_ids: values.attribute_groups?.map((g) => g.titleId) ?? [],
-    selectedSizes: values.selectedSizes || [],
-    selectedColors: values.selectedColors || [],
+  let finalCategoryId = typeof values.category === "object" && values.category !== null
+    ? Number((values.category as any).id)
+    : Number(values.category);
+
+  if (values.category_child && values.category_child.length > 0) {
+    const firstChild = values.category_child[0];
+    finalCategoryId = Number(typeof firstChild === "object" ? (firstChild as any).id : firstChild);
+  }
+
+  const updateProductDto: any = {
     name: values.name,
-    category: values.category,
-    category_child: values.category_child || [],
-    description: values.description,
+    price,
+    basePrice: Number(values.basePrice) || price,
+    stock,
+    description: values.description || "",
+    attributesDetails,
+    variants: variantsArray,
   };
 
-  const res = await axiosClient.patch(`/products/${id}`, mainPayload);
-  await axiosClient.patch("/product_variants", { [parentSku]: variantsPayload });
-
-  if (attrSavePromise) {
-    await attrSavePromise;
+  if (!isNaN(finalCategoryId)) {
+    updateProductDto.categoryId = finalCategoryId;
   }
 
-  return (res as { data: unknown }).data;
+  const res = await axiosClient.patch(`/product/${id}`, updateProductDto);
+  return res;
 };
 
 // ═══════════════════════════════════════════════════════
@@ -344,11 +370,10 @@ export const DeleteProduct = async (id: number | string) => {
     delete allVariants[parentSku];
   }
 
-  const res = await axiosClient.delete(`/products/${id}`);
+  const res = await axiosClient.delete(`/product/${id}`);
   await axiosClient.put("/product_variants", allVariants);
-  await DeleteProductAttributesDetails(parentSku);
 
-  return (res as { data: unknown }).data;
+  return res;
 };
 
 // ═══════════════════════════════════════════════════════
@@ -360,6 +385,6 @@ export const UpdateStatusProduct = async (
   id: number | string,
 ) => {
   const payload = { status };
-  const res = await axiosClient.patch(`/products/${id}`, payload);
-  return res.data;
+  const res = await axiosClient.patch(`/product/${id}`, payload);
+  return res;
 };

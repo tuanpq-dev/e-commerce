@@ -88,25 +88,23 @@ const AttributeManagement: React.FC = () => {
   const fetchAll = useCallback(async () => {
     setIsLoading(true);
     try {
-      await axiosClient.get('/attribute/pool').then((res) => {
-        const data = res.data || [];
+      const dataPool = await axiosClient.get('/attribute/pool');
         
-        const mappedTitles = data.map((item: any) => ({
-          id: String(item.id),
-          name: item.name
-        }));
-        setTitles(mappedTitles);
+      const mappedTitles = dataPool.map((item: any) => ({
+        id: String(item.id),
+        name: item.name
+      }));
+      setTitles(mappedTitles);
 
-        const pool: Record<string, AttributeValueItem[]> = {};
-        data.forEach((item: any) => {
-          pool[String(item.id)] = (item.attributeValues || []).map((val: any) => ({
-            id: String(val.id),
-            value: val.value,
-            price_modifier_amount: val.priceModifierAmount ?? val.price_modifier_amount ?? 0
-          }));
-        });
-        setValuePool(pool);
-      })
+      const pool: Record<string, AttributeValueItem[]> = {};
+      dataPool.forEach((item: any) => {
+        pool[String(item.id)] = (item.attributeValues || []).map((val: any) => ({
+          id: String(val.id),
+          value: val.value,
+          price_modifier_amount: val.priceModifierAmount ?? val.price_modifier_amount ?? 0
+        }));
+      });
+      setValuePool(pool);
     } catch {
       openNotification("error", {
         message: "Lỗi",

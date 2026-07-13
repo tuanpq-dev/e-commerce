@@ -13,7 +13,6 @@ import {
 import type { TableProps } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import {  UpdateStatusDetailOrder } from "../../api/orderApi";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import formatCurrency from "../../utils/formatCurrecy";
 import FormSelect from "../../@crema/core/Form/FormSelect";
@@ -31,8 +30,8 @@ import axiosClient from "../../api/axiosClient";
 
 type OrderItemType = {
   id: string;
-  product_id: string;
-  product_name: string;
+  productId: string;
+  productName: string;
   image: string;
   size?: string;
   color?: string;
@@ -41,29 +40,28 @@ type OrderItemType = {
 };
 
 type OrderHistoryType = {
+  id?: string | number;
+  orderId?: string | number;
   status: string;
   message: string;
   createdAt: string;
-  updatedBy?: {
-    id?: string | number;
-    name?: string;
-    email?: string;
-  };
+  updateBy?: string;
 };
 
 type OrderType = {
-  id: string;
-  order_code: string;
-  customer_id: string;
-  customer_name: string;
-  customer_email: string;
-  created_at: string;
-  total_price: number;
-  payment_method: string;
-  payment_status: "paid" | "unpaid";
-  shipping_status: "pending" | "shipping" | "delivered";
+  id: string | number;
+  orderCode: string;
+  customerId: string | number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  createdAt: string;
+  totalPrice: number;
+  paymentMethod: string;
+  paymentStatus: "paid" | "unpaid";
+  shippingStatus: "pending" | "shipping" | "delivered";
   status: "pending" | "processing" | "shipping" | "completed" | "cancelled";
-  shipping_address: string;
+  shippingAddress: string;
   items: OrderItemType[];
   histories?: OrderHistoryType[];
   historyDetailOrder?: OrderHistoryType[];
@@ -110,10 +108,9 @@ const DetailOrder = () => {
     if (!id) return;
     try {
       setLoading(true);
-      const dataDetailOrder = await axiosClient.get(`/order/${id}`);
-      console.log(dataDetailOrder)
-      setData(dataDetailOrder);
-      form.setFieldsValue({ status: dataDetailOrder?.status });
+      const dataOrder  = await axiosClient.get<OrderType>(`/order/${id}`);
+      setData(dataOrder);
+      form.setFieldsValue({ status: dataOrder?.status });
     } catch (err) {
       console.log(err);
     } finally {
@@ -126,61 +123,6 @@ const DetailOrder = () => {
   }, []);
 
   const columns: TableProps<OrderItemType>["columns"] = useMemo(() => {
-    const hasDynamicAttributes = data?.items?.some(
-      (item) => item.color === "Default" && item.size?.includes(" / ")
-    );
-
-    if (hasDynamicAttributes) {
-      return [
-        {
-          title: t("order.detail.columns.image"),
-          dataIndex: "image",
-          key: "image",
-          width: 80,
-          render: (image: string) => <Image width={50} height={50} src={image} />,
-        },
-        {
-          title: t("order.detail.columns.productName"),
-          dataIndex: "product_name",
-          key: "product_name",
-        },
-        {
-          title: t("order.detail.columns.attributes"),
-          dataIndex: "size",
-          key: "attributes",
-          render: (size: string) => {
-            return (
-              <Space wrap>
-                {size.split(" / ").map((val) => (
-                  <Tag color="blue" key={val}>
-                    {val}
-                  </Tag>
-                ))}
-              </Space>
-            );
-          },
-        },
-        {
-          title: t("order.detail.columns.quantity"),
-          dataIndex: "quantity",
-          key: "quantity",
-          width: 100,
-        },
-        {
-          title: t("order.detail.columns.price"),
-          dataIndex: "price",
-          key: "price",
-          render: (price: number) => `${formatCurrency(price)}`,
-        },
-        {
-          title: t("order.detail.columns.total"),
-          key: "total",
-          render: (_, record) =>
-            `${formatCurrency(record.price * record.quantity)}`,
-        },
-      ];
-    }
-
     return [
       {
         title: t("order.detail.columns.image"),
@@ -191,20 +133,37 @@ const DetailOrder = () => {
       },
       {
         title: t("order.detail.columns.productName"),
-        dataIndex: "product_name",
-        key: "product_name",
+        dataIndex: "productName",
+        key: "productName",
       },
       {
-        title: t("order.detail.columns.size"),
-        dataIndex: "size",
-        key: "size",
-        width: 80,
-      },
-      {
-        title: t("order.detail.columns.color"),
-        dataIndex: "color",
-        key: "color",
-        width: 100,
+        title: t("order.detail.columns.attributes"),
+        key: "attributes",
+        render: (_, record) => {
+          const attributes = [];
+          if (record.size && record.size !== "-") {
+            if (record.size.includes(" / ")) {
+              attributes.push(...record.size.split(" / "));
+            } else {
+              attributes.push(record.size);
+            }
+          }
+          if (record.color && record.color !== "Default" && record.color !== "-") {
+            attributes.push(record.color);
+          }
+
+          if (attributes.length === 0) return "-";
+
+          return (
+            <Space wrap>
+              {attributes.map((attr) => (
+                <Tag color="blue" key={attr}>
+                  {attr}
+                </Tag>
+              ))}
+            </Space>
+          );
+        },
       },
       {
         title: t("order.detail.columns.quantity"),
@@ -225,21 +184,23 @@ const DetailOrder = () => {
           `${formatCurrency(record.price * record.quantity)}`,
       },
     ];
-  }, [data, t]);
+  }, [t]);
 
   const handleUpdateStatus = async (status: string) => {
     if (!data?.id) return;
+    const updaterName = userInfo?.profile
+      ? `${userInfo.profile.lastName || ""} ${userInfo.profile.firstName || ""}`.trim()
+      : userInfo?.name || "Unknown";
 
-    const updatedOrder = await UpdateStatusDetailOrder({
-      id: data.id,
+    const payload = {
       status,
-      historyDetailOrder: data.historyDetailOrder ?? [],
       updatedBy: {
         id: userInfo?.id,
-        name: userInfo?.name,
+        name: updaterName,
         email: userInfo?.email,
       },
-    });
+    };
+    const updated = await axiosClient.patch<OrderType>(`/order/${data.id}`, payload);
 
     openNotification("success", {
       message: t("common.success"),
@@ -249,10 +210,10 @@ const DetailOrder = () => {
     await CreateActiveLog({
       module: `Detail Order - Status - ${id}`,
       action: "UPDATE",
-      user: userInfo?.name,
+      user: updaterName,
     });
 
-    setData(updatedOrder);
+    setData(updated);
   };
 
   if (loading) return <Spin />;
@@ -260,26 +221,26 @@ const DetailOrder = () => {
 
   return (
     <Form form={form}>
-      <Card title={`${t("order.detail.title")} ${data.order_code}`} loading={loading}>
+      <Card title={`${t("order.detail.title")} ${data.orderCode}`} loading={loading}>
         <Descriptions column={{ xs: 1, sm: 1, md: 2 }} bordered>
           <Descriptions.Item label={t("order.detail.orderCode")}>
-            {data.order_code}
+            {data.orderCode}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.detail.purchasedAt")}>
-            {data.created_at}
+            {formatDate(data.createdAt)}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.detail.customerName")}>
-            {data.customer_name}
+            {data.customerName}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("customer.email")}>
-            {data.customer_email}
+            {data.customerEmail}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.shippingAddress")}>
-            {data.shipping_address}
+            {data.shippingAddress}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.detail.orderStatus")}>
@@ -311,7 +272,7 @@ const DetailOrder = () => {
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.totalPrice")}>
-            {formatCurrency(data.total_price)}
+            {formatCurrency(data.totalPrice)}
           </Descriptions.Item>
         </Descriptions>
 
@@ -323,7 +284,7 @@ const DetailOrder = () => {
             <Table
               rowKey="id"
               columns={columns}
-              dataSource={data}
+              dataSource={data.items}
               pagination={false}
               scroll={{ x: "max-content" }}
             />
@@ -340,7 +301,7 @@ const DetailOrder = () => {
               children: (
                 <div>
                   <div>
-                    {item.updatedBy?.name ?? "System"},{" "}
+                    {item.updateBy ?? "System"},{" "}
                     {item.message.toLowerCase()}
                   </div>
                   <div style={{ color: "#999", fontSize: 13 }}>

@@ -5,7 +5,7 @@ import {
   getOrdersByDayOfMonth,
   getTotalRevenueFromOrders,
 } from "../../../../api/orderApi";
-import { GetProducts } from "../../../../api/productApi";
+import axiosClient from "../../../../api/axiosClient";
 
 const getLast6Months = () => {
   const now = new Date();
@@ -53,7 +53,7 @@ export const useDashboard = () => {
       setLoading(true);
       try {
         const { data: orders } = (await GetOrders()) ?? { data: [], items: 0 };
-        const { items: totalProducts } = await GetProducts();
+        const { data: totalProducts } = await axiosClient.post('/product/search');
 
         const results = months.map(({ month, year }) =>
           getTotalRevenueFromOrders(orders, { month, year }),
@@ -69,7 +69,7 @@ export const useDashboard = () => {
             0,
           ),
           totalCustomers: uniqueCustomers,
-          totalProducts,
+          totalProducts: totalProducts.length,
         });
       } catch (err) {
         console.log(err);

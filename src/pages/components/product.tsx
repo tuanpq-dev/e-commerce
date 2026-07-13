@@ -1,5 +1,4 @@
-import React, {  useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
 import { Flex, Grid, Image, Input, Select, Space, Table } from "antd";
 import type { TableProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -23,8 +22,8 @@ import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
 import formatDate from "../../utils/formatDate";
 import { useTranslation } from "react-i18next";
-import useDebounce from "../../@crema/core/hook/useDebounce";
 import axiosClient from "../../api/axiosClient";
+import { useSearchParams } from "react-router-dom";
 
 const getProductVariants = (record: DataType) => record.variants ?? [];
 
@@ -57,36 +56,41 @@ const formatProductPrice = (record: DataType) => {
 };
 
 const formatProductVariants = (record: DataType) => {
-  // ── Cấu trúc mới: hiển thị tổ hợp từ variant_map ────────────────
-  if (record.variant_map) {
-    const keys = Object.keys(record.variant_map);
-    if (!keys.length) return "Chưa có tổ hợp";
-    if (keys.length > 4) return `${keys.length} tổ hợp`;
-
-    // Dùng value labels từ attribute_groups nếu có
-    if (record.attribute_groups?.length) {
-      const labelMap = new Map<string, string>();
-      for (const g of record.attribute_groups) {
-        for (const v of g.values) labelMap.set(v.id, v.value);
-      }
-      return keys
-        .slice(0, 4)
-        .map((key) =>
-          key
-            .split("-")
-            .map((id) => labelMap.get(id) ?? id)
-            .join(" / "),
-        )
-        .join(", ");
-    }
-    return keys.slice(0, 4).join(", ");
-  }
-
-  // ── Legacy: hiển thị variants[] ────────────────────────────────
-  const variants = getProductVariants(record);
+  const variants = record.variants || [];
   if (!variants.length) return "Default";
   if (variants.length > 3) return `${variants.length} variants`;
-  return variants.map((v) => `${v.size}/${v.color}`).join(", ");
+
+  const labelMap = new Map<string, string>();
+  if (record.attributesDetails) {
+    if (
+      typeof record.attributesDetails === "object" &&
+      !Array.isArray(record.attributesDetails)
+    ) {
+      Object.values(record.attributesDetails).forEach((group: any) => {
+        if (group && Array.isArray(group.values)) {
+          group.values.forEach((v: any) => labelMap.set(String(v.id), v.value));
+        }
+      });
+    } else if (Array.isArray(record.attributesDetails)) {
+      record.attributesDetails.forEach((group: any) => {
+        if (group && Array.isArray(group.values)) {
+          group.values.forEach((v: any) => labelMap.set(String(v.id), v.value));
+        }
+      });
+    }
+  }
+
+  return variants
+    .map((v) => {
+      if (v.comboKey) {
+        return v.comboKey
+          .split("-")
+          .map((id) => labelMap.get(String(id)) || id)
+          .join(" / ");
+      }
+      return `${v.size || ""}/${v.color || ""}`;
+    })
+    .join(", ");
 };
 
 const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
@@ -101,7 +105,7 @@ const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
     .filter((item): item is string | number => item !== undefined);
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PER_PAGE = 5;
+const DEFAULT_PER_PAGE = 10;
 
 const Product: React.FC = () => {
   const screens = Grid.useBreakpoint();
@@ -109,6 +113,8 @@ const Product: React.FC = () => {
   const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
+  const profile = userInfo.profile;
+  const [isLoading, setIsLoading] = useState(false);
   const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
@@ -119,79 +125,86 @@ const Product: React.FC = () => {
   const [product, setProduct] = useState<DataType[]>([]);
   const [category, setCategory] = useState<CategoryType[]>([]);
   const [attributeTitles, setAttributeTitles] = useState<AttributeTitle[]>([]);
-  const [attributeValuePool, setAttributeValuePool] = useState<Record<string, import("../../types/domain").AttributeValueItem[]>>({});
-
-  // ─── Pagination đồng bộ URL ───────────────────────────
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // Bóc tách _page và _per_page từ URL, fallback về giá trị mặc định
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
-  const searchText = searchParams.get("q") ?? "";
+  const [totalItems, setTotalItems] = useState(0);
+  const [attributeValuePool, setAttributeValuePool] = useState<
+    Record<string, import("../../types/domain").AttributeValueItem[]>
+  >({});
 
-  // State quản lý giá trị đang gõ vào ô tìm kiếm (có debounce 500ms)
-  const [searchInput, setSearchInput] = useState(searchText);
-  const debouncedSearchText = useDebounce(searchInput, 500);
-
-  // Khi URL thay đổi từ bên ngoài (ví dụ: xóa query), đồng bộ lại input
-  useEffect(() => {
-    setSearchInput(searchText);
-  }, [searchText]);
-
-  // Khi giá trị debounce thay đổi, cập nhật URL params
-  useEffect(() => {
-    if (debouncedSearchText.trim() !== searchText.trim()) {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        const keyword = debouncedSearchText.trim();
-        if (keyword) {
-          next.set("q", keyword);
-          next.set("_page", String(DEFAULT_PAGE));
-        } else {
-          next.delete("q");
-          next.delete("_page");
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    try {
+      const { data: products, meta: metaData } = await axiosClient.post(
+        "/product/search",
+        {
+          page: currentPage,
+          pageSize,
         }
-        return next;
-      });
+      );
+      setProduct(products);
+      setTotalItems(metaData.totalItems);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [debouncedSearchText, searchText, setSearchParams]);
+  };
 
   useEffect(() => {
-    Promise.all([
-      axiosClient.get('/product'),
-      axiosClient.get('/category/tree'),
-      axiosClient.get('/attribute/pool')
-    ]).then(([productRes, categoryRes, attributeRes]) => {
-      setProduct(productRes.data);
+    fetchProducts();
+  }, [currentPage, pageSize]);
 
-      const mapCategoryNode = (node: any): any => {
-        const children = node.children || node.child || [];
-        return {
-          ...node,
-          child: children.map(mapCategoryNode),
-          children: children.map(mapCategoryNode)
-        };
-      };
-      setCategory((categoryRes.data || []).map(mapCategoryNode));
+  useEffect(() => {
+    if (isOpenModal) {
+      Promise.all([
+        axiosClient.post("/category/search"),
+        axiosClient.get("/attribute/pool"),
+      ])
+        .then(([categoriesRes, attributes]) => {
+          // POST /category/search trả về { data: [...], meta: {...} }
+          const categoryList: any[] = Array.isArray(categoriesRes)
+            ? categoriesRes
+            : Array.isArray(categoriesRes?.data)
+            ? categoriesRes.data
+            : [];
 
-      const mappedTitles = (attributeRes.data || []).map((item: any) => ({
-        id: String(item.id),
-        name: item.name
-      }));
+          const mapCategoryNode = (node: any): any => {
+            const children = node.children || node.child || [];
+            return {
+              ...node,
+              child: children.map(mapCategoryNode),
+              children: children.map(mapCategoryNode),
+            };
+          };
+          setCategory(categoryList.map(mapCategoryNode));
 
-      const mappedPool: Record<string, import("../../types/domain").AttributeValueItem[]> = {};
-      (attributeRes.data || []).forEach((item: any) => {
-        mappedPool[String(item.id)] = (item.attributeValues || []).map((val: any) => ({
-          id: String(val.id),
-          value: val.value,
-          price_modifier_amount: val.priceModifierAmount ?? 0
-        }));
-      });
+          const mappedTitles = (attributes || []).map((item: any) => ({
+            id: String(item.id),
+            name: item.name,
+          }));
 
-      setAttributeTitles(mappedTitles);
-      setAttributeValuePool(mappedPool);
-    }).catch(console.error);
-  }, []);
+          const mappedPool: Record<
+            string,
+            import("../../types/domain").AttributeValueItem[]
+          > = {};
+          (attributes || []).forEach((item: any) => {
+            mappedPool[String(item.id)] = (item.attributeValues || []).map(
+              (val: any) => ({
+                id: String(val.id),
+                value: val.value,
+                price_modifier_amount: val.priceModifierAmount ?? 0,
+              }),
+            );
+          });
+
+          setAttributeTitles(mappedTitles);
+          setAttributeValuePool(mappedPool);
+        })
+        .catch(console.error);
+    }
+  }, [isOpenModal]);
 
   const categoryMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -257,37 +270,78 @@ const Product: React.FC = () => {
       return;
     }
 
-    await axiosClient.delete(`/product/${rowData.id}`);
-    // await CreateActiveLog({
-    //   module: "Product",
-    //   action: "DELETE",
-    //   user: userInfo?.name,
-    // });
+    try {
+      setIsLoading(true);
+      await axiosClient.delete(`/product/${rowData.id}`);
+      await CreateActiveLog({
+        module: "Product",
+        action: "DELETE",
+        user: `${profile?.lastName} ${profile?.firstName}`,
+      });
 
-    setIsDeleteModal(false);
+      setIsDeleteModal(false);
 
-    openNotification("success", {
-      message: t("common.success"),
-      description: t("product.notification.deleteSuccess"),
-    });
+      openNotification("success", {
+        message: t("common.success"),
+        description: t("product.notification.deleteSuccess"),
+      });
+
+      await fetchProducts();
+    } catch (err) {
+      openNotification("error", {
+        message: t("common.error"),
+        description: typeof err === "string" ? err : String(err || "Đã có lỗi xảy ra, vui lòng thử lại!"),
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleUpdate = (values: DataType) => {
+    // API trả về attributesDetails dạng Record<string, {name, values[]}> → convert sang AttributeGroup[]
+    const attributesDetailsRaw = values.attributesDetails as any;
+    const attribute_groups = attributesDetailsRaw && typeof attributesDetailsRaw === "object" && !Array.isArray(attributesDetailsRaw)
+      ? Object.entries(attributesDetailsRaw).map(([titleId, group]: [string, any]) => ({
+          titleId,
+          name: group.name,
+          values: (group.values ?? []).map((v: any) => ({
+            id: String(v.id),
+            value: v.value,
+            price_modifier_amount: v.price_modifier_amount ?? 0,
+          })),
+        }))
+      : Array.isArray(attributesDetailsRaw)
+      ? attributesDetailsRaw
+      : [];
+
+    const categoryObj = typeof values.category === "object" && values.category !== null
+      ? (values.category as any)
+      : null;
+
+    let parentCategoryId: string | number =
+      categoryObj?.id ?? (values as any).categoryId ?? values.category;
+    let childCategoryIds: (string | number)[] = getCategoryChildIds(values.category_child);
+
+    if (categoryObj?.parentId !== null && categoryObj?.parentId !== undefined) {
+      parentCategoryId = categoryObj.parentId;
+      childCategoryIds = [categoryObj.id];
+    }
+
+    const variant_map = values.variant_map ?? {};
+
     setRowData({
       id: values.id,
       name: values.name,
       sku: values.sku,
-      category: values.category,
-      category_child: getCategoryChildIds(values.category_child),
+      category: parentCategoryId,
+      category_child: childCategoryIds,
       price: values.price,
       stock: values.stock,
       basePrice: values.basePrice,
-      selectedSizes: values.selectedSizes,
-      selectedColors: values.selectedColors,
       variants: values.variants,
       description: values.description || "",
-      attribute_groups: values.attribute_groups,
-      variant_map: values.variant_map,
+      attribute_groups,
+      variant_map,
     });
   };
 
@@ -297,12 +351,13 @@ const Product: React.FC = () => {
       await CreateActiveLog({
         module: "Product",
         action: `UPDATE status - ${id}`,
-        user: userInfo?.name,
+        user: `${profile?.lastName} ${profile?.firstName}`,
       });
       openNotification("success", {
         message: t("common.success"),
         description: t("product.notification.updateStatus"),
       });
+      await fetchProducts();
     } catch (err) {
       openNotification("error", {
         message: t("common.failed"),
@@ -313,13 +368,13 @@ const Product: React.FC = () => {
   };
 
   const columns: TableProps<DataType>["columns"] = [
-    {
-      title: t("category.columns.no"),
-      fixed: !isMobile ? "start" : false,
-      width: 20,
-      render: (_value, _record, index) =>
-        (currentPage - 1) * pageSize + index + 1,
-    },
+    // {
+    //   title: t("category.columns.no"),
+    //   fixed: !isMobile ? "start" : false,
+    //   width: 20,
+    //   render: (_value, _record, index) =>
+    //     (currentPage - 1) * pageSize + index + 1,
+    // },
     {
       title: t("product.columns.image"),
       dataIndex: "image",
@@ -404,11 +459,11 @@ const Product: React.FC = () => {
     },
     {
       title: t("product.columns.createdAt"),
-      dataIndex: "created_at",
-      key: "created_at",
+      dataIndex: "createdAt",
+      key: "createdAt",
       width: 100,
       render: (_, record) => {
-        return record.created_at ? formatDate(record.created_at) : "";
+        return record.createdAt ? formatDate(record.createdAt) : "";
       },
     },
     {
@@ -448,40 +503,75 @@ const Product: React.FC = () => {
   ];
 
   const handleOk = async (values: ProductInitialValues) => {
-    if (isUpdate) {
-      if (!rowData?.id) {
-        return;
+    try {
+      setIsLoading(true);
+
+      if (isUpdate) {
+        if (!rowData?.id) {
+          return;
+        }
+
+        await Promise.all([
+          UpdateProduct({ ...values, id: rowData.id }),
+          CreateActiveLog({
+            module: "Product",
+            action: "UPDATE",
+            user: `${profile?.lastName} ${profile?.firstName}`,
+          }),
+        ]);
+
+        setIsUpdate(false);
+        setRowData(null);
+
+        openNotification("success", {
+          message: t("common.success"),
+          description: t("product.notification.updateSuccess"),
+        });
+      } else {
+        await Promise.all([
+          CreateProduct(values),
+          CreateActiveLog({
+            module: "Product",
+            action: "CREATE",
+            user: `${profile?.lastName} ${profile?.firstName}`,
+          })
+        ]);
+
+        openNotification("success", {
+          message: t("common.success"),
+          description: t("product.notification.createSuccess"),
+        });
       }
 
-      await UpdateProduct({ ...values, id: rowData.id });
-      await CreateActiveLog({
-        module: "Product",
-        action: "UPDATE",
-        user: userInfo?.name,
-      });
-
+      await fetchProducts();
       setIsOpenModal(false);
-      setIsUpdate(false);
-      setRowData(null);
-
-      openNotification("success", {
-        message: t("common.success"),
-        description: t("product.notification.updateSuccess"),
+    } catch (err) {
+      openNotification("error", {
+        message: t("common.error"),
+        description: typeof err === "string" ? err : String(err || "Đã có lỗi xảy ra, vui lòng thử lại!"),
       });
-    } else {
-      await CreateProduct(values);
-      // await CreateActiveLog({
-      //   module: "Product",
-      //   action: "CREATE",
-      //   user: userInfo?.name,
-      // });
-
-      setIsOpenModal(false);
-      openNotification("success", {
-        message: t("common.success"),
-        description: t("product.notification.createSuccess"),
-      });
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const paginationConfig = {
+    current: currentPage,
+    pageSize: pageSize,
+    total: totalItems,
+    showSizeChanger: true,
+    pageSizeOptions: ["2","5", "10", "20", "50"],
+    showTotal: (total, range) =>
+      `${t("product.pagination", {
+        count: range[1] - range[0] + 1,
+        total,
+      })}`,
+    onChange: (page, pageSize) => {
+      setSearchParams({
+        _page: String(page),
+        _per_page: String(pageSize),
+      });
+    },
   };
 
   return (
@@ -492,8 +582,8 @@ const Product: React.FC = () => {
             <Search
               allowClear={true}
               placeholder={t("product.placeholder.search")}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              // value={searchInput}
+              // onChange={(e) => setSearchInput(e.target.value)}
               className="page-search"
             />
             <Select
@@ -522,34 +612,22 @@ const Product: React.FC = () => {
             />
           </div>
           {/* {isAdmin && ( */}
-            <AntButton
-              tooltip={t("common.add")}
-              type="primary"
-              onClick={handleAdd}
-            >
-              {t("common.add")}
-            </AntButton>
+          <AntButton
+            tooltip={t("common.add")}
+            type="primary"
+            onClick={handleAdd}
+          >
+            {t("common.add")}
+          </AntButton>
           {/* )} */}
         </div>
         <div className="table-shell">
           <Table<DataType>
             rowKey="sku"
+            loading={isLoading}
             columns={columns}
             dataSource={product}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              showSizeChanger: true,
-              pageSizeOptions: ["5", "10", "20", "50"],
-              showTotal: (total, range) =>
-                t("product.pagination", { count: range[1] - range[0] + 1, total }),
-              onChange: (page, size) => {
-                setSearchParams({
-                  _page: String(page),
-                  _per_page: String(size),
-                });
-              },
-            }}
+            pagination={paginationConfig}
             scroll={{ x: "max-content" }}
           />
         </div>

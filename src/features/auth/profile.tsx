@@ -30,6 +30,7 @@ const Profile = () => {
   }, [getUserInfo]);
 
   if (!userInfo) return null;
+  const profile = userInfo.profile;
 
   const handleUpdateProfile = () => {
     setIsUpdate(true);
@@ -43,7 +44,7 @@ const Profile = () => {
       CreateActiveLog({
         module: "Profile",
         action: "UPDATE",
-        user: userInfo?.name,
+        user: `${profile?.lastName} ${profile?.firstName}`,
       }),
     ]);
     setIsUpdate(false);
@@ -92,11 +93,15 @@ const Profile = () => {
           <div style={{ flex: 1 }}>
             <Descriptions column={1} bordered>
               <Descriptions.Item label={t("common.name")}>
-                {userInfo.name}
+                {`${profile?.lastName} ${profile?.firstName}`}
               </Descriptions.Item>
 
               <Descriptions.Item label="Email">
                 {userInfo.email}
+              </Descriptions.Item>
+
+              <Descriptions.Item label="Số điện thoại">
+                {profile.phoneNumber}
               </Descriptions.Item>
             </Descriptions>
           </div>

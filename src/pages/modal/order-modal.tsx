@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Flex, Form, Modal, Input } from "antd";
+import { Flex, Form, Modal } from "antd";
 import type { FormInstance } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import type {
@@ -15,25 +15,7 @@ import formatCurrency from "../../utils/formatCurrecy";
 import { useTranslation } from "react-i18next";
 import { generateCombinationKey } from "../../utils/variantEngine";
 
-type ModalCartProps = {
-  open: boolean;
-  loading?: boolean;
-  optionsLoading?: boolean;
-  customers: CustomerType[];
-  products: DataType[];
-  onCancel: () => void;
-  onOk: (values: CreateOrderValues) => void;
-};
-
-type OrderItemFieldProps = {
-  form: FormInstance;
-  fieldName: number;
-  restField: Record<string, unknown>;
-  products: DataType[];
-  optionsLoading?: boolean;
-  canRemove: boolean;
-  onRemove: () => void;
-};
+// === UTILS ===
 
 const DEFAULT_SHIPPING_ADDRESS = "48 - Sơn Thanh - Xã Phú Xuyên - Hà Nội";
 
@@ -49,39 +31,37 @@ const getCustomerShippingAddress = (
   return address || DEFAULT_SHIPPING_ADDRESS;
 };
 
-const getOrderProductVariants = (product?: DataType) => {
-  if (!product) {
-    return [];
-  }
-
-  if (product.variants?.length) {
-    return product.variants;
-  }
-
-  return [
-    {
-      size: "Default",
-      color: "Default",
-      price: product.price,
-      stock: product.stock,
-      sku: product.sku,
-    },
-  ];
-};
 
 const findOrderProduct = (products: DataType[], productId?: string | number) =>
   products.find((product) => String(product.id) === String(productId));
 
 const getProductAttributeGroups = (product?: DataType): AttributeGroup[] => {
   if (!product) return [];
-  if (product.attribute_groups?.length) {
-    return product.attribute_groups;
+  let attrDetails = product.attributesDetails;
+  if (typeof attrDetails === "string") {
+    try {
+      attrDetails = JSON.parse(attrDetails);
+    } catch (err) {
+      attrDetails = undefined;
+    }
   }
-  // Construct virtual attribute groups for legacy products
+  if (attrDetails && typeof attrDetails === "object" && !Array.isArray(attrDetails)) {
+    return Object.entries(attrDetails).map(([titleId, group]: [string, any]) => ({
+      titleId,
+      name: group.name,
+      values: (group.values || []).map((val: any) => ({
+        id: String(val.id),
+        value: val.value,
+        price_modifier_amount: Number(val.price_modifier_amount || 0),
+      })),
+    }));
+  }
+  if (Array.isArray(attrDetails)) {
+    return attrDetails;
+  }
   const variants = product.variants ?? [];
   const uniqueSizes = Array.from(new Set(variants.map((v) => v.size).filter(Boolean)));
   const uniqueColors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean)));
-
   const groups: AttributeGroup[] = [];
   if (uniqueSizes.length) {
     groups.push({
@@ -111,69 +91,56 @@ const getProductAttributeGroups = (product?: DataType): AttributeGroup[] => {
 const findOrderVariant = (
   products: DataType[],
   item?: {
+    productId?: string | number;
     product_id?: string | number;
     attributes?: Record<string, string>;
   },
 ) => {
-  const product = findOrderProduct(products, item?.product_id);
+  const pId = item?.productId ?? item?.product_id;
+  const product = findOrderProduct(products, pId);
   if (!product) return undefined;
 
   const attributeGroups = getProductAttributeGroups(product);
   const selectedAttrs = item?.attributes ?? {};
-
-  // Check if all active attributes of this product have been selected
   const allSelected = attributeGroups.every((g) => !!selectedAttrs[g.titleId]);
   if (!allSelected) return undefined;
 
-  // New dynamic N-attribute system
-  if (product.variant_map && Object.keys(product.variant_map).length > 0) {
-    // Get the selected value IDs (excluding any virtual attributes)
+  // New dynamic N-attribute system (from NestJS/Prisma: variants have comboKey)
+  const isNewSystem = attributeGroups.length > 0 && (product.variants ?? []).some((v) => !!(v as any).comboKey);
+  if (isNewSystem) {
     const valueIds = attributeGroups
       .map((g) => selectedAttrs[g.titleId])
       .filter(Boolean);
 
     const comboKey = generateCombinationKey(valueIds);
-    const stockData = product.variant_map[comboKey ?? ""];
+    const variant = (product.variants ?? []).find(
+      (v) => String((v as any).comboKey) === String(comboKey),
+    );
 
-    // If combination is not found, treat it as stock = 0
-    const stock = stockData ? stockData.stock : 0;
+    if (!variant) return undefined;
 
-    // Calculate final price: basePrice + sum of modifiers
-    const basePrice = Number(product.basePrice ?? product.price ?? 0);
-    let price = basePrice;
-    if (product.attribute_groups) {
-      const modifierMap = new Map<string, number>();
-      for (const g of product.attribute_groups) {
-        for (const v of g.values) {
-          modifierMap.set(v.id, v.price_modifier_amount);
-        }
-      }
-      price += valueIds.reduce((sum, id) => sum + (modifierMap.get(id) ?? 0), 0);
-    }
-
-    // Build label string
+    // Build label string for UI display in Size column if needed
     const labelMap = new Map<string, string>();
-    if (product.attribute_groups) {
-      for (const g of product.attribute_groups) {
-        for (const v of g.values) {
-          labelMap.set(v.id, v.value);
-        }
-      }
-    }
+    attributeGroups.forEach((g) => {
+      g.values.forEach((v) => {
+        labelMap.set(v.id, v.value);
+      });
+    });
     const labelStr = valueIds.map((id) => labelMap.get(id) ?? id).join(" / ");
 
     return {
+      id: Number(variant.id),
       size: labelStr,
       color: "Default",
-      price: price,
-      stock: stock,
+      price: Number(variant.price ?? product.price),
+      stock: Number(variant.stock),
       sku: product.sku,
       comboKey: comboKey,
-      isOutOfStock: stock <= 0,
+      isOutOfStock: Number(variant.stock) <= 0,
     };
   }
 
-  // Legacy system
+  // Legacy system / fallback
   const size = selectedAttrs["size"];
   const color = selectedAttrs["color"];
   const variant = (product.variants ?? []).find(
@@ -183,6 +150,7 @@ const findOrderVariant = (
   if (!variant) return undefined;
 
   return {
+    id: Number(variant.id),
     size: variant.size,
     color: variant.color,
     price: Number(variant.price),
@@ -195,6 +163,7 @@ const findOrderVariant = (
 const getOrderTotalPrice = (
   products: DataType[],
   items?: {
+    productId?: string | number;
     product_id?: string | number;
     attributes?: Record<string, string>;
     quantity?: string | number;
@@ -206,6 +175,100 @@ const getOrderTotalPrice = (
     return total + Number(variant?.price ?? 0) * Number(item.quantity ?? 0);
   }, 0);
 
+const buildQuantityValidator = (
+  t: (key: string, opts?: object) => string,
+  attributeGroups: AttributeGroup[],
+  selectedAttributes: Record<string, string> | undefined,
+  variant: ReturnType<typeof findOrderVariant>,
+) =>
+  async (_: unknown, value: unknown) => {
+    const currentQuantity = Number(value);
+
+    if (currentQuantity < 1) {
+      throw new Error(t("order.validation.quantityMin"));
+    }
+
+    // Must select all attributes
+    const allSelected = attributeGroups.every(
+      (g) => selectedAttributes && !!selectedAttributes[g.titleId],
+    );
+    if (!allSelected || !variant) {
+      throw new Error("Vui lòng chọn đầy đủ thuộc tính");
+    }
+
+    if (variant.isOutOfStock || variant.stock < 1) {
+      throw new Error("Hết hàng");
+    }
+
+    if (currentQuantity > Number(variant.stock)) {
+      throw new Error(
+        t("order.validation.stockLimit", { stock: variant.stock }),
+      );
+    }
+  };
+
+// === TYPES ===
+
+type ModalCartProps = {
+  open: boolean;
+  loading?: boolean;
+  optionsLoading?: boolean;
+  customers?: CustomerType[];
+  products: DataType[];
+  onCancel: () => void;
+  onOk: (values: CreateOrderValues) => void;
+};
+
+type OrderItemFieldProps = {
+  form: FormInstance;
+  fieldName: number;
+  restField: Record<string, unknown>;
+  products?: DataType[];
+  optionsLoading?: boolean;
+  canRemove: boolean;
+  onRemove: () => void;
+};
+
+// === HOOKS ===
+
+const useOrderItemField = (
+  form: FormInstance,
+  fieldName: number,
+  products: DataType[],
+) => {
+  const productCurrent = useMemo(
+    () => products.filter((product) => product.status === "active"),
+    [products],
+  );
+
+  const productId = Form.useWatch(["items", fieldName, "productId"], form);
+  const selectedAttributes = Form.useWatch(["items", fieldName, "attributes"], form);
+  const quantity = Form.useWatch(["items", fieldName, "quantity"], form);
+
+  const product = useMemo(
+    () => findOrderProduct(productCurrent, productId),
+    [productCurrent, productId],
+  );
+
+  const attributeGroups = useMemo(() => getProductAttributeGroups(product), [product]);
+
+  // Find currently matched variant (stock & price)
+  const variant = useMemo(
+    () =>
+      findOrderVariant(productCurrent, {
+        productId: productId,
+        attributes: selectedAttributes,
+      }),
+    [productCurrent, productId, selectedAttributes],
+  );
+
+  const rowTotal = Number(variant?.price ?? 0) * Number(quantity ?? 0);
+
+  return { productCurrent, selectedAttributes, quantity, product, attributeGroups, variant, rowTotal };
+};
+
+// === COMPONENTS ===
+
 const OrderItemFieldComponent = ({
   form,
   fieldName,
@@ -216,44 +279,17 @@ const OrderItemFieldComponent = ({
   onRemove,
 }: OrderItemFieldProps) => {
   const { t } = useTranslation();
-  const productCurrent = useMemo(
-    () => products.filter((product) => product.status === "active"),
-    [products],
-  );
+  const { productCurrent, selectedAttributes, attributeGroups, variant, rowTotal } =
+    useOrderItemField(form, fieldName, products ?? []);
 
-  // 2. Watch values of current row via Form.useWatch
-  const productId = Form.useWatch(["items", fieldName, "product_id"], form);
-  const selectedAttributes = Form.useWatch(["items", fieldName, "attributes"], form);
-  const quantity = Form.useWatch(["items", fieldName, "quantity"], form);
-
-  // Find currently selected product
-  const product = useMemo(
-    () => findOrderProduct(productCurrent, productId),
-    [productCurrent, productId],
-  );
-
-  // Compute active attribute groups for dynamic rendering
-  const attributeGroups = useMemo(() => getProductAttributeGroups(product), [product]);
-
-  // Find currently matched variant (stock & price)
-  const variant = useMemo(
-    () =>
-      findOrderVariant(productCurrent, {
-        product_id: productId,
-        attributes: selectedAttributes,
-      }),
-    [productCurrent, productId, selectedAttributes],
-  );
-
-  const rowTotal = Number(variant?.price ?? 0) * Number(quantity ?? 0);
+  const quantityValidator = buildQuantityValidator(t, attributeGroups, selectedAttributes, variant);
 
   return (
     <div className="order-item-row">
-      {/* Product Select */}
       <FormSelect
         {...restField}
         label={t("order.product")}
-        name={[fieldName, "product_id"]}
+        name={[fieldName, "productId"]}
         showSearch
         loading={optionsLoading}
         disabled={optionsLoading}
@@ -267,7 +303,6 @@ const OrderItemFieldComponent = ({
           );
           const groups = getProductAttributeGroups(selectedProd);
 
-          // Default: Pre-select first value for each attribute group
           const defaultAttributes: Record<string, string> = {};
           groups.forEach((g) => {
             if (g.values.length > 0) {
@@ -338,33 +373,7 @@ const OrderItemFieldComponent = ({
         min={0}
         rules={[
           { required: true, message: t("order.validation.quantityRequired") },
-          {
-            validator: async (_, value) => {
-              const currentQuantity = Number(value);
-
-              if (currentQuantity < 1) {
-                throw new Error(t("order.validation.quantityMin"));
-              }
-
-              // Must select all attributes
-              const allSelected = attributeGroups.every(
-                (g) => selectedAttributes && !!selectedAttributes[g.titleId],
-              );
-              if (!allSelected || !variant) {
-                throw new Error("Vui lòng chọn đầy đủ thuộc tính");
-              }
-
-              if (variant.isOutOfStock || variant.stock < 1) {
-                throw new Error("Hết hàng");
-              }
-
-              if (currentQuantity > Number(variant.stock)) {
-                throw new Error(
-                  t("order.validation.stockLimit", { stock: variant.stock }),
-                );
-              }
-            },
-          },
+          { validator: quantityValidator },
         ]}
       />
 
@@ -398,23 +407,13 @@ const OrderItemFieldComponent = ({
   );
 };
 
-const OrderItemField = React.memo(
-  OrderItemFieldComponent,
-  (prevProps, nextProps) => {
-    return (
-      prevProps.fieldName === nextProps.fieldName &&
-      prevProps.optionsLoading === nextProps.optionsLoading &&
-      prevProps.canRemove === nextProps.canRemove &&
-      prevProps.products === nextProps.products
-    );
-  },
-);
+const OrderItemField = React.memo(OrderItemFieldComponent);
 
 export const ModalCart = ({
   open,
   loading,
   optionsLoading,
-  customers,
+  customers = [],
   products,
   onCancel,
   onOk,
@@ -443,8 +442,8 @@ export const ModalCart = ({
         form.resetFields();
         form.setFieldsValue({
           items: [{ quantity: 1 }],
-          payment_method: "cod",
-          shipping_address: DEFAULT_SHIPPING_ADDRESS,
+          paymentMethod: "cod",
+          shippingAddress: DEFAULT_SHIPPING_ADDRESS,
         });
       }}
       afterClose={() => form.resetFields()}
@@ -456,7 +455,7 @@ export const ModalCart = ({
       <Form form={form} layout="vertical">
         <FormSelect
           label={t("order.customer")}
-          name="customer_id"
+          name="customerId"
           showSearch
           loading={optionsLoading}
           disabled={optionsLoading}
@@ -466,7 +465,7 @@ export const ModalCart = ({
           }))}
           onChange={(customerId) => {
             form.setFieldsValue({
-              shipping_address: getCustomerShippingAddress(
+              shippingAddress: getCustomerShippingAddress(
                 customers,
                 customerId,
               ),
@@ -518,7 +517,7 @@ export const ModalCart = ({
         </Form.List>
         <FormSelect
           label={t("order.paymentMethod")}
-          name="payment_method"
+          name="paymentMethod"
           options={[
             { label: "Momo", value: "momo" },
             { label: "COD", value: "cod" },
@@ -533,7 +532,7 @@ export const ModalCart = ({
         />
         <FormInput
           label={t("order.shippingAddress")}
-          name="shipping_address"
+          name="shippingAddress"
           rules={[
             { required: true, message: t("order.validation.addressRequired") },
             { max: 100, message: t("order.validation.addressMax") },

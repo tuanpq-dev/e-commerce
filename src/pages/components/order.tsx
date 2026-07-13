@@ -1,7 +1,6 @@
 import {
   Flex,
   Grid,
-  Input,
   Select,
   Space,
   Table,
@@ -11,29 +10,23 @@ import {
 import type React from "react";
 import type {
   CreateOrderValues,
-  CustomerType,
   DataType,
   OrderType,
+  CustomerType,
 } from "../../types/domain";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CreateOrder, GetOrders } from "../../api/orderApi";
 import { EyeOutlined } from "@ant-design/icons";
 import formatCurrency from "../../utils/formatCurrecy";
 import AntButton from "../../@crema/component/AntButton";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../../config";
-import useDebounce from "../../@crema/core/hook/useDebounce";
-import { UserPermission } from "../../api/userPermission";
 import { ModalCart } from "../modal";
-import { GetCustomers } from "../../api/customerApi";
-import { CreateActiveLog } from "../../api/activeLogApi";
-import { useAuth } from "../../contexts/AuthContext";
 import openNotification from "../../@crema/core/Notification";
 import formatDate from "../../utils/formatDate";
 import exportToCSV from "../../@crema/core/ExportToCSV";
 import { useTranslation } from "react-i18next";
 import { getOrderStatuses } from "../../shared/constant/orderStatus";
-import { GetProducts } from "../../api/productApi";
+import { CreateOrder } from "../../api/orderApi";
 import axiosClient from "../../api/axiosClient";
 
 const DEFAULT_PAGE = 1;
@@ -43,13 +36,9 @@ const Order: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const { t } = useTranslation();
   const isMobile = !screens.md;
-  const { Search } = Input;
-  const { isAdmin } = UserPermission();
-  const { userInfo } = useAuth();
   const [data, setData] = useState<OrderType[]>([]);
-  const [allDataOrder, setAllDataOrder] = useState<OrderType[]>([]);
-  const [customers, setCustomers] = useState<CustomerType[]>([]);
   const [products, setProducts] = useState<DataType[]>([]);
+  const [customers, setCustomers] = useState<CustomerType[]>([]);
   const navigate = useNavigate();
   const [isModalAdd, setIsModalAdd] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -60,35 +49,6 @@ const Order: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
-  const searchQuery = searchParams.get("q") ?? "";
-
-  // State quản lý giá trị đang gõ vào ô tìm kiếm (debounce 500ms)
-  const [searchInput, setSearchInput] = useState(searchQuery);
-  const debouncedSearch = useDebounce(searchInput, 500);
-
-  // Khi URL thay đổi từ bên ngoài, đồng bộ lại input
-  useEffect(() => {
-    setSearchInput(searchQuery);
-  }, [searchQuery]);
-
-  // Khi debounce thay đổi, cập nhật URL params
-  useEffect(() => {
-    if (debouncedSearch.trim() !== searchQuery.trim()) {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        const keyword = debouncedSearch.trim();
-        if (keyword) {
-          next.set("q", keyword);
-          next.set("_page", String(DEFAULT_PAGE));
-        } else {
-          next.delete("q");
-          next.delete("_page");
-        }
-        return next;
-      });
-    }
-  }, [debouncedSearch, searchQuery, setSearchParams]);
-
   const statusOrder = useMemo(() => getOrderStatuses(t), [t]);
 
   const statusOptions = useMemo(
@@ -103,36 +63,22 @@ const Order: React.FC = () => {
   const fetchDataOrder = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data } = await axiosClient.get(`/order`)
+      const { data, meta } = await axiosClient.post(`/order/search`, {
+        page: currentPage,
+        pageSize,
+      })
       setData(data);
-      // setTotalItems(items);
+      setTotalItems(meta.totalItems);
     } catch (err) {
       console.log(err);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize, searchQuery]);
-
-  const getAllData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await GetOrders();
-      setAllDataOrder(data);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Chỉ giữ filter status phía client (json-server không filter theo field status)
-  const filterDataOrder = data.filter(
-    (item) => !selectedStatus || item.status === selectedStatus,
-  );
+  }, [currentPage, pageSize]);
 
   const fetchCustomers = async () => {
     try {
-      const { data } = (await GetCustomers()) ?? [];
+      const { data } = await axiosClient.post("/customer/search");
       setCustomers(data);
     } catch (err) {
       console.log(err);
@@ -141,7 +87,7 @@ const Order: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data: dataProduct } = await GetProducts();
+      const { data: dataProduct } = await axiosClient.post('/product/search');
       const productCurrent = dataProduct.filter(
         (product) => product.status === "active",
       );
@@ -154,7 +100,7 @@ const Order: React.FC = () => {
   const fetchOrderOptions = async () => {
     setIsLoadingOptions(true);
     try {
-      await Promise.all([fetchCustomers(), fetchProducts()]);
+      await Promise.all([fetchProducts(), fetchCustomers()]);
     } finally {
       setIsLoadingOptions(false);
     }
@@ -162,11 +108,7 @@ const Order: React.FC = () => {
 
   useEffect(() => {
     fetchDataOrder();
-  }, [currentPage, pageSize, searchQuery]);
-
-  useEffect(() => {
-    getAllData();
-  }, []);
+  }, [fetchDataOrder]);
 
   const columns: TableProps<OrderType>["columns"] = [
     {
@@ -178,27 +120,27 @@ const Order: React.FC = () => {
     },
     {
       title: t("order.columns.code"),
-      dataIndex: "order_code",
-      key: "order_code",
+      dataIndex: "orderCode",
+      key: "orderCode",
       fixed: !isMobile ? "start" : false,
     },
     {
       title: t("order.columns.customer"),
-      dataIndex: "customer_name",
-      key: "customer_name",
+      dataIndex: "customerName",
+      key: "customerName",
       fixed: !isMobile ? "start" : false,
     },
     {
       title: t("order.columns.createdAt"),
-      dataIndex: "created_at",
-      key: "created_at",
-      render: (created_at) => formatDate(created_at),
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (createdAt) => formatDate(createdAt),
     },
     {
       title: t("order.columns.totalPrice"),
-      dataIndex: "total_price",
-      key: "total_price",
-      render: (_, record) => formatCurrency(Number(record.total_price)),
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      render: (_, record) => formatCurrency(Number(record.totalPrice)),
     },
     {
       title: t("order.columns.status"),
@@ -262,16 +204,10 @@ const Order: React.FC = () => {
     try {
       setIsCreating(true);
       await CreateOrder(values, customers, products);
-      await CreateActiveLog({
-        module: "Order",
-        action: "CREATE",
-        user: userInfo?.name,
-      });
 
       await fetchDataOrder();
-      await getAllData();
       await fetchOrderOptions();
-      
+
       setIsModalAdd(false);
       openNotification("success", {
         message: t("common.success"),
@@ -293,16 +229,16 @@ const Order: React.FC = () => {
     return found?.title ?? status;
   };
 
-  const exportData = allDataOrder.map((d, index) => ({
+  const exportData = data.map((d, index) => ({
     [t("order.exportColumns.no")]: index + 1,
-    [t("order.exportColumns.orderCode")]: d.order_code,
-    [t("order.exportColumns.customerName")]: d.customer_name,
-    [t("order.exportColumns.email")]: d.customer_email,
-    [t("order.exportColumns.address")]: d.shipping_address,
-    [t("order.exportColumns.createdAt")]: d.created_at
-      ? formatDate(d.created_at)
+    [t("order.exportColumns.orderCode")]: d.orderCode || d.order_code,
+    [t("order.exportColumns.customerName")]: d.customerName || d.customer_name,
+    [t("order.exportColumns.email")]: d.customerEmail || d.customer_email,
+    [t("order.exportColumns.address")]: d.shippingAddress || d.shipping_address,
+    [t("order.exportColumns.createdAt")]: (d.createdAt || d.created_at)
+      ? formatDate(d.createdAt || d.created_at)
       : "",
-    [t("order.exportColumns.totalPrice")]: formatCurrency(d.total_price),
+    [t("order.exportColumns.totalPrice")]: formatCurrency(Number(d.totalPrice || d.total_price)),
     [t("order.exportColumns.status")]: d.status ? formatStatus(d.status) : "",
   }));
 
@@ -315,13 +251,13 @@ const Order: React.FC = () => {
       <Flex className="page-stack" gap="medium" vertical>
         <div className="page-toolbar">
           <div className="page-toolbar-controls">
-            <Search
+            {/* <Search
               allowClear={true}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder={t("order.placeholder.search")}
               className="page-search"
-            />
+            /> */}
             <Select
               allowClear
               placeholder={t("order.placeholder.status")}
@@ -338,23 +274,23 @@ const Order: React.FC = () => {
             >
               {t("order.export")}
             </AntButton>
-            {isAdmin && (
-              <AntButton
-                tooltip={t("common.add")}
-                type="primary"
-                onClick={handleAdd}
-              >
-                {t("common.add")}
-              </AntButton>
-            )}
+            {/* {isAdmin && ( */}
+            <AntButton
+              tooltip={t("common.add")}
+              type="primary"
+              onClick={handleAdd}
+            >
+              {t("common.add")}
+            </AntButton>
+            {/* )} */}
           </Flex>
         </div>
         <div className="table-shell">
           <Table<OrderType>
-            rowKey="order_code"
+            rowKey={(record) => String(record.orderCode || record.id)}
             loading={isLoading}
             columns={columns}
-            dataSource={filterDataOrder}
+            dataSource={data}
             pagination={{
               current: currentPage,
               pageSize: pageSize,
@@ -366,10 +302,10 @@ const Order: React.FC = () => {
                   count: range[1] - range[0] + 1,
                   total,
                 }),
-              onChange: (page, size) => {
+              onChange: (page, pageSize) => {
                 setSearchParams({
                   _page: String(page),
-                  _per_page: String(size),
+                  _per_page: String(pageSize),
                 });
               },
             }}

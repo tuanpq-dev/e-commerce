@@ -18,8 +18,6 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
   const token = getAccessToken();
   const { Header } = Layout;
   const navigate = useNavigate();
-  const { userInfo } = useAuth();
-  const userName = userInfo?.name ?? "You";
   const { logout } = useAuth();
 
   const headerStyle = {
@@ -76,7 +74,7 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
           }}
         >
           <Button type="text">
-            {userName} <DownOutlined />
+            You <DownOutlined />
           </Button>
         </Dropdown>
       </div>
