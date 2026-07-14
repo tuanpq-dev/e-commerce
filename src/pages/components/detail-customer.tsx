@@ -9,7 +9,7 @@ import {
   Empty,
   type TableProps,
 } from "antd";
-import type { OrderType } from "../../types/domain";
+import type { CustomerOrderResponseType } from "../../types/domain";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../api/axiosClient";
 import formatDate from "../../utils/formatDate";
@@ -19,7 +19,7 @@ import { getOrderStatuses } from "../../shared/constant/orderStatus";
 const DetailCustomer = () => {
   const { t } = useTranslation();
   const { id } = useParams();
-  const [dataCustomer, setDataCustomer] = useState<OrderType | null>(null);
+  const [dataCustomer, setDataCustomer] = useState<CustomerOrderResponseType | null>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchDataDetail = async () => {
@@ -27,7 +27,7 @@ const DetailCustomer = () => {
 
     setLoading(true);
     try {
-      const data = await axiosClient.get<OrderType>(`/order/${id}`);
+      const data = await axiosClient.get<CustomerOrderResponseType>(`/customer/${id}`);
       setDataCustomer(data);
     } catch (err) {
       console.log(err);
@@ -92,19 +92,19 @@ const DetailCustomer = () => {
     <Card title={t("customer.detail.title")}>
       <Descriptions column={{ xs: 1, sm: 1, md: 2 }} bordered>
         <Descriptions.Item label={t("customer.fullname")}>
-          {dataCustomer.customerName}
+          {dataCustomer.fullname}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.email")}>
-          {dataCustomer.customerEmail}
+          {dataCustomer.email}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.phone")}>
-          {dataCustomer.customerPhone}
+          {dataCustomer.phone}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.columns.totalOrders")}>
-          {dataCustomer.items.length}
+          {dataCustomer.orders.length}
         </Descriptions.Item>
         <Descriptions.Item label={t("customer.columns.totalExpend")}>
-          {formatCurrency(dataCustomer.totalPrice)}
+          {formatCurrency(dataCustomer.totalExpend)}
         </Descriptions.Item>
       </Descriptions>
 
@@ -118,7 +118,7 @@ const DetailCustomer = () => {
           <Table
             rowKey="id"
             columns={columns}
-            dataSource={[dataCustomer]}
+            dataSource={dataCustomer.orders}
             pagination={false}
             scroll={{ x: "max-content" }}
           />

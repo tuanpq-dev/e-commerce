@@ -124,38 +124,27 @@ export type CategoryType = {
 };
 
 export type OrderType = {
-  id?: number | string;
-  order_code?: number | string;
-  orderCode?: number | string;
-  customer_id?: number | string;
-  customerId?: number | string;
-  customer_name?: string;
-  customerName?: string;
-  customer_email?: string;
-  customerEmail?: string;
-  customer_phone?: string | number;
-  customerPhone?: string | number;
-  created_at?: string;
-  createdAt?: string;
-  total_price?: number | string;
-  totalPrice?: number | string;
-  payment_method?: string;
-  paymentMethod?: string;
-  payment_status?: "paid" | "unpaid";
-  paymentStatus?: "paid" | "unpaid";
-  shipping_status?: "pending" | "shipping" | "delivered";
-  shippingStatus?: "pending" | "shipping" | "delivered";
-  status?: string;
-  shipping_address?: string;
-  shippingAddress?: string;
-  note?: string;
+  id: number;
+  orderCode: string;
+  customerId: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  totalPrice: number;
+  paymentMethod: "cod" | "banking" | string; ó
+  paymentStatus: "paid" | "unpaid";
+  shippingStatus: "pending" | "shipping" | "delivered" | string;
+  status: "completed" | "processing" | string;
+  shippingAddress: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+  
   items?: {
     id: string | number;
     orderId?: string | number;
-    product_id?: string | number;
-    productId?: string | number;
-    product_name?: string;
-    productName?: string;
+    productId: string | number;
+    productName: string;
     size?: string;
     color?: string;
     sku?: string;
@@ -171,6 +160,18 @@ export type OrderType = {
     createdAt: string;
     updateBy?: string;
   }[];
+};
+
+export type CustomerOrderResponseType = {
+  id: number;
+  fullname: string;
+  email: string;
+  phone: string;
+  address: string;
+  totalOrders: number;
+  totalExpend: number;
+  createdAt: string;
+  orders: OrderType[];
 };
 
 export type CreateOrderItemValues = {
@@ -193,13 +194,19 @@ export type CreateOrderValues = {
 export type CustomerType = {
   id?: number | string;
   customerName?: string;
+  fullname?: string;
   customerEmail?: string;
   customerAddress?: string;
   customerPhone?: number | string;
   total_orders?: number | string;
   totalPrice?: number | string;
   created_at?: number | string;
-  items: any,
+  items?: any;
+  email?: string;
+  address?: string;
+  phone?: number | string;
+  totalOrders?: number | string;
+  totalExpend?: number | string;
 };
 
 export type CreateCustomerValues = {

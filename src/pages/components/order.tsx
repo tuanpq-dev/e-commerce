@@ -15,7 +15,7 @@ import type {
   CustomerType,
 } from "../../types/domain";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import formatCurrency from "../../utils/formatCurrecy";
 import AntButton from "../../@crema/component/AntButton";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -28,6 +28,9 @@ import { useTranslation } from "react-i18next";
 import { getOrderStatuses } from "../../shared/constant/orderStatus";
 import { CreateOrder } from "../../api/orderApi";
 import axiosClient from "../../api/axiosClient";
+import ModalConfirm from "../../@crema/core/ModalConfirm";
+import { CreateActiveLog } from "../../api/activeLogApi";
+import { useAuth } from "../../contexts/AuthContext";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 5;
@@ -36,12 +39,16 @@ const Order: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const { t } = useTranslation();
   const isMobile = !screens.md;
+  const { userInfo } = useAuth();
+  const profile = userInfo.profile;
   const [data, setData] = useState<OrderType[]>([]);
+  const [rowData, setRowData] = useState(null);
   const [products, setProducts] = useState<DataType[]>([]);
   const [customers, setCustomers] = useState<CustomerType[]>([]);
   const navigate = useNavigate();
   const [isModalAdd, setIsModalAdd] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>();
@@ -176,6 +183,15 @@ const Order: React.FC = () => {
                   navigate(`/${config.routes.DETAIL_ORDER(record.id)}`);
                 }}
               />
+              <AntButton
+                danger
+                tooltip={t("common.delete")}
+                icon={<DeleteOutlined />}
+                onClick={() => {
+                  setIsDeleteModal(true);
+                  setRowData(record);
+                }}
+              />
             </Space>
           </>
         );
@@ -185,11 +201,15 @@ const Order: React.FC = () => {
 
   const handleAdd = async () => {
     setIsModalAdd(true);
-    await fetchOrderOptions();
+
+    if (products.length === 0 || customers.length === 0) {
+      await fetchOrderOptions();
+    }
   };
 
   const handleCancel = () => {
     setIsModalAdd(false);
+    setIsDeleteModal(false);
   };
 
   const getCreateOrderErrorMessage = (err: unknown) => {
@@ -205,14 +225,12 @@ const Order: React.FC = () => {
       setIsCreating(true);
       await CreateOrder(values, customers, products);
 
-      await fetchDataOrder();
-      await fetchOrderOptions();
-
       setIsModalAdd(false);
       openNotification("success", {
         message: t("common.success"),
         description: t("order.notification.createSuccess"),
       });
+      await fetchDataOrder();
     } catch (err) {
       console.log(err);
       openNotification("error", {
@@ -231,20 +249,51 @@ const Order: React.FC = () => {
 
   const exportData = data.map((d, index) => ({
     [t("order.exportColumns.no")]: index + 1,
-    [t("order.exportColumns.orderCode")]: d.orderCode || d.order_code,
-    [t("order.exportColumns.customerName")]: d.customerName || d.customer_name,
-    [t("order.exportColumns.email")]: d.customerEmail || d.customer_email,
-    [t("order.exportColumns.address")]: d.shippingAddress || d.shipping_address,
-    [t("order.exportColumns.createdAt")]: (d.createdAt || d.created_at)
-      ? formatDate(d.createdAt || d.created_at)
+    [t("order.exportColumns.orderCode")]: d.orderCode,
+    [t("order.exportColumns.customerName")]: d.customerName,
+    [t("order.exportColumns.email")]: d.customerEmail,
+    [t("order.exportColumns.address")]: d.shippingAddress,
+    [t("order.exportColumns.createdAt")]: (d.createdAt)
+      ? formatDate(d.createdAt)
       : "",
-    [t("order.exportColumns.totalPrice")]: formatCurrency(Number(d.totalPrice || d.total_price)),
+    [t("order.exportColumns.totalPrice")]: formatCurrency(Number(d.totalPrice)),
     [t("order.exportColumns.status")]: d.status ? formatStatus(d.status) : "",
   }));
 
   const exportExcel = () => {
     return exportToCSV(exportData, "order.csv");
   };
+
+  const handleDeleteOrder = async () => {
+    if (!rowData || !rowData.id) return;
+
+    try {
+      const creatorName = profile 
+      ? `${profile.lastName || ''} ${profile.firstName || ''}`.trim() 
+      : "Unknown User";
+      await axiosClient.delete(`/order/${rowData.id}`);
+      await CreateActiveLog({
+        module: "Order",
+        action: "DELETE",
+        user: creatorName,
+      });
+
+      setIsDeleteModal(false);
+
+      openNotification("success", {
+        message: t("common.success"),
+        description: t("order.notification.deleteSuccess"),
+      });
+
+      await fetchDataOrder()
+    } catch (error) {
+      openNotification("error", {
+        message: t("common.delete"),
+        description: 'Xóa đơn hàng thất bại',
+      });
+      throw new Error('Xóa đơn hàng thất bại')
+    }
+  } 
 
   return (
     <>
@@ -322,6 +371,13 @@ const Order: React.FC = () => {
         products={products}
         onCancel={handleCancel}
         onOk={handleCreateOrder}
+      />
+
+      <ModalConfirm
+        open={isDeleteModal}
+        targetName={rowData?.orderCode}
+        onOk={handleDeleteOrder}
+        onCancel={handleCancel}
       />
     </>
   );
