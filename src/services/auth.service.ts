@@ -1,17 +1,16 @@
 import openNotification from "../@crema/core/Notification";
-import { mockAccount, mockUser } from "../mocks/user.mock";
 import type { LoginPayload, RegisterPayload, UpdateUserPayload } from "../types/domain";
 
 const getAccounts = () => {
   const local = localStorage.getItem("custom_accounts");
   const parsed = local ? JSON.parse(local) : [];
-  return [...mockAccount, ...parsed];
+  return [...parsed];
 };
 
 const getUsers = () => {
   const local = localStorage.getItem("custom_users");
   const parsed = local ? JSON.parse(local) : [];
-  return [...mockUser, ...parsed];
+  return [...parsed];
 };
 
 export const LoginApi = (payload: LoginPayload) => {

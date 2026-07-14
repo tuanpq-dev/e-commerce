@@ -10,7 +10,8 @@
     "confirm": "Confirm",
     "success": "Success",
     "failed": "Failed",
-    "name": "Name"
+    "name": "Name",
+    "default": "Default"
   },
   "sider": {
     "Dashboard": "Dashboard",
@@ -188,7 +189,13 @@
       "address": "Address",
       "createdAt": "Created At",
       "totalPrice": "Total Price",
-      "status": "Status"
+      "status": "Status",
+      "productName": "Product Name",
+      "sku": "SKU",
+      "size": "Size",
+      "color": "Color",
+      "quantity": "Quantity",
+      "price": "Price"
     },
     "validation": {
       "customerRequired": "Please select a customer",
@@ -230,6 +237,7 @@
   },
   "customer": {
     "titleCreate": "Add Customer",
+    "titleUpdate": "Update Customer",
     "fullname": "Full Name",
     "email": "Email",
     "phone": "Phone",
@@ -255,6 +263,8 @@
       "phoneExists": "Phone number already exists",
       "createFailed": "Could not create customer",
       "createSuccess": "Customer created successfully",
+      "updateFailed": "Customer update failed",
+      "updateSuccess": "Customer updated successfully",
       "deleteHasOrders": "Cannot delete customer because they already have orders",
       "deleteSuccess": "Customer deleted successfully",
       "deleteFailed": "Customer deletion failed"

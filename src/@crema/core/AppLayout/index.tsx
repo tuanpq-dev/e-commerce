@@ -129,7 +129,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         open={isMobile && drawerOpen}
         onClose={() => setDrawerOpen(false)}
         placement="left"
-        width={280}
         styles={{
           body: { padding: 0, background: "var(--app-surface-muted)" },
         }}

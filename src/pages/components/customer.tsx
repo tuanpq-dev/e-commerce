@@ -1,12 +1,11 @@
-import { Flex, Grid, Input, Space, Table, type TableProps } from "antd";
+import { Flex, Grid, Space, Table, type TableProps } from "antd";
 import type React from "react";
 import type {
   CreateCustomerValues,
   CustomerType,
 } from "../../types/domain";
-import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import {
-  CreateCustomer,
   DeleteCustomer,
 } from "../../api/customerApi";
 import { useCallback, useEffect, useState } from "react";
@@ -14,7 +13,6 @@ import AntButton from "../../@crema/component/AntButton";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../../config";
 import formatCurrency from "../../utils/formatCurrecy";
-import { UserPermission } from "../../api/userPermission";
 import { ModalCustomer } from "../modal";
 import openNotification from "../../@crema/core/Notification";
 import { CreateActiveLog } from "../../api/activeLogApi";
@@ -30,20 +28,23 @@ const Customer: React.FC = () => {
   const screens = Grid.useBreakpoint();
   const { t } = useTranslation();
   const isMobile = !screens.md;
-  const { Search } = Input;
-  const { isAdmin } = UserPermission();
   const { userInfo } = useAuth();
+  const profile = userInfo.profile;
   const [rowData, setRowData] = useState<CustomerType | null>(null);
   const [dataCustomer, setDataCustomer] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
   const [totalItems, setTotalItems] = useState(0);
+  const creatorName = profile 
+      ? `${profile.lastName || ''} ${profile.firstName || ''}`.trim() 
+      : "Unknown User";
 
   const fetchCustomer = useCallback(async () => {
     setIsLoading(true);
@@ -68,77 +69,96 @@ const Customer: React.FC = () => {
   }, [fetchCustomer]);
 
   const handleAdd = () => {
+    setRowData(null);
     setIsOpenModal(true);
   };
 
   const handleCancel = () => {
     setIsOpenModal(false);
+    setRowData(null);
   };
 
-  const getCreateErrorMessage = (err: unknown) => {
-    if (err instanceof Error && err.message === "EMAIL_EXISTS") {
+  const getErrorMessage = (err: unknown, fallbackKey: string) => {
+    if (typeof err === "string" && (err === "EMAIL_EXISTS" || err.includes("Đã tồn tại email"))) {
       return t("customer.notification.emailExists");
     }
 
-    if (err instanceof Error && err.message === "PHONE_EXISTS") {
+    if (typeof err === "string" && err === "PHONE_EXISTS") {
       return t("customer.notification.phoneExists");
     }
 
-    return t("customer.notification.createFailed");
+    return t(fallbackKey);
   };
 
-  const handleCreateCustomer = async (values: CreateCustomerValues) => {
+  const handleSaveCustomer = async (values: CreateCustomerValues) => {
     try {
-      setIsCreating(true);
-      await CreateCustomer(values);
-      await CreateActiveLog({
-        module: "Customer",
-        action: "CREATE",
-        user: userInfo?.name,
-      });
+      if (rowData && rowData.id) {
+        setIsUpdating(true);
+        await axiosClient.patch(`/customer/${rowData.id}`, values);
+        await CreateActiveLog({
+          module: "Customer",
+          action: "UPDATE",
+          user: creatorName,
+        });
 
-      await fetchCustomer();
-      setIsOpenModal(false);
-      openNotification("success", {
-        message: t("common.success"),
-        description: t("customer.notification.createSuccess"),
-      });
+        await fetchCustomer();
+        setIsOpenModal(false);
+        setRowData(null);
+        openNotification("success", {
+          message: t("common.success"),
+          description: t("customer.notification.updateSuccess"),
+        });
+      } else {
+        setIsCreating(true);
+        await axiosClient.post('/customer', values);
+        await CreateActiveLog({
+          module: "Customer",
+          action: "CREATE",
+          user: creatorName,
+        });
+
+        await fetchCustomer();
+        setIsOpenModal(false);
+        openNotification("success", {
+          message: t("common.success"),
+          description: t("customer.notification.createSuccess"),
+        });
+      }
     } catch (err) {
       console.log(err);
       openNotification("error", {
         message: t("common.failed"),
-        description: getCreateErrorMessage(err),
+        description: rowData 
+          ? getErrorMessage(err, "customer.notification.updateFailed")
+          : getErrorMessage(err, "customer.notification.createFailed"),
       });
     } finally {
       setIsCreating(false);
+      setIsUpdating(false);
     }
   };
 
   const handleDelete = async () => {
-    try {
-      if (Number(rowData?.total_orders ?? 0) > 0) {
-        openNotification("error", {
-          message: t("common.failed"),
-          description: t("customer.notification.deleteHasOrders"),
-        });
-        return;
-      }
-      if (!rowData?.id) return;
+    if (!rowData || !rowData.id) return;
 
-      await Promise.all([
-        DeleteCustomer(rowData.id),
-        CreateActiveLog({
+    try {
+      const creatorName = profile 
+      ? `${profile.lastName || ''} ${profile.firstName || ''}`.trim() 
+      : "Unknown User";
+
+      await DeleteCustomer(rowData.id),
+      await CreateActiveLog({
           module: "Customer",
           action: "DELETE",
-          user: userInfo?.name,
-        }),
-      ]);
-      await fetchCustomer();
+          user: creatorName,
+        });
+        
       setIsDeleteModal(false);
       openNotification("success", {
         message: t("common.success"),
         description: t("customer.notification.deleteSuccess"),
       });
+      await fetchCustomer();
     } catch (err) {
       console.log(err);
       openNotification("error", {
@@ -220,6 +240,14 @@ const Customer: React.FC = () => {
                 }}
               />
               <AntButton
+                tooltip={t("common.update")}
+                icon={<EditOutlined />}
+                onClick={() => {
+                  setRowData(record);
+                  setIsOpenModal(true);
+                }}
+              />
+              <AntButton
                 tooltip={t("common.delete")}
                 icon={<DeleteOutlined />}
                 onClick={() => {
@@ -244,7 +272,7 @@ const Customer: React.FC = () => {
           placeholder={t("customer.placeholder.search")}
           className="page-search"
         /> */}
-        {isAdmin && (
+        {/* {isAdmin && ( */}
           <AntButton
             tooltip={t("common.add")}
             type="primary"
@@ -252,7 +280,7 @@ const Customer: React.FC = () => {
           >
             {t("common.add")}
           </AntButton>
-        )}
+        {/* )} */}
       </div>
       <div className="table-shell">
         <Table<CustomerType>
@@ -280,9 +308,10 @@ const Customer: React.FC = () => {
       </div>
       <ModalCustomer
         open={isOpenModal}
-        loading={isCreating}
+        loading={isCreating || isUpdating}
         onCancel={handleCancel}
-        onOk={handleCreateCustomer}
+        onOk={handleSaveCustomer}
+        initialValues={rowData}
       />
 
       <ModalConfirm

@@ -23,7 +23,6 @@ const ActiveLog = () => {
     try {
       const payload = { page: currentPage, pageSize };
       const { data, meta } = await axiosClient.post('/active-log/search', payload);
-      console.log(meta)
       setDataActiveLog(data);
       setTotalItems(meta.totalItems);
     } catch (err) {

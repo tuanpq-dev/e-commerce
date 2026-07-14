@@ -1,5 +1,5 @@
 import { Form, Modal } from "antd";
-import type { CreateCustomerValues } from "../../types/domain";
+import type { CreateCustomerValues, CustomerType } from "../../types/domain";
 import FormInput from "../../@crema/core/Form/FormInput";
 import { useTranslation } from "react-i18next";
 
@@ -8,6 +8,7 @@ type ModalCustomerProps = {
   loading?: boolean;
   onCancel: () => void;
   onOk: (values: CreateCustomerValues) => void;
+  initialValues?: CustomerType | null;
 };
 
 export const ModalCustomer = ({
@@ -15,13 +16,14 @@ export const ModalCustomer = ({
   loading,
   onCancel,
   onOk,
+  initialValues,
 }: ModalCustomerProps) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
   return (
     <Modal
-      title={t("customer.titleCreate")}
+      title={initialValues ? t("customer.titleUpdate") : t("customer.titleCreate")}
       open={open}
       confirmLoading={loading}
       onOk={async () => {
@@ -31,11 +33,20 @@ export const ModalCustomer = ({
       onCancel={onCancel}
       afterOpenChange={(visible) => {
         if (visible) {
-          form.resetFields();
+          if (initialValues) {
+            form.setFieldsValue({
+              fullname: initialValues.fullname,
+              email: initialValues.email,
+              phone: initialValues.phone,
+              address: initialValues.address,
+            });
+          } else {
+            form.resetFields();
+          }
         }
       }}
       afterClose={() => form.resetFields()}
-      okText={t("common.add")}
+      okText={initialValues ? t("common.save") : t("common.add")}
       cancelText={t("common.cancel")}
       destroyOnHidden
     >

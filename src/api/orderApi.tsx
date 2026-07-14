@@ -7,7 +7,6 @@ import type {
   OrderType,
 } from "../types/domain";
 import axiosClient from "./axiosClient";
-import callApiWithRetries from "./callApiWithRetries";
 import { generateCombinationKey } from "../utils/variantEngine";
 
 const getProductVariants = (product: DataType) =>
@@ -125,8 +124,11 @@ export type PaginatedOrders = {
 
 export const GetOrders = async (
 ): Promise<PaginatedOrders> => {
-  const { data } = await axiosClient.post("/order/search");
-  return data;
+  const res = await axiosClient.post("/order/search");
+  return {
+    data: res.data || [],
+    items: res.meta?.totalItems ?? res.data?.length ?? 0,
+  };
 };
 
 export const GetOrderById = async (id: string | number) => {
@@ -226,107 +228,4 @@ export const CreateOrder = async (
 
   const res = await axiosClient.post("/order", payload);
   return res.data;
-};
-
-// export const UpdateStatusDetailOrder = async (values: UpdateStatusValues) => {
-
-//   const payload = {
-//     status: values.status,
-//     historyDetailOrder: [
-//       {
-//         status: values.status,
-//         message: `Đã đổi trạng thái sang ${values.status}`,
-//         createdAt: new Date().toISOString(),
-//         updatedBy: values.updatedBy,
-//       },
-//     ],
-//   };
-
-//   const res = await axiosClient.patch(`/order/${values.id}`, payload);
-
-//   return res.data;
-// };
-
-export const getTotalOrder = async (params?: {
-  month?: number;
-  year?: number;
-}) => {
-  const data = await callApiWithRetries<OrderType[]>({ url: "/orders" });
-
-  const filtered =
-    params?.month && params?.year
-      ? (data ?? []).filter((item: OrderType) => {
-          if (!item.created_at) {
-            return false;
-          }
-
-          const date = new Date(item.created_at);
-
-          return (
-            date.getMonth() + 1 === params.month &&
-            date.getFullYear() === params.year
-          );
-        })
-      : (data ?? []);
-
-  return filtered.reduce(
-    (acc: number, item: OrderType) => acc + Number(item.total_price ?? 0),
-    0,
-  );
-};
-
-export const getTotalRevenueFromOrders = (
-  orders: OrderType[],
-  params?: {
-    month?: number;
-    year?: number;
-  },
-) => {
-  const filtered =
-    params?.month && params?.year
-      ? orders.filter((item) => {
-          if (!item.created_at) {
-            return false;
-          }
-
-          const date = new Date(item.created_at);
-
-          return (
-            date.getMonth() + 1 === params.month &&
-            date.getFullYear() === params.year
-          );
-        })
-      : orders;
-
-  return filtered.reduce((acc, item) => acc + Number(item.total_price ?? 0), 0);
-};
-
-export const getOrdersByDayOfMonth = (
-  orders: OrderType[],
-): { labels: string[]; data: number[] } => {
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-  const labels = Array.from({ length: daysInMonth }, (_, index) =>
-    String(index + 1),
-  );
-  const data = Array.from({ length: daysInMonth }, () => 0);
-
-  orders.forEach((order) => {
-    if (!order.created_at) {
-      return;
-    }
-
-    const [year, month, day] = order.created_at
-      .split("T")[0]
-      .split("-")
-      .map(Number);
-
-    if (year === currentYear && month === currentMonth && day) {
-      data[day - 1] += 1;
-    }
-  });
-
-  return { labels, data };
 };

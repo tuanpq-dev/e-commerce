@@ -1,5 +1,4 @@
 import { Navigate } from "react-router-dom";
-import { getAccessToken } from "../api/mockApi";
 import type { ReactNode } from "react";
 
 type ProtectedRouteProps = {
@@ -7,7 +6,7 @@ type ProtectedRouteProps = {
 };
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const token = getAccessToken();
+  const token = localStorage.getItem('accessToken');
 
   if (!token) return <Navigate to="/login" />;
 

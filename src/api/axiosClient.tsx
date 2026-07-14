@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance } from "axios";
-import { apiUrl } from "./mockApi";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 interface CustomAxiosInstance
   extends Omit<AxiosInstance, "get" | "post" | "put" | "patch" | "delete"> {
@@ -12,7 +12,7 @@ interface CustomAxiosInstance
 }
 
 const axiosClient = axios.create({
-  baseURL: apiUrl,
+  baseURL: apiUrl || 'http://localhost:3000',
   headers: {
     "Content-Type": "application/json",
   },

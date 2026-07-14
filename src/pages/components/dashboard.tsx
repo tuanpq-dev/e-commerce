@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next";
 type ChartProps = {
   title: string;
   type: "bar" | "line";
-  labels: string[];
-  data: number[];
+  labels?: string[];
+  data?: number[];
 };
 
 const Chart = ({ title, type, labels, data }: ChartProps) => {
@@ -31,7 +31,7 @@ const Chart = ({ title, type, labels, data }: ChartProps) => {
       data: labels,
       axisLabel: {
         interval: 0,
-        rotate: labels.length > 12 ? 45 : 0,
+        // rotate: labels.length > 12 ? 45 : 0,
       },
     },
     yAxis: {

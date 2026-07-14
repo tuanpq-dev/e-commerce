@@ -10,7 +10,8 @@
     "success": "Thành công",
     "failed": "Thất bại",
     "name": "Tên",
-    "updateAvatar": "Cập nhật ảnh nền"
+    "updateAvatar": "Cập nhật ảnh nền",
+    "default": "Mặc định"
   },
   "sider": {
     "Dashboard": "Biểu đồ",
@@ -190,7 +191,13 @@
       "address": "Địa chỉ",
       "createdAt": "Ngày tạo",
       "totalPrice": "Tổng tiền",
-      "status": "Trạng thái"
+      "status": "Trạng thái",
+      "productName": "Tên sản phẩm",
+      "sku": "SKU",
+      "size": "Size",
+      "color": "Màu",
+      "quantity": "Số lượng",
+      "price": "Đơn giá"
     },
     "validation": {
       "customerRequired": "Vui lòng chọn khách hàng",
@@ -232,6 +239,7 @@
   },
   "customer": {
     "titleCreate": "Thêm mới khách hàng",
+    "titleUpdate": "Chỉnh sửa khách hàng",
     "fullname": "Họ tên",
     "email": "Email",
     "phone": "Số điện thoại",
@@ -257,6 +265,8 @@
       "phoneExists": "Số điện thoại đã tồn tại",
       "createFailed": "Không thể thêm mới khách hàng",
       "createSuccess": "Thêm mới khách hàng thành công",
+      "updateFailed": "Cập nhật khách hàng thất bại",
+      "updateSuccess": "Cập nhật khách hàng thành công",
       "deleteHasOrders": "Không thể xóa khách hàng vì đã có đơn",
       "deleteSuccess": "Xóa khách hàng thành công",
       "deleteFailed": "Xóa khách hàng thất bại"

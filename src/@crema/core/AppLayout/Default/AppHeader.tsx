@@ -1,7 +1,6 @@
 import { Button, Dropdown, Layout } from "antd";
 import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getAccessToken } from "../../../../api/mockApi";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { DownOutlined } from "@ant-design/icons";
@@ -15,7 +14,7 @@ type AppHeaderProps = {
 };
 
 const AppHeader = ({ menuButton }: AppHeaderProps) => {
-  const token = getAccessToken();
+  const token = localStorage.getItem('accessToken');
   const { Header } = Layout;
   const navigate = useNavigate();
   const { logout } = useAuth();
