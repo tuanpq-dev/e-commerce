@@ -12,7 +12,7 @@ interface CustomAxiosInstance
 }
 
 const axiosClient = axios.create({
-  baseURL: apiUrl || 'http://localhost:3000',
+  baseURL: apiUrl,
   headers: {
     "Content-Type": "application/json",
   },
