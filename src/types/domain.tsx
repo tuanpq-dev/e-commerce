@@ -4,20 +4,21 @@
 
 /** Nhóm tên thuộc tính toàn hệ thống, lưu trong /attribute_titles */
 export type AttributeTitle = {
-  id: string;    // "title_size"
+  id: number;    // "title_size"
   name: string;  // "Size"
+  attributeValues?: any
 };
 
 /** Một giá trị thuộc tính cụ thể kèm modifier giá */
 export type AttributeValueItem = {
-  id: string;                    // "v_m"
+  id: number;                    // "v_m"
   value: string;                 // "M"
   price_modifier_amount: number; // ±VNĐ so với base_price
 };
 
 /** Một nhóm thuộc tính của sản phẩm (Size, Màu, ...) kèm danh sách giá trị */
 export type AttributeGroup = {
-  titleId: string;               // "title_size"
+  titleId: number;               // "title_size"
   name: string;                  // "Size"
   values: AttributeValueItem[];
 };

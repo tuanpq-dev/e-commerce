@@ -1,4 +1,4 @@
-import { Flex, Grid, Input, Space, Table } from "antd";
+import { Flex, Grid, Space, Table } from "antd";
 import type React from "react";
 import type { TableProps } from "antd";
 import type { CategoryType } from "../../types/domain";

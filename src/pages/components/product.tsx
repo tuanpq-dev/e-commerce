@@ -368,13 +368,13 @@ const Product: React.FC = () => {
   };
 
   const columns: TableProps<DataType>["columns"] = [
-    // {
-    //   title: t("category.columns.no"),
-    //   fixed: !isMobile ? "start" : false,
-    //   width: 20,
-    //   render: (_value, _record, index) =>
-    //     (currentPage - 1) * pageSize + index + 1,
-    // },
+    {
+      title: t("category.columns.no"),
+      fixed: !isMobile ? "start" : false,
+      width: 20,
+      render: (_value, _record, index) =>
+        (currentPage - 1) * pageSize + index + 1,
+    },
     {
       title: t("product.columns.image"),
       dataIndex: "image",
