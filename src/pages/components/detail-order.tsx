@@ -188,15 +188,12 @@ const DetailOrder = () => {
 
   const handleUpdateStatus = async (status: string) => {
     if (!data?.id) return;
-    const updaterName = userInfo?.profile
-      ? `${userInfo.profile.lastName || ""} ${userInfo.profile.firstName || ""}`.trim()
-      : userInfo?.name || "Unknown";
 
     const payload = {
       status,
       updatedBy: {
         id: userInfo?.id,
-        name: updaterName,
+        name: userInfo.fullname,
         email: userInfo?.email,
       },
     };
@@ -210,7 +207,7 @@ const DetailOrder = () => {
     await CreateActiveLog({
       module: `Detail Order - Status - ${id}`,
       action: "UPDATE",
-      user: updaterName,
+      user: userInfo.fullname,
     });
 
     setData(updated);

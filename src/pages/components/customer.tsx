@@ -29,7 +29,6 @@ const Customer: React.FC = () => {
   const { t } = useTranslation();
   const isMobile = !screens.md;
   const { userInfo } = useAuth();
-  const profile = userInfo.profile;
   const [rowData, setRowData] = useState<CustomerType | null>(null);
   const [dataCustomer, setDataCustomer] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,9 +41,6 @@ const Customer: React.FC = () => {
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
   const [totalItems, setTotalItems] = useState(0);
-  const creatorName = profile 
-      ? `${profile.lastName || ''} ${profile.firstName || ''}`.trim() 
-      : "Unknown User";
 
   const fetchCustomer = useCallback(async () => {
     setIsLoading(true);
@@ -98,7 +94,7 @@ const Customer: React.FC = () => {
         await CreateActiveLog({
           module: "Customer",
           action: "UPDATE",
-          user: creatorName,
+          user: userInfo.fullname,
         });
 
         await fetchCustomer();
@@ -114,7 +110,7 @@ const Customer: React.FC = () => {
         await CreateActiveLog({
           module: "Customer",
           action: "CREATE",
-          user: creatorName,
+          user: userInfo.fullname,
         });
 
         await fetchCustomer();
@@ -142,15 +138,11 @@ const Customer: React.FC = () => {
     if (!rowData || !rowData.id) return;
 
     try {
-      const creatorName = profile 
-      ? `${profile.lastName || ''} ${profile.firstName || ''}`.trim() 
-      : "Unknown User";
-
       await DeleteCustomer(rowData.id),
       await CreateActiveLog({
           module: "Customer",
           action: "DELETE",
-          user: creatorName,
+          user: userInfo.fullname,
         });
         
       setIsDeleteModal(false);

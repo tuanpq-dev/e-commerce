@@ -113,7 +113,6 @@ const Product: React.FC = () => {
   const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
-  const profile = userInfo.profile;
   const [isLoading, setIsLoading] = useState(false);
   const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -276,7 +275,7 @@ const Product: React.FC = () => {
       await CreateActiveLog({
         module: "Product",
         action: "DELETE",
-        user: `${profile?.lastName} ${profile?.firstName}`,
+        user: userInfo.fullname,
       });
 
       setIsDeleteModal(false);
@@ -351,7 +350,7 @@ const Product: React.FC = () => {
       await CreateActiveLog({
         module: "Product",
         action: `UPDATE status - ${id}`,
-        user: `${profile?.lastName} ${profile?.firstName}`,
+        user: userInfo.fullname,
       });
       openNotification("success", {
         message: t("common.success"),
@@ -516,7 +515,7 @@ const Product: React.FC = () => {
           CreateActiveLog({
             module: "Product",
             action: "UPDATE",
-            user: `${profile?.lastName} ${profile?.firstName}`,
+            user: userInfo.fullname,
           }),
         ]);
 
@@ -533,7 +532,7 @@ const Product: React.FC = () => {
           CreateActiveLog({
             module: "Product",
             action: "CREATE",
-            user: `${profile?.lastName} ${profile?.firstName}`,
+            user: userInfo.fullname,
           })
         ]);
 

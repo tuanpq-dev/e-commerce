@@ -103,11 +103,11 @@ const Category: React.FC = () => {
     try {
       await DeleteCategory(rowData.id);
 
-      // await CreateActiveLog({
-      //   module: "Category",
-      //   action: "DELETE",
-      //   user: userInfo?.name ?? "Unknown",
-      // });
+      await CreateActiveLog({
+        module: "Category",
+        action: "DELETE",
+        user: userInfo?.fullname ?? "Unknown",
+      });
 
       await Promise.all([fetchAllCategories()]);
 
@@ -214,7 +214,7 @@ const Category: React.FC = () => {
         CreateActiveLog({
           module: "Category",
           action: "UPDATE",
-          user: userInfo?.name,
+          user: userInfo?.fullname,
         }),
       ]);
 

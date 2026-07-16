@@ -40,7 +40,6 @@ const Order: React.FC = () => {
   const { t } = useTranslation();
   const isMobile = !screens.md;
   const { userInfo } = useAuth();
-  const profile = userInfo.profile;
   const [data, setData] = useState<OrderType[]>([]);
   const [rowData, setRowData] = useState(null);
   const [products, setProducts] = useState<DataType[]>([]);
@@ -268,14 +267,11 @@ const Order: React.FC = () => {
     if (!rowData || !rowData.id) return;
 
     try {
-      const creatorName = profile 
-      ? `${profile.lastName || ''} ${profile.firstName || ''}`.trim() 
-      : "Unknown User";
       await axiosClient.delete(`/order/${rowData.id}`);
       await CreateActiveLog({
         module: "Order",
         action: "DELETE",
-        user: creatorName,
+        user: userInfo.fullname,
       });
 
       setIsDeleteModal(false);

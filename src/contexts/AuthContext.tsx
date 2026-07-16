@@ -9,25 +9,20 @@ import {
 import type {
   LoginPayload,
   RegisterPayload,
-  UpdateUserPayload,
 } from "../types/domain";
-import {
-  getUserInfoById,
-  UploadAvatar,
-  UpdateUser,
-} from "../services/auth.service";
 
 import openNotification from "../@crema/core/Notification";
 import axios from "axios";
+import axiosClient from "../api/axiosClient";
 
 type User = {
   id: number | string;
   email: string;
-  name: string;
+  fullname: string;
   username: string;
   role: string;
   avatar: string;
-  profile: any;
+  phone: string;
 };
 
 type AuthContextType = {
@@ -35,8 +30,6 @@ type AuthContextType = {
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
-  updateUser: (payload: UpdateUserPayload) => Promise<void>;
-  uploadAvatar: (file: File) => Promise<void>;
   getUserInfo: () => void;
   refreshUser: () => void;
 };
@@ -50,10 +43,28 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userInfo, setUserInfo] = useState<User | null>(null);
 
-  const refreshUser = useCallback(() => {
-    const res = getUserInfoById();
+  const refreshUser = useCallback(async () => {
+    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+      if (!token) {
+        setUserInfo(null);
+        return;
+      }
 
-    setUserInfo(res ?? null);
+      try {
+        const res = await axiosClient.get('auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        setUserInfo(res ?? null);
+      } catch (err) {
+        console.error("Failed to refresh user info:", err);
+        
+        localStorage.removeItem("accessToken");
+        sessionStorage.removeItem("accessToken");
+        setUserInfo(null);
+      }
   }, []);
 
   const getUserInfo = refreshUser;
@@ -152,22 +163,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const updateUser = async (payload: UpdateUserPayload) => {
-    const res = UpdateUser(payload);
-
-    if (!res.success || !res.user) return;
-
-    setUserInfo(res.user);
-  };
-
-  const uploadAvatar = async (file: File) => {
-    const res = await UploadAvatar(file);
-
-    if (!res.success || !res.user) return;
-
-    setUserInfo(res.user);
-  };
-
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
@@ -180,8 +175,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         logout,
         userInfo,
         getUserInfo,
-        updateUser,
-        uploadAvatar,
         refreshUser,
       }}
     >
