@@ -15,13 +15,13 @@
 // ─────────────────────────────────────────────────────────────
 
 export interface AttributeValue {
-  id: string;                    // "v_m", "v_red"
+  id: string | number;                    // "v_m", "v_red" or 1, 2
   value: string;                 // "M", "Đỏ"
   price_modifier_amount: number; // ±VNĐ so với base_price, thường = 0
 }
 
 export interface AttributeGroup {
-  titleId: string;               // "title_size"
+  titleId: string | number;               // "title_size" or 1, 2
   name: string;                  // "Size"
   values: AttributeValue[];
 }
@@ -89,7 +89,7 @@ export function generateAllCombinations(groups: AttributeGroup[]): string[][] {
     for (const existing of result) {
       for (const value of group.values) {
         // Thêm value_id của nhóm hiện tại vào từng tổ hợp đang có
-        next.push([...existing, value.id]);
+        next.push([...existing, String(value.id)]);
       }
     }
 
@@ -123,7 +123,7 @@ export function calculateFinalPrice(
   const modifierMap = new Map<string, number>();
   for (const group of groups) {
     for (const val of group.values) {
-      modifierMap.set(val.id, val.price_modifier_amount);
+      modifierMap.set(String(val.id), val.price_modifier_amount);
     }
   }
 
@@ -162,7 +162,7 @@ export function resolveCombinations(
   const valueLabel = new Map<string, string>();
   for (const group of groups) {
     for (const val of group.values) {
-      valueLabel.set(val.id, val.value);
+      valueLabel.set(String(val.id), val.value);
     }
   }
 
@@ -211,12 +211,12 @@ export function migrateAttributesOnChange(
   existingMap: VariantMap,
 ): VariantMap {
   // ── Bước 1: Xác định nhóm bị XÓA → thu thập tất cả value_id của chúng ──
-  const oldTitleIds = new Set(oldGroups.map((g) => g.titleId));
-  const newTitleIds = new Set(newGroups.map((g) => g.titleId));
+  const oldTitleIds = new Set(oldGroups.map((g) => String(g.titleId)));
+  const newTitleIds = new Set(newGroups.map((g) => String(g.titleId)));
 
-  const removedGroups = oldGroups.filter((g) => !newTitleIds.has(g.titleId));
+  const removedGroups = oldGroups.filter((g) => !newTitleIds.has(String(g.titleId)));
   const removedValueIds = new Set(
-    removedGroups.flatMap((g) => g.values.map((v) => v.id)),
+    removedGroups.flatMap((g) => g.values.map((v) => String(v.id))),
   );
 
   // ── Bước 2: Lọc bỏ tất cả key chứa bất kỳ ID của nhóm đã xóa ──────────
@@ -241,8 +241,8 @@ export function migrateAttributesOnChange(
       result[newKey] = filteredMap[newKey];
     } else if (oldTitleIds.size > 0 && newGroups.length > oldGroups.length) {
       // Nhóm mới được thêm vào: tìm key gốc (bỏ các value của nhóm mới)
-      const addedGroups = newGroups.filter((g) => !oldTitleIds.has(g.titleId));
-      const addedValueIds = new Set(addedGroups.flatMap((g) => g.values.map((v) => v.id)));
+      const addedGroups = newGroups.filter((g) => !oldTitleIds.has(String(g.titleId)));
+      const addedValueIds = new Set(addedGroups.flatMap((g) => g.values.map((v) => String(v.id))));
 
       const oldValueIds = valueIds.filter((id) => !addedValueIds.has(id));
       const oldKey = oldValueIds.length ? generateCombinationKey(oldValueIds) : null;
@@ -322,10 +322,31 @@ export function countAffectedCombinations(
   variantMap: VariantMap,
   groupToRemove: AttributeGroup,
 ): number {
-  const removedValueIds = new Set(groupToRemove.values.map((v) => v.id));
+  const removedValueIds = new Set(groupToRemove.values.map((v) => String(v.id)));
 
   return Object.keys(variantMap).filter((key) => {
     const parts = key.split("-");
     return parts.some((part) => removedValueIds.has(part));
   }).length;
+}
+
+export function getProductImages(imageVal: string | string[] | undefined | null): string[] {
+  if (!imageVal) return [];
+  if (Array.isArray(imageVal)) return imageVal;
+
+  const trimmed = imageVal.trim();
+  if (trimmed.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // ignore
+    }
+  }
+
+  if (trimmed.includes(",")) {
+    return trimmed.split(",").map((url) => url.trim());
+  }
+
+  return [trimmed];
 }

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Flex, Grid, Image, Input, Select, Space, Table } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Flex, Grid, Input, Select, Space, Table } from "antd";
 import type { TableProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import type {
@@ -24,6 +24,8 @@ import formatDate from "../../utils/formatDate";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../api/axiosClient";
 import { useSearchParams } from "react-router-dom";
+import { getProductImages } from "../../utils/variantEngine";
+import { ProductImageCell } from "./ProductImageCell";
 
 const getProductVariants = (record: DataType) => record.variants ?? [];
 
@@ -85,7 +87,7 @@ const formatProductVariants = (record: DataType) => {
       if (v.comboKey) {
         return v.comboKey
           .split("-")
-          .map((id) => labelMap.get(String(id)) || id)
+          .map((id: string) => labelMap.get(String(id)) || id)
           .join(" / ");
       }
       return `${v.size || ""}/${v.color || ""}`;
@@ -103,6 +105,8 @@ const getCategoryChildIds = (categoryChild: DataType["category_child"]) =>
       return item;
     })
     .filter((item): item is string | number => item !== undefined);
+
+
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 10;
@@ -128,19 +132,21 @@ const Product: React.FC = () => {
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
   const [totalItems, setTotalItems] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [attributeValuePool, setAttributeValuePool] = useState<
     Record<string, import("../../types/domain").AttributeValueItem[]>
   >({});
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async (search?: string) => {
     setIsLoading(true);
     try {
+      const body: Record<string, unknown> = { page: currentPage, pageSize };
+      const term = search !== undefined ? search : debouncedSearch;
+      if (term.trim()) body.search = term.trim();
       const { data: products, meta: metaData } = await axiosClient.post(
         "/product/search",
-        {
-          page: currentPage,
-          pageSize,
-        }
+        body
       );
       setProduct(products);
       setTotalItems(metaData.totalItems);
@@ -149,11 +155,16 @@ const Product: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, pageSize, debouncedSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 800);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, debouncedSearch]);
 
   useEffect(() => {
     if (isOpenModal) {
@@ -162,7 +173,6 @@ const Product: React.FC = () => {
         axiosClient.get("/attribute/pool"),
       ])
         .then(([categoriesRes, attributes]) => {
-          // POST /category/search trả về { data: [...], meta: {...} }
           const categoryList: any[] = Array.isArray(categoriesRes)
             ? categoriesRes
             : Array.isArray(categoriesRes?.data)
@@ -275,7 +285,7 @@ const Product: React.FC = () => {
       await CreateActiveLog({
         module: "Product",
         action: "DELETE",
-        user: userInfo.fullname,
+        user: userInfo?.fullname || "",
       });
 
       setIsDeleteModal(false);
@@ -341,6 +351,7 @@ const Product: React.FC = () => {
       description: values.description || "",
       attribute_groups,
       variant_map,
+      image: getProductImages(values.image),
     });
   };
 
@@ -350,7 +361,7 @@ const Product: React.FC = () => {
       await CreateActiveLog({
         module: "Product",
         action: `UPDATE status - ${id}`,
-        user: userInfo.fullname,
+        user: userInfo?.fullname || "",
       });
       openNotification("success", {
         message: t("common.success"),
@@ -378,9 +389,9 @@ const Product: React.FC = () => {
       title: t("product.columns.image"),
       dataIndex: "image",
       key: "image",
-      width: 50,
+      width: 70,
       fixed: !isMobile ? "start" : false,
-      render: () => <Image width={50} alt="image" />,
+      render: (image: any) => <ProductImageCell image={image} />,
     },
     {
       title: t("product.columns.sku"),
@@ -515,7 +526,7 @@ const Product: React.FC = () => {
           CreateActiveLog({
             module: "Product",
             action: "UPDATE",
-            user: userInfo.fullname,
+            user: userInfo?.fullname || "",
           }),
         ]);
 
@@ -532,7 +543,7 @@ const Product: React.FC = () => {
           CreateActiveLog({
             module: "Product",
             action: "CREATE",
-            user: userInfo.fullname,
+            user: userInfo?.fullname || "",
           })
         ]);
 
@@ -542,6 +553,7 @@ const Product: React.FC = () => {
         });
       }
 
+      // Backend uses ES refresh:'wait_for' so data is ready immediately
       await fetchProducts();
       setIsOpenModal(false);
     } catch (err) {
@@ -560,12 +572,12 @@ const Product: React.FC = () => {
     total: totalItems,
     showSizeChanger: true,
     pageSizeOptions: ["2","5", "10", "20", "50"],
-    showTotal: (total, range) =>
+    showTotal: (total: number, range: [number, number]) =>
       `${t("product.pagination", {
         count: range[1] - range[0] + 1,
         total,
       })}`,
-    onChange: (page, pageSize) => {
+    onChange: (page: number, pageSize: number) => {
       setSearchParams({
         _page: String(page),
         _per_page: String(pageSize),
@@ -579,10 +591,19 @@ const Product: React.FC = () => {
         <div className="page-toolbar">
           <div className="page-toolbar-controls">
             <Search
-              allowClear={true}
+              allowClear
               placeholder={t("product.placeholder.search")}
-              // value={searchInput}
-              // onChange={(e) => setSearchInput(e.target.value)}
+              value={searchInput}
+              onChange={(e) => {
+                setSearchInput(e.target.value);
+                if (!e.target.value) {
+                  setDebouncedSearch("");
+                }
+              }}
+              onSearch={(val) => {
+                setSearchInput(val);
+                setDebouncedSearch(val);
+              }}
               className="page-search"
             />
             <Select
