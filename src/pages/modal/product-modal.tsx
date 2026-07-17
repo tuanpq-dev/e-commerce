@@ -19,8 +19,11 @@ import {
   Tag,
   Tooltip,
   Typography,
+  Upload,
+  Image as AntdImage,
+  message,
 } from "antd";
-import { PlusOutlined, TagsOutlined } from "@ant-design/icons";
+import { PlusOutlined, TagsOutlined, UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import type {
   AttributeGroup,
   AttributeTitle,
@@ -33,14 +36,22 @@ import FormInput from "../../@crema/core/Form/FormInput";
 import FormSelect from "../../@crema/core/Form/FormSelect";
 import { useTranslation } from "react-i18next";
 import { generateUniqueParentSku } from "../../utils/skuGenerator";
-import { generateAllCombinations, generateCombinationKey } from "../../utils/variantEngine";
+import { generateAllCombinations, generateCombinationKey, getProductImages } from "../../utils/variantEngine";
 import formatCurrency from "../../utils/formatCurrecy";
+import axiosClient from "../../api/axiosClient";
 
 const { Text } = Typography;
 
 // ─────────────────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────────────────
+
+interface ImageItem {
+  uid: string;
+  url?: string;
+  file?: File;
+  previewUrl: string;
+}
 
 type ModalProductProps = {
   isUpdate?: boolean;
@@ -77,6 +88,8 @@ export const ModalProduct = ({
   const [tempParentSku, setTempParentSku] = useState("");
   const [attributeGroups, setAttributeGroups] = useState<AttributeGroup[]>([]);
   const isInitializingRef = useRef(false);
+  const [images, setImages] = useState<ImageItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ── Category child ─────────────────────────────────────────
   const selectedCategory = options.find(
@@ -97,7 +110,7 @@ export const ModalProduct = ({
 
   // ── Preview tổ hợp sẽ được tạo ─────────────────────────────
   const previewCombinations = useMemo(() => {
-    const allCombos = generateAllCombinations(attributeGroups);
+    const allCombos = generateAllCombinations(attributeGroups as any);
     const basePrice = Number(watchedBasePrice) || 0;
 
     // Build label + price map
@@ -105,8 +118,8 @@ export const ModalProduct = ({
     const valueModifier = new Map<string, number>();
     for (const g of attributeGroups) {
       for (const v of g.values) {
-        valueLabel.set(v.id, v.value);
-        valueModifier.set(v.id, v.price_modifier_amount);
+        valueLabel.set(String(v.id), v.value);
+        valueModifier.set(String(v.id), v.price_modifier_amount);
       }
     }
 
@@ -120,26 +133,26 @@ export const ModalProduct = ({
 
   // ── Handlers ────────────────────────────────────────────────
   const handleAddGroup = (titleId: string) => {
-    const title = attributeTitles.find((t) => t.id === titleId);
+    const title = attributeTitles.find((t) => String(t.id) === String(titleId));
     if (!title) return;
     setAttributeGroups((prev) => [
       ...prev,
-      { titleId: title.id, name: title.name, values: [] },
+      { titleId: Number(title.id), name: title.name, values: [] },
     ]);
   };
 
   const handleRemoveGroup = (titleId: string) => {
-    setAttributeGroups((prev) => prev.filter((g) => g.titleId !== titleId));
+    setAttributeGroups((prev) => prev.filter((g) => String(g.titleId) !== String(titleId)));
   };
 
   const handleAddValue = (titleId: string, valueId: string) => {
     const poolValues = attributeValuePool[titleId] ?? [];
-    const found = poolValues.find((v) => v.id === valueId);
+    const found = poolValues.find((v) => String(v.id) === String(valueId));
     if (!found) return;
 
     setAttributeGroups((prev) =>
       prev.map((g) =>
-        g.titleId !== titleId ? g : { ...g, values: [...g.values, found] },
+        String(g.titleId) !== String(titleId) ? g : { ...g, values: [...g.values, found] },
       ),
     );
   };
@@ -147,9 +160,9 @@ export const ModalProduct = ({
   const handleRemoveValue = (titleId: string, valueId: string) => {
     setAttributeGroups((prev) =>
       prev.map((g) =>
-        g.titleId !== titleId
+        String(g.titleId) !== String(titleId)
           ? g
-          : { ...g, values: g.values.filter((v) => v.id !== valueId) },
+          : { ...g, values: g.values.filter((v) => String(v.id) !== String(valueId)) },
       ),
     );
   };
@@ -176,22 +189,50 @@ export const ModalProduct = ({
       return;
     }
 
-    // Tạo variant_map: giữ lại stock cho tổ hợp cũ trùng khớp, tổ hợp mới set stock = 0
-    const allCombos = generateAllCombinations(attributeGroups);
-    const initVariantMap: VariantCombinationMap = {};
-    const existingMap = initialValue?.variant_map ?? {};
-    for (const ids of allCombos) {
-      const key = generateCombinationKey(ids);
-      initVariantMap[key] = { stock: existingMap[key]?.stock ?? 0 };
-    }
+    setIsSubmitting(true);
+    try {
+      const existingUrls = images.filter((img) => img.url).map((img) => img.url!);
+      const filesToUpload = images.filter((img) => img.file).map((img) => img.file!);
 
-    onOk({
-      ...values,
-      sku: tempParentSku,
-      basePrice: Number(values.basePrice),
-      attribute_groups: attributeGroups,
-      variant_map: initVariantMap,
-    });
+      const uploadedUrls: string[] = [];
+      for (const file of filesToUpload) {
+        const formData = new FormData();
+        formData.append("image", file);
+        const uploadRes = await axiosClient.post("/product/upload-image", formData, {
+          headers: {
+            "Content-Type": undefined,
+          },
+        });
+        if (uploadRes && uploadRes.imageUrl) {
+          uploadedUrls.push(uploadRes.imageUrl);
+        }
+      }
+
+      const finalImages = [...existingUrls, ...uploadedUrls];
+
+      // Tạo variant_map: giữ lại stock cho tổ hợp cũ trùng khớp, tổ hợp mới set stock = 0
+      const allCombos = generateAllCombinations(attributeGroups as any);
+      const initVariantMap: VariantCombinationMap = {};
+      const existingMap = initialValue?.variant_map ?? {};
+      for (const ids of allCombos) {
+        const key = generateCombinationKey(ids);
+        initVariantMap[key] = { stock: existingMap[key]?.stock ?? 0 };
+      }
+
+      onOk({
+        ...values,
+        sku: tempParentSku,
+        basePrice: Number(values.basePrice),
+        attribute_groups: attributeGroups,
+        variant_map: initVariantMap,
+        image: finalImages,
+      });
+    } catch (err) {
+      console.error(err);
+      message.error(typeof err === "string" ? err : "Đã xảy ra lỗi khi tải ảnh lên, vui lòng thử lại!");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // ── Render ──────────────────────────────────────────────────
@@ -202,6 +243,7 @@ export const ModalProduct = ({
       open={open}
       onOk={handleOk}
       onCancel={onCancel}
+      confirmLoading={isSubmitting}
       afterOpenChange={(visible) => {
         if (!visible) return;
         isInitializingRef.current = true;
@@ -216,12 +258,21 @@ export const ModalProduct = ({
         form.setFieldsValue(getInitialProductValue());
         setAttributeGroups(initialValue?.attribute_groups ?? []);
 
+        // Initialize image list
+        const initialImages = getProductImages(initialValue?.image);
+        setImages(initialImages.map((url, idx) => ({
+          uid: `existing-${idx}-${url}`,
+          url,
+          previewUrl: url,
+        })));
+
         setTimeout(() => { isInitializingRef.current = false; }, 0);
       }}
       afterClose={() => {
         form.resetFields();
         setAttributeGroups([]);
         setTempParentSku("");
+        setImages([]);
         isInitializingRef.current = false;
       }}
       destroyOnHidden
@@ -279,8 +330,82 @@ export const ModalProduct = ({
           rules={[{ required: true, message: t("product.validation.basePriceRequired") }]}
         />
 
+        <Form.Item label={t("product.columns.image") || "Hình ảnh"}>
+          <Upload
+            accept="image/*"
+            multiple
+            showUploadList={false}
+            beforeUpload={(file) => {
+              const isLt2M = file.size / 1024 / 1024 < 2;
+              if (!isLt2M) {
+                message.error(`${file.name} kích thước phải nhỏ hơn 2MB!`);
+                return false;
+              }
+              const previewUrl = URL.createObjectURL(file);
+              setImages((prev) => [
+                ...prev,
+                {
+                  uid: `new-${Date.now()}-${Math.random()}`,
+                  file,
+                  previewUrl,
+                },
+              ]);
+              return false;
+            }}
+          >
+            <Button icon={<UploadOutlined />}>Chọn nhiều ảnh</Button>
+          </Upload>
+          {images.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 12 }}>
+              {images.map((item) => (
+                <div
+                  key={item.uid}
+                  style={{
+                    position: "relative",
+                    width: 100,
+                    height: 100,
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    border: "1px solid #d9d9d9",
+                  }}
+                >
+                  <AntdImage
+                    src={item.previewUrl}
+                    width={100}
+                    height={100}
+                    style={{ objectFit: "cover" }}
+                  />
+                  <Button
+                    type="primary"
+                    danger
+                    shape="circle"
+                    icon={<DeleteOutlined />}
+                    size="small"
+                    style={{
+                      position: "absolute",
+                      top: 4,
+                      right: 4,
+                      zIndex: 10,
+                      width: 20,
+                      height: 20,
+                      minWidth: 20,
+                      padding: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onClick={() => {
+                      setImages((prev) => prev.filter((img) => img.uid !== item.uid));
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </Form.Item>
+
         {/* ═══ PHẦN 2: CHỌN THUỘC TÍNH TỪ POOL ═══ */}
-        <Divider orientation="left" style={{ margin: "16px 0 8px" }}>
+        <Divider orientation={"left" as any} style={{ margin: "16px 0 8px" }}>
           <TagsOutlined /> Chọn thuộc tính từ pool
         </Divider>
 
@@ -330,7 +455,7 @@ export const ModalProduct = ({
                       type="link"
                       danger
                       size="small"
-                      onClick={() => handleRemoveGroup(group.titleId)}
+                      onClick={() => handleRemoveGroup(String(group.titleId))}
                     >
                       Bỏ nhóm này
                     </Button>
@@ -352,7 +477,7 @@ export const ModalProduct = ({
                         <Tag
                           closable
                           color="blue"
-                          onClose={() => handleRemoveValue(group.titleId, val.id)}
+                          onClose={() => handleRemoveValue(String(group.titleId), String(val.id))}
                         >
                           {val.value}
                         </Tag>
@@ -365,9 +490,9 @@ export const ModalProduct = ({
                         placeholder={<><PlusOutlined /> Chọn từ pool</>}
                         style={{ width: 160 }}
                         value={null}
-                        onChange={(valueId: string) => handleAddValue(group.titleId, valueId)}
+                        onChange={(valueId: string) => handleAddValue(String(group.titleId), valueId)}
                         options={availableValues.map((v) => ({
-                          value: v.id,
+                          value: String(v.id),
                           label: `${v.value}${v.price_modifier_amount !== 0 ? ` (${v.price_modifier_amount > 0 ? "+" : ""}${(v.price_modifier_amount / 1000).toFixed(0)}k)` : ""}`,
                         }))}
                       />
@@ -385,8 +510,8 @@ export const ModalProduct = ({
         {/* ═══ PHẦN 3: PREVIEW TỔ HỢP SẼ TẠO ═══ */}
         {previewCombinations.length > 0 && (
           <>
-            <Divider orientation="left" style={{ margin: "16px 0 8px" }}>
-              👁️ Preview tổ hợp ({generateAllCombinations(attributeGroups).length} tổ hợp)
+            <Divider orientation={"left" as any} style={{ margin: "16px 0 8px" }}>
+              👁️ Preview tổ hợp ({generateAllCombinations(attributeGroups as any).length} tổ hợp)
             </Divider>
             <div
               style={{
@@ -404,8 +529,8 @@ export const ModalProduct = ({
                     {formatCurrency(combo.price)}
                   </Tag>
                 ))}
-                {generateAllCombinations(attributeGroups).length > 8 && (
-                  <Tag>+{generateAllCombinations(attributeGroups).length - 8} tổ hợp khác</Tag>
+                {generateAllCombinations(attributeGroups as any).length > 8 && (
+                  <Tag>+{generateAllCombinations(attributeGroups as any).length - 8} tổ hợp khác</Tag>
                 )}
               </Space>
               <div style={{ marginTop: 8, fontSize: 12, color: "#52c41a" }}>

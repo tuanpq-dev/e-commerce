@@ -263,3 +263,37 @@ h6 {
     min-height: 220px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   ANT DESIGN IMAGE PREVIEW SWITCH BUTTONS CUSTOM LAYOUT
+   ═══════════════════════════════════════════════════════ */
+.ant-image-preview-switch-left {
+  left: max(16px, calc(50% - 320px)) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.2s, transform 0.2s !important;
+}
+
+.ant-image-preview-switch-right {
+  right: max(16px, calc(50% - 320px)) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.2s, transform 0.2s !important;
+}
+
+.ant-image-preview-switch-left:hover,
+.ant-image-preview-switch-right:hover {
+  background: rgba(0, 0, 0, 0.75) !important;
+  transform: scale(1.05);
+}
+

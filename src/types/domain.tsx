@@ -132,7 +132,7 @@ export type OrderType = {
   customerEmail: string;
   customerPhone: string;
   totalPrice: number;
-  paymentMethod: "cod" | "banking" | string; ó
+  paymentMethod: "cod" | "banking" | string;
   paymentStatus: "paid" | "unpaid";
   shippingStatus: "pending" | "shipping" | "delivered" | string;
   status: "completed" | "processing" | string;

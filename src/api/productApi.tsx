@@ -60,7 +60,8 @@ export const handleSubmitProduct = async (values: ProductInitialValues) => {
       stock,
       description: values.description || "",
       attributesDetails,
-      variants: variantsArray
+      variants: variantsArray,
+      image: Array.isArray(values.image) ? JSON.stringify(values.image) : values.image,
     };
 
     if (!isNaN(finalCategoryId)) {
@@ -127,6 +128,7 @@ export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
     description: values.description || "",
     attributesDetails,
     variants: variantsArray,
+    image: Array.isArray(values.image) ? JSON.stringify(values.image) : values.image,
   };
 
   if (!isNaN(finalCategoryId)) {
