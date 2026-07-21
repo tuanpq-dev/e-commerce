@@ -8,7 +8,6 @@ import { EMAIL_REGEX } from "../../shared/constant/Regex";
 import FormInputPassword from "../../@crema/core/Form/FormInputPassword";
 import { useAuth } from "../../contexts/AuthContext";
 import ThemeToggle from "../../@crema/component/ThemeToggle";
-
 type LoginType = {
   email: string;
   password: string;
