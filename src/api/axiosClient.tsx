@@ -18,6 +18,21 @@ const axiosClient = axios.create({
   },
 }) as CustomAxiosInstance;
 
+axiosClient.interceptors.request.use(
+  (config) => {
+    const token =
+      localStorage.getItem("accessToken") ||
+      sessionStorage.getItem("accessToken");
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 axiosClient.interceptors.response.use(
   (response) => {
     if (response && response.data) {

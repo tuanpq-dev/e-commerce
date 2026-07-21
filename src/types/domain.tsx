@@ -227,9 +227,11 @@ export type ActiveLogType = {
 
 export type UpdateUserPayload = {
   name?: string;
+  phone?: string;
   username?: string;
   email?: string;
   avatar?: string;
+  image?: string;
 };
 
 export type LoginPayload = {
