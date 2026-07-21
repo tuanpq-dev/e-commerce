@@ -20,6 +20,7 @@ const DetailCustomer = React.lazy(
 );
 const DetailOrder = React.lazy(() => import("../components/detail-order"));
 const CategoryChild = React.lazy(() => import("../components/category-child"));
+const Page403 = React.lazy(() => import("../components/403"))
 
 export const routeConfig = [
   {
@@ -69,5 +70,9 @@ export const routeConfig = [
   {
     path: config.routes.CATEGORY_CHILD(":id"),
     element: <CategoryChild />,
+  },
+  {
+    path: "/403",
+    element: <Page403 />,
   },
 ];

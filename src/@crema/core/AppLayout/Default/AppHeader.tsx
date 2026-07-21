@@ -1,4 +1,4 @@
-import { Button, Dropdown, Layout } from "antd";
+import { Avatar, Button, Dropdown, Layout } from "antd";
 import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -17,7 +17,7 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
   const token = localStorage.getItem('accessToken');
   const { Header } = Layout;
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, userInfo } = useAuth();
 
   const headerStyle = {
     alignItems: "center",
@@ -73,7 +73,8 @@ const AppHeader = ({ menuButton }: AppHeaderProps) => {
           }}
         >
           <Button type="text">
-            You <DownOutlined />
+            <Avatar size={30} src={userInfo?.image} />
+            <DownOutlined />
           </Button>
         </Dropdown>
       </div>

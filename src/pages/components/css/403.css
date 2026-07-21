@@ -1,0 +1,30 @@
+.page-403-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+}
+
+.page-403-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 48px 64px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.page-403-title {
+  color: #fff;
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.page-403-subtitle {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 16px;
+}
+
+.page-403-btn {
+  border-radius: 8px;
+}

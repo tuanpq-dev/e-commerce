@@ -34,7 +34,6 @@ const Profile = () => {
 
   const handleCloseModal = () => {
     setIsUpdate(false);
-    form.resetFields();
   };
 
   const handleSubmitProfile = async () => {
