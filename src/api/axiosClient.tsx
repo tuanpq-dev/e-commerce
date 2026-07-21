@@ -41,6 +41,10 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status === 403) {
+      window.location.href = "/403";
+      return Promise.reject("Bạn không có quyền thực hiện chức năng này!");
+    }
     const message = error.response?.data?.message || "Đã có lỗi hệ thống xảy ra!";
     return Promise.reject(message);
   }

@@ -25,6 +25,7 @@ type User = {
   role: string;
   avatar: string;
   phone: string;
+  image?: string;
 };
 
 type AuthContextType = {
@@ -69,6 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         role: res.role ?? "",
         avatar: res.image ?? res.avatar ?? "",
         phone: res.phone ?? "",
+        image: res.image ?? ""
       } : null);
     } catch (err) {
       console.error("Failed to refresh user info:", err);
@@ -191,7 +193,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUserInfo((prev) => {
         const updated = {
           ...prev,
-          id: updatedData.id ?? prev?.id ?? userId,
+          id: updatedData.id ?? prev?.id,
           email: updatedData.email ?? prev?.email ?? "",
           fullname: updatedData.fullname ?? prev?.fullname ?? "",
           phone: updatedData.phone ?? prev?.phone ?? "",
