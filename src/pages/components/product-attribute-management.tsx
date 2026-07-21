@@ -42,7 +42,9 @@ import type {
   VariantCombinationMap,
 } from "../../types/domain";
 import openNotification from "../../@crema/core/Notification";
-import {  UpdateProduct } from "../../api/productApi";
+import { UpdateProduct } from "../../api/productApi";
+import { CreateActiveLog } from "../../api/activeLogApi";
+import { useAuth } from "../../contexts/AuthContext";
 
 import formatCurrency from "../../utils/formatCurrecy";
 import {
@@ -57,16 +59,12 @@ import axiosClient from "../../api/axiosClient";
 
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
-
-// ─────────────────────────────────────────────────────────────
-// COMPONENT
-// ─────────────────────────────────────────────────────────────
-
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 10;
 
 const ProductAttributeManagement: React.FC = () => {
   const { t } = useTranslation();
+  const { userInfo } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("_page")) || DEFAULT_PAGE;
   const pageSize = Number(searchParams.get("_per_page")) || DEFAULT_PER_PAGE;
@@ -79,7 +77,7 @@ const ProductAttributeManagement: React.FC = () => {
   // ── Pool toàn cục ───────────────────────────────────────────
   const [allTitles, setAllTitles] = useState<AttributeTitle[]>([]);
   const [allValuePool, setAllValuePool] = useState<
-    Record<string, AttributeValueItem[]>
+    Record<number, AttributeValueItem[]>
   >({});
 
   // ── Drawer state ────────────────────────────────────────────
@@ -103,7 +101,7 @@ const ProductAttributeManagement: React.FC = () => {
         page: currentPage,
         pageSize,
       });
-      if(!data) {
+      if (!data) {
         return 'Không có dữ liệu'
       }
       setTotalItems(meta?.totalItems ?? 0);
@@ -124,28 +122,28 @@ const ProductAttributeManagement: React.FC = () => {
 
       setProducts(mappedData);
 
-      const titlesMap = new Map<string, string>();
-      const valuePoolMap: Record<string, AttributeValueItem[]> = {};
+      const titlesMap = new Map<number, string>();
+      const valuePoolMap: Record<number, AttributeValueItem[]> = {};
 
       (data || []).forEach((prod: any) => {
         if (prod.attributesDetails) {
           Object.entries(prod.attributesDetails).forEach(([titleId, groupObj]: [string, any]) => {
             if (groupObj && groupObj.name) {
-              const strTitleId = String(titleId);
-              titlesMap.set(strTitleId, groupObj.name);
+              const numTitleId = Number(titleId);
+              titlesMap.set(numTitleId, groupObj.name);
 
-              if (!valuePoolMap[strTitleId]) {
-                valuePoolMap[strTitleId] = [];
+              if (!valuePoolMap[numTitleId]) {
+                valuePoolMap[numTitleId] = [];
               }
 
               (groupObj.values || []).forEach((val: any) => {
-                const strValId = String(val.id);
-                const exists = valuePoolMap[strTitleId].some(
-                  (v) => String(v.id) === strValId
+                const numValId = Number(val.id);
+                const exists = valuePoolMap[numTitleId].some(
+                  (v) => Number(v.id) === numValId
                 );
                 if (!exists) {
-                  valuePoolMap[strTitleId].push({
-                    id: strValId,
+                  valuePoolMap[numTitleId].push({
+                    id: numValId,
                     value: val.value,
                     price_modifier_amount: val.price_modifier_amount ?? val.priceModifierAmount ?? 0,
                   });
@@ -183,10 +181,10 @@ const ProductAttributeManagement: React.FC = () => {
 
     // Convert attributesDetails object to AttributeGroup[]
     const groups: AttributeGroup[] = Object.entries((product as any).attributesDetails || {}).map(([titleId, groupObj]: [string, any]) => ({
-      titleId: String(titleId),
+      titleId: Number(titleId),
       name: groupObj.name,
       values: (groupObj.values || []).map((val: any) => ({
-        id: String(val.id),
+        id: Number(val.id),
         value: val.value,
         price_modifier_amount: val.price_modifier_amount ?? val.priceModifierAmount ?? 0,
       })),
@@ -229,7 +227,7 @@ const ProductAttributeManagement: React.FC = () => {
   const availableTitles = allTitles.filter((t) => !usedTitleIds.has(t.id));
 
   // ── Handlers — Groups ────────────────────────────────────
-  const handleAddGroup = (titleId: string) => {
+  const handleAddGroup = (titleId: number) => {
     const title = allTitles.find((t) => t.id === titleId);
     if (!title) return;
 
@@ -248,7 +246,7 @@ const ProductAttributeManagement: React.FC = () => {
     setPrevGroups(newGroups);
   };
 
-  const handleRemoveGroup = (titleId: string) => {
+  const handleRemoveGroup = (titleId: number) => {
     const newGroups = draftGroups.filter((g) => g.titleId !== titleId);
     const migrated = migrateAttributesOnChange(
       draftGroups,
@@ -261,7 +259,7 @@ const ProductAttributeManagement: React.FC = () => {
   };
 
   // ── Handlers — Values ────────────────────────────────────
-  const handleAddValue = (titleId: string, value: AttributeValueItem) => {
+  const handleAddValue = (titleId: number, value: AttributeValueItem) => {
     const newGroups = draftGroups.map((g) =>
       g.titleId !== titleId ? g : { ...g, values: [...g.values, value] },
     );
@@ -275,7 +273,7 @@ const ProductAttributeManagement: React.FC = () => {
     setPrevGroups(newGroups);
   };
 
-  const handleRemoveValue = (titleId: string, valueId: string) => {
+  const handleRemoveValue = (titleId: number, valueId: number) => {
     const newGroups = draftGroups.map((g) =>
       g.titleId !== titleId
         ? g
@@ -329,6 +327,12 @@ const ProductAttributeManagement: React.FC = () => {
         category_child: selectedProduct.category_child,
         attribute_groups: draftGroups,
         variant_map: finalMap,
+      });
+
+      await CreateActiveLog({
+        module: "ProductAttribute",
+        action: `UPDATE - ${selectedProduct.name}`,
+        user: userInfo?.fullname || "",
       });
 
       openNotification("success", {
@@ -433,10 +437,10 @@ const ProductAttributeManagement: React.FC = () => {
     {
       title: "Nhóm thuộc tính",
       render: (_: unknown, record: DataType) => {
-        const groups =  Object.keys(record.attributesDetails ?? []).length;
+        const groups = Object.keys(record.attributesDetails ?? []).length;
         return (
           <Space wrap size={4}>
-              <Tag>{groups} thuộc tính</Tag>
+            <Tag>{groups} thuộc tính</Tag>
           </Space>
         );
       },
@@ -704,7 +708,7 @@ const ProductAttributeManagement: React.FC = () => {
                             size="small"
                             style={{ width: 160 }}
                             value={null}
-                            onChange={(valueId: string) => {
+                            onChange={(valueId: number) => {
                               const found = poolValues.find(
                                 (v) => v.id === valueId,
                               );
@@ -742,7 +746,7 @@ const ProductAttributeManagement: React.FC = () => {
                   <InputNumber
                     min={0}
                     value={bulkStock}
-                    onChange={setBulkStock}
+                    onChange={(value) => setBulkStock(value !== null ? Number(value) : null)}
                     placeholder="Áp dụng tất cả..."
                     style={{ width: 180 }}
                   />

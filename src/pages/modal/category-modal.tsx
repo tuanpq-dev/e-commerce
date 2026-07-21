@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { Form, Modal } from "antd";
+import { Form, Modal, Select } from "antd";
 import type { CategoryType } from "../../types/domain";
 import FormInput from "../../@crema/core/Form/FormInput";
-import FormSelect from "../../@crema/core/Form/FormSelect";
 import { useTranslation } from "react-i18next";
 
 type ModalCategoryProps = {
@@ -11,15 +10,7 @@ type ModalCategoryProps = {
   open: boolean;
   onCancel: () => void;
   onOk: (values: CategoryType) => void;
-};
-
-type ModalCategoryChildProps = {
-  isUpdate?: boolean;
-  initialValue?: CategoryType | null;
-  open: boolean;
-  onCancel: () => void;
-  onOk: (values: CategoryType) => void;
-  options?: CategoryType[];
+  parentOptions?: CategoryType[];
 };
 
 export const ModalCategory = ({
@@ -28,30 +19,29 @@ export const ModalCategory = ({
   open,
   onOk,
   onCancel,
+  parentOptions,
 }: ModalCategoryProps) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
+  const isChild = !!parentOptions;
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
-
+    if (!open) return;
     if (initialValue) {
       form.setFieldsValue(initialValue);
       return;
     }
-
     form.resetFields();
   }, [form, initialValue, open]);
 
+  const getTitle = () => {
+    if (isChild) return t("category.titleCreateChild") || "Thêm danh mục con";
+    return isUpdate ? t("category.titleUpdateParent") : t("category.titleCreateParent");
+  };
+
   return (
     <Modal
-      title={
-        isUpdate
-          ? t("category.titleUpdateParent")
-          : t("category.titleCreateParent")
-      }
+      title={getTitle()}
       open={open}
       onOk={async () => {
         const values = await form.validateFields();
@@ -63,106 +53,42 @@ export const ModalCategory = ({
       cancelText={t("common.cancel")}
     >
       <Form form={form} layout="vertical">
+        {isChild && (
+          <Form.Item
+            label={t("category.name") || "Danh mục cha"}
+            name="parentId"
+            rules={[
+              {
+                required: true,
+                message: t("category.validation.parentRequired") || "Vui lòng chọn danh mục cha!",
+              },
+            ]}
+          >
+            <Select
+              placeholder={t("category.placeholder.selectParent") || "Chọn danh mục cha..."}
+              options={(parentOptions ?? [])
+                .filter((c) => !c.parentId)
+                .map((c) => ({ value: c.id, label: c.name }))}
+              showSearch
+              optionFilterProp="label"
+            />
+          </Form.Item>
+        )}
+
         <FormInput
-          label={t("category.name")}
-          name="name"
-          rules={[
-            { required: true, message: t("category.validation.nameRequired") },
-            {
-              min: 1,
-              message: t("category.validation.nameMin"),
-            },
-            {
-              max: 30,
-              message: t("category.validation.nameMax"),
-            },
-          ]}
-        />
-      </Form>
-    </Modal>
-  );
-};
-
-export const ModalCategoryChild = ({
-  initialValue,
-  isUpdate,
-  open,
-  onOk,
-  onCancel,
-  options,
-}: ModalCategoryChildProps) => {
-  const { t } = useTranslation();
-  const [form] = Form.useForm();
-  const parentOptions = (options ?? []).map((option) => ({
-    ...option,
-    value: option.id,
-    label: option.name,
-  }));
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    if (initialValue) {
-      form.setFieldsValue(initialValue);
-      return;
-    }
-
-    form.resetFields();
-  }, [form, initialValue, open]);
-
-  return (
-    <Modal
-      title={
-        isUpdate
-          ? t("category.titleUpdateChild")
-          : t("category.titleCreateChild")
-      }
-      open={open}
-      onOk={async () => {
-        const values = await form.validateFields();
-        onOk(values);
-      }}
-      onCancel={onCancel}
-      afterClose={() => form.resetFields()}
-      okText={isUpdate ? t("common.save") : t("common.add")}
-      cancelText={t("common.cancel")}
-    >
-      <Form form={form} layout="vertical">
-        <FormInput
-          label={t("category.childName")}
+          label={isChild ? (t("category.childName") || "Tên danh mục con") : t("category.name")}
           name="name"
           rules={[
             {
               required: true,
-              message: t("category.validation.childNameRequired"),
+              message: isChild
+                ? (t("category.validation.childNameRequired") || "Vui lòng nhập tên!")
+                : t("category.validation.nameRequired"),
             },
-            {
-              min: 1,
-              message: t("category.validation.childNameMin"),
-            },
-            {
-              max: 30,
-              message: t("category.validation.childNameMax"),
-            },
+            { min: 1, message: t("category.validation.nameMin") },
+            { max: 30, message: t("category.validation.nameMax") },
           ]}
         />
-
-        {!isUpdate && (
-          <FormSelect
-            label={t("category.name")}
-            name="parentId"
-            options={parentOptions}
-            placeholder={t("category.placeholder.selectParent")}
-            rules={[
-              {
-                required: true,
-                message: t("category.validation.parentRequired"),
-              },
-            ]}
-          />
-        )}
       </Form>
     </Modal>
   );

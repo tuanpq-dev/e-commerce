@@ -9,6 +9,7 @@ import {
   SaveValueAttribute,
   DeleteValueAttribute,
 } from "../../../api/attributeApi";
+import { CreateActiveLog } from "../../../api/activeLogApi";
 
 export type EditingModifier = {
   titleId: number;
@@ -22,7 +23,7 @@ export type AddValueState = {
   titleName: string;
 };
 
-export const useAttributeManagement = () => {
+export const useAttributeManagement = (user: string = "") => {
   const [titles, setTitles] = useState<AttributeTitle[]>([]);
   const [valuePool, setValuePool] = useState<Record<number, AttributeValueItem[]>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -78,6 +79,7 @@ export const useAttributeManagement = () => {
     setIsSavingTitle(true);
     try {
       await axiosClient.post("/attribute", { name });
+      await CreateActiveLog({ module: "Attribute", action: `CREATE - ${name}`, user });
       openNotification("success", {
         message: "Thành công",
         description: `Đã thêm nhóm "${name}"`,
@@ -99,6 +101,7 @@ export const useAttributeManagement = () => {
   const handleDeleteTitle = async (values: AttributeTitle) => {
     try {
       await DeleteAttributeTitle(values.id);
+      await CreateActiveLog({ module: "Attribute", action: `DELETE - ${values.name}`, user });
       openNotification("success", {
         message: "Đã xóa",
         description: `Nhóm "${values.name}" đã bị xóa.`,
@@ -116,6 +119,7 @@ export const useAttributeManagement = () => {
     setIsSavingTitle(true);
     try {
       await UpdateAttribute(id, name);
+      await CreateActiveLog({ module: "Attribute", action: `UPDATE - ${name}`, user });
       openNotification("success", {
         message: "Cập nhật thành công",
         description: `Đã đổi tên nhóm thành "${name}".`,
@@ -146,6 +150,7 @@ export const useAttributeManagement = () => {
     setIsSavingValue(true);
     try {
       await AddAttributeValue(addValueState.titleId, value, modifier ?? 0);
+      await CreateActiveLog({ module: "Attribute", action: `CREATE value - ${value}`, user });
       openNotification("success", {
         message: "Thành công",
         description: `Đã thêm giá trị "${value}"`,
@@ -168,6 +173,7 @@ export const useAttributeManagement = () => {
     setIsSavingValue(true);
     try {
       await SaveValueAttribute(valueId, priceModifierAmount);
+      await CreateActiveLog({ module: "Attribute", action: `UPDATE value modifier - ${valueId}`, user });
       openNotification("success", {
         message: "Thành công",
         description: "Đã cập nhật chênh lệch giá thành công.",
@@ -188,6 +194,7 @@ export const useAttributeManagement = () => {
     setIsSavingValue(true);
     try {
       await DeleteValueAttribute(id);
+      await CreateActiveLog({ module: "Attribute", action: `DELETE value - ${id}`, user });
       openNotification("success", {
         message: "Thành công",
         description: "Đã xóa thành công.",

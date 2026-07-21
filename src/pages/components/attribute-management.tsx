@@ -16,11 +16,13 @@ import { AddTitleModal } from "./attribute-management/AddTitleModal";
 import { AttributeValueTable } from "./attribute-management/AttributeValueTable";
 import { AddValueModal } from "./attribute-management/AddValueModal";
 import AntButton from "../../@crema/component/AntButton";
+import { useAuth } from "../../contexts/AuthContext";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
 
 const AttributeManagement: React.FC = () => {
+  const { userInfo } = useAuth();
   const {
     titles,
     valuePool,
@@ -42,7 +44,7 @@ const AttributeManagement: React.FC = () => {
     setEditingTitle,
     handleSaveValueAttribute,
     handleDeleteValueAttribute
-  } = useAttributeManagement();
+  } = useAttributeManagement(userInfo?.fullname || "");
 
   return (
     <div className="page-stack">

@@ -7,12 +7,12 @@ import {
   DeleteCategory,
   UpdateCategory,
 } from "../../api/categoryApi";
-import { ModalCategory, ModalCategoryChild } from "../modal";
+import { ModalCategory } from "../modal";
 import { useState, useCallback, useEffect } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import openNotification from "../../@crema/core/Notification";
 import AntButton from "../../@crema/component/AntButton";
-import {  useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import ModalConfirm from "../../@crema/core/ModalConfirm";
 import { CreateActiveLog } from "../../api/activeLogApi";
 import { useAuth } from "../../contexts/AuthContext";
@@ -41,7 +41,7 @@ const Category: React.FC = () => {
   const fetchAllCategories = useCallback(async () => {
     try {
       const { data, meta } = await axiosClient.post('/category/search', {
-        page: currentPage, 
+        page: currentPage,
         pageSize
       });
 
@@ -177,11 +177,6 @@ const Category: React.FC = () => {
                 onClick={() => {
                   handleUpdate(record);
                   setIsUpdate(true);
-                  if (record.parentId) {
-                    setIsOpenModalChild(true);
-                  } else {
-                    setIsOpenModal(true);
-                  }
                 }}
               />
 
@@ -228,11 +223,13 @@ const Category: React.FC = () => {
         description: t("category.notification.updateParentSuccess"),
       });
     } else {
-      await Promise.all([
-        CreateCategory(values),
-      ]);
+      await Promise.all([CreateCategory(values)]);
+      await CreateActiveLog({
+        module: "Category",
+        action: `CREATE - ${values.name}`,
+        user: userInfo?.fullname ?? "Unknown",
+      });
       await Promise.all([fetchAllCategories()]);
-
       setIsOpenModal(false);
       openNotification("success", {
         message: t("common.success"),
@@ -242,30 +239,23 @@ const Category: React.FC = () => {
   };
 
   const handleOkChild = async (values: CategoryType) => {
-    if (isUpdate) {
-      if (!rowData?.id) {
-        return;
-      }
-      await Promise.all([
-        UpdateCategory({ id: rowData.id, ...values }),
-      ]);
-      await Promise.all([fetchAllCategories()]);
-      setIsOpenModalChild(false);
-      setIsUpdate(false);
-      setRowData({});
-      openNotification("success", {
-        message: t("common.success"),
-        description: t("category.notification.updateChildSuccess"),
+    try {
+      await CreateCategory({ name: values.name, parentId: values.parentId });
+      await CreateActiveLog({
+        module: "Category",
+        action: `CREATE child - ${values.name}`,
+        user: userInfo?.fullname ?? "Unknown",
       });
-    } else {
-      await Promise.all([
-        CreateCategory(values),
-      ]);
-      await Promise.all([fetchAllCategories()]);
+      await fetchAllCategories();
       setIsOpenModalChild(false);
       openNotification("success", {
         message: t("common.success"),
-        description: t("category.notification.createChildSuccess"),
+        description: t("category.notification.createChildSuccess") || "Thêm danh mục con thành công!",
+      });
+    } catch (err) {
+      openNotification("error", {
+        message: t("common.failed"),
+        description: typeof err === "string" ? err : "Thêm danh mục con thất bại!",
       });
     }
   };
@@ -275,21 +265,21 @@ const Category: React.FC = () => {
       <Flex className="page-stack" gap="medium" vertical>
         <div className="page-toolbar">
           <div className="page-toolbar-actions">
-              <AntButton
-                tooltip={t("common.add")}
-                type="primary"
-                onClick={handleAddChild}
-              >
-                {t("category.addChild")}
-              </AntButton>
-              <AntButton
-                tooltip={t("common.add")}
-                type="primary"
-                onClick={handleAdd}
-              >
-                {t("category.addParent")}
-              </AntButton>
-            </div>
+            <AntButton
+              tooltip={t("common.add")}
+              type="primary"
+              onClick={handleAddChild}
+            >
+              {t("category.addChild")}
+            </AntButton>
+            <AntButton
+              tooltip={t("common.add")}
+              type="primary"
+              onClick={handleAdd}
+            >
+              {t("category.addParent")}
+            </AntButton>
+          </div>
         </div>
         <div className="table-shell">
           <Table<CategoryType>
@@ -305,7 +295,7 @@ const Category: React.FC = () => {
               pageSize: pageSize,
               total: totalItems,
               showSizeChanger: true,
-              pageSizeOptions: ["2","5", "10", "20", "50"],
+              pageSizeOptions: ["2", "5", "10", "20", "50"],
               showTotal: (total, range) =>
                 t("category.pagination", { count: range[1] - range[0] + 1, total }),
               onChange: (page, pageSize) => {
@@ -328,13 +318,11 @@ const Category: React.FC = () => {
         isUpdate={isUpdate}
       />
 
-      <ModalCategoryChild
-        initialValue={rowData}
+      <ModalCategory
         open={isOpenModalChild}
         onOk={handleOkChild}
         onCancel={handleCancel}
-        isUpdate={isUpdate}
-        options={categories}
+        parentOptions={categories}
       />
 
       <ModalConfirm
