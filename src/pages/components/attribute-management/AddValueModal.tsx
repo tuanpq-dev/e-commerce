@@ -22,7 +22,7 @@ export const AddValueModal: React.FC<AddValueModalProps> = ({
   const [form] = Form.useForm<{ value: string; modifier: number }>();
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
       form.resetFields();
     }
   }, [open, form]);

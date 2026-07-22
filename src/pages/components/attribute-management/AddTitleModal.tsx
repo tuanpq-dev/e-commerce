@@ -30,8 +30,6 @@ export const AddTitleModal: React.FC<AddTitleModalProps> = ({
       } else {
         form.resetFields();
       }
-    } else {
-      form.resetFields();
     }
   }, [open, initialValue, form]);
 
