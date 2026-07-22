@@ -1,15 +1,3 @@
-/**
- * Page 2 — Quản lý Thuộc tính theo Sản phẩm
- *
- * Hiển thị danh sách sản phẩm đã được tạo.
- * Click vào sản phẩm → Drawer bên phải để:
- *  - Xem/sửa nhóm thuộc tính đang dùng (chọn thêm từ pool, xóa nhóm)
- *  - Xem/sửa giá trị cụ thể trong từng nhóm
- *  - Nhập/sửa stock từng tổ hợp
- *  - Xóa tổ hợp, áp dụng bulk stock
- *  - Lưu thay đổi
- */
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -556,7 +544,7 @@ const ProductAttributeManagement: React.FC = () => {
           )
         }
         placement="right"
-        width="min(680px, 100vw)"
+        size="min(680px, 100vw)"
         open={drawerOpen}
         onClose={closeDrawer}
         footer={

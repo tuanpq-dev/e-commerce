@@ -131,7 +131,7 @@ const Profile = () => {
           </div>
 
           <Card className="profile-card" style={{ width: 280, textAlign: "center" }}>
-            <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={16} style={{ width: "100%" }}>
               <Avatar
                 size={96}
                 icon={<UserOutlined />}
