@@ -10,6 +10,7 @@ const routes = {
   ATTRIBUTE_MANAGEMENT: "attribute-management",
   /** Quản lý thuộc tính theo từng sản phẩm */
   PRODUCT_ATTRIBUTE_MANAGEMENT: "product-attribute-management",
+  PERMISSION: 'permission',
   DETAIL_CUSTOMER: (id: string | number) => `customer-management/${id}`,
   DETAIL_ORDER: (order_code: string | number) =>
     `order-management/${order_code}`,

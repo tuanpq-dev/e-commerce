@@ -1,5 +1,6 @@
 import {
   AuditOutlined,
+  CrownOutlined,
   FolderOpenOutlined,
   HomeOutlined,
   OrderedListOutlined,
@@ -56,4 +57,9 @@ export const menuConfig = [
     path: config.routes.PROFILE,
     label: "Profile",
   },
+  {
+    icon: <CrownOutlined />,
+    path: config.routes.PERMISSION,
+    label: "Permission"
+  }
 ];
