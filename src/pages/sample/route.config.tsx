@@ -19,7 +19,8 @@ const DetailCustomer = React.lazy(
   () => import("../components/detail-customer"),
 );
 const DetailOrder = React.lazy(() => import("../components/detail-order"));
-const Page403 = React.lazy(() => import("../components/403"))
+const Page403 = React.lazy(() => import("../components/403"));
+const Permission = React.lazy(() => import("../components/permission"));
 
 export const routeConfig = [
   {
@@ -70,4 +71,8 @@ export const routeConfig = [
     path: "/403",
     element: <Page403 />,
   },
+  {
+    path: config.routes.PERMISSION,
+    element: <Permission />
+  }
 ];

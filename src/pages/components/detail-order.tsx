@@ -27,6 +27,7 @@ import {
   type OrderStatusKey,
 } from "../../shared/constant/orderStatus";
 import axiosClient from "../../api/axiosClient";
+import { getProductImages } from "../../utils/variantEngine";
 
 type OrderItemType = {
   id: string;
@@ -108,7 +109,7 @@ const DetailOrder = () => {
     if (!id) return;
     try {
       setLoading(true);
-      const dataOrder  = await axiosClient.get<OrderType>(`/order/${id}`);
+      const dataOrder = await axiosClient.get<OrderType>(`/order/${id}`);
       setData(dataOrder);
       form.setFieldsValue({ status: dataOrder?.status });
     } catch (err) {
@@ -128,8 +129,10 @@ const DetailOrder = () => {
         title: t("order.detail.columns.image"),
         dataIndex: "image",
         key: "image",
-        width: 80,
-        render: (image: string) => <Image width={50} height={50} src={image} />,
+        render: (image: string) => {
+          const src = getProductImages(image)[0] || "";
+          return <Image width={50} height={50} src={src} />;
+        },
       },
       {
         title: t("order.detail.columns.productName"),

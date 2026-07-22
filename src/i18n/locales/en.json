@@ -22,7 +22,8 @@
     "Active": "Active",
     "Profile": "Profile",
     "AttributePool": "Attribute Pool",
-    "ProductAttributes": "Product Attribute Management"
+    "ProductAttributes": "Product Attribute Management",
+    "Permission": "Permission"
   },
   "product": {
     "columns": {

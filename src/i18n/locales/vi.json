@@ -22,7 +22,8 @@
     "Active": "Hành động",
     "Profile": "Thông tin cá nhân",
     "AttributePool": "Thuộc tính sản phẩm",
-    "ProductAttributes": "Quản lý thuộc tính sản phẩm"
+    "ProductAttributes": "Quản lý thuộc tính sản phẩm",
+    "Permission": "Phân quyền"
   },
   "product": {
     "columns": {
