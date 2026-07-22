@@ -1,6 +1,14 @@
 import axios from "axios";
 import type { AxiosInstance } from "axios";
+import type { NavigateFunction } from "react-router-dom";
+
 const apiUrl = import.meta.env.VITE_API_URL;
+
+let navigateFn: NavigateFunction | null = null;
+
+export const setNavigate = (fn: NavigateFunction) => {
+  navigateFn = fn;
+};
 
 interface CustomAxiosInstance
   extends Omit<AxiosInstance, "get" | "post" | "put" | "patch" | "delete"> {
@@ -42,7 +50,11 @@ axiosClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 403) {
-      window.location.href = "/403";
+      if (navigateFn) {
+        navigateFn("/403");
+      } else {
+        window.location.href = "/403";
+      }
       return Promise.reject("Bạn không có quyền thực hiện chức năng này!");
     }
     const message = error.response?.data?.message || "Đã có lỗi hệ thống xảy ra!";
