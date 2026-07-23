@@ -9,12 +9,12 @@ import AntButton from "../../../@crema/component/AntButton";
 const { Text } = Typography;
 
 interface AttributeValueTableProps {
-  titleId: number;
+  titleId: string | number;
   values: AttributeValueItem[];
   editingModifier: EditingModifier | null;
   setEditingModifier: React.Dispatch<React.SetStateAction<EditingModifier | null>>;
-  onSave?: (valueId: number, modifier: number) => Promise<void>;
-  onDeleteValue?: (titleId: number, val: AttributeValueItem) => Promise<void>;
+  onSave?: (valueId: string | number, modifier: number) => Promise<void>;
+  onDeleteValue?: (titleId: string | number, val: AttributeValueItem) => Promise<void>;
 }
 
 export const AttributeValueTable: React.FC<AttributeValueTableProps> = ({

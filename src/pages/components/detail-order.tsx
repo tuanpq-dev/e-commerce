@@ -28,16 +28,19 @@ import {
 } from "../../shared/constant/orderStatus";
 import axiosClient from "../../api/axiosClient";
 import { getProductImages } from "../../utils/variantEngine";
+import type { DataType } from "../../types/domain";
 
 type OrderItemType = {
-  id: string;
-  productId: string;
+  id: string | number;
+  productId?: string | number;
   productName: string;
-  image: string;
+  image?: string;
   size?: string;
   color?: string;
+  variantSku?: string;
+  variantAttributes?: any;
   quantity: number;
-  price: number;
+  price: number | string;
 };
 
 type OrderHistoryType = {
@@ -47,23 +50,32 @@ type OrderHistoryType = {
   message: string;
   createdAt: string;
   updateBy?: string;
+  user?: { fullname?: string };
 };
 
 type OrderType = {
   id: string | number;
   orderCode: string;
   customerId: string | number;
-  customerName: string;
-  customerEmail: string;
+  customerName?: string;
+  customerEmail?: string;
   customerPhone?: string;
+  customer?: {
+    id?: number | string;
+    fullname?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
   createdAt: string;
-  totalPrice: number;
+  totalPrice?: number | string;
   paymentMethod: string;
-  paymentStatus: "paid" | "unpaid";
-  shippingStatus: "pending" | "shipping" | "delivered";
-  status: "pending" | "processing" | "shipping" | "completed" | "cancelled";
+  paymentStatus: string;
+  shippingStatus: string;
+  status: string;
   shippingAddress: string;
   items: OrderItemType[];
+  history?: OrderHistoryType[];
   histories?: OrderHistoryType[];
   historyDetailOrder?: OrderHistoryType[];
 };
@@ -78,8 +90,9 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
 };
 
 const StatusBadge = ({ value, label }: { value: string; label?: string }) => {
-  const cfg = ORDER_STATUS_STYLE[value as OrderStatusKey];
-  if (!cfg) return null;
+  const normalizedKey = value.toLowerCase() as OrderStatusKey;
+  const cfg = ORDER_STATUS_STYLE[normalizedKey] || ORDER_STATUS_STYLE[value as OrderStatusKey];
+  if (!cfg) return <Tag>{label ?? value}</Tag>;
 
   return (
     <span
@@ -96,12 +109,100 @@ const StatusBadge = ({ value, label }: { value: string; label?: string }) => {
   );
 };
 
+const resolveItemAttributeLabels = (
+  item: OrderItemType,
+  products: DataType[],
+): string[] => {
+  const attributes: string[] = [];
+
+  if (item.size && item.size !== "-" && item.size !== "Default") {
+    if (item.size.includes(" / ")) {
+      attributes.push(...item.size.split(" / "));
+    } else {
+      attributes.push(item.size);
+    }
+  }
+  if (item.color && item.color !== "Default" && item.color !== "-") {
+    attributes.push(item.color);
+  }
+  if (attributes.length > 0) return attributes;
+
+  const pId = (item as any).productId ?? (item as any).product_id;
+  const product = products.find(
+    (p) => String(p.id) === String(pId) || p.name === item.productName,
+  );
+
+  if (product) {
+    const valueMap = new Map<string, string>();
+    let attrDetails = (product as any).options || product.attributesDetails;
+    if (typeof attrDetails === "string") {
+      try {
+        attrDetails = JSON.parse(attrDetails);
+      } catch { }
+    }
+    if (attrDetails && typeof attrDetails === "object") {
+      const groups = Array.isArray(attrDetails)
+        ? attrDetails
+        : Object.values(attrDetails);
+      groups.forEach((g: any) => {
+        (g?.values || []).forEach((v: any) => {
+          if (v?.id != null && v?.value) {
+            valueMap.set(String(v.id), String(v.value));
+          }
+        });
+      });
+    }
+
+    const comboKey =
+      item.variantAttributes?.comboKey ||
+      item.variantAttributes?.attributes?.comboKey ||
+      (item.variantSku?.includes("-") ? item.variantSku : undefined);
+
+    if (comboKey) {
+      const keys = String(comboKey).split("-");
+      const resolved = keys
+        .map((k) => valueMap.get(k))
+        .filter((v): v is string => Boolean(v));
+      if (resolved.length > 0) {
+        return resolved;
+      }
+    }
+
+    const vId = (item as any).variantId ?? (item as any).variant_id;
+    if (vId && Array.isArray(product.variants)) {
+      const v = product.variants.find(
+        (varObj: any) => String(varObj.id) === String(vId),
+      );
+      if (v) {
+        const vKey =
+          (v as any).comboKey || (v as any).attributes?.comboKey || v.sku;
+        if (vKey) {
+          const keys = String(vKey).split("-");
+          const resolved = keys
+            .map((k) => valueMap.get(k))
+            .filter((v): v is string => Boolean(v));
+          if (resolved.length > 0) {
+            return resolved;
+          }
+        }
+      }
+    }
+  }
+
+  if (item.variantSku) {
+    return [item.variantSku];
+  }
+
+  return [];
+};
+
 const DetailOrder = () => {
   const { t } = useTranslation();
   const { userInfo } = useAuth();
   const { id } = useParams();
   const [form] = Form.useForm();
   const [data, setData] = useState<OrderType | null>(null);
+  const [products, setProducts] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(false);
   const orderStatuses = useMemo(() => getOrderStatuses(t), [t]);
 
@@ -109,9 +210,24 @@ const DetailOrder = () => {
     if (!id) return;
     try {
       setLoading(true);
-      const dataOrder = await axiosClient.get<OrderType>(`/order/${id}`);
+      const [dataOrder, productsRes] = await Promise.all([
+        axiosClient.get<OrderType>(`/order/${id}`),
+        axiosClient
+          .post("/product/search", { page: 1, pageSize: 100 })
+          .catch(() => null),
+      ]);
+
       setData(dataOrder);
-      form.setFieldsValue({ status: dataOrder?.status });
+      if (dataOrder?.status) {
+        form.setFieldsValue({ status: dataOrder.status.toLowerCase() });
+      }
+
+      if (productsRes) {
+        const prodList = Array.isArray(productsRes)
+          ? productsRes
+          : (productsRes as any)?.data || [];
+        setProducts(prodList);
+      }
     } catch (err) {
       console.log(err);
     } finally {
@@ -130,7 +246,7 @@ const DetailOrder = () => {
         dataIndex: "image",
         key: "image",
         render: (image: string) => {
-          const src = getProductImages(image)[0] || "";
+          const src = getProductImages(image || "")[0] || "";
           return <Image width={50} height={50} src={src} />;
         },
       },
@@ -143,24 +259,14 @@ const DetailOrder = () => {
         title: t("order.detail.columns.attributes"),
         key: "attributes",
         render: (_, record) => {
-          const attributes = [];
-          if (record.size && record.size !== "-") {
-            if (record.size.includes(" / ")) {
-              attributes.push(...record.size.split(" / "));
-            } else {
-              attributes.push(record.size);
-            }
-          }
-          if (record.color && record.color !== "Default" && record.color !== "-") {
-            attributes.push(record.color);
-          }
+          const attributes = resolveItemAttributeLabels(record, products);
 
           if (attributes.length === 0) return "-";
 
           return (
             <Space wrap>
-              {attributes.map((attr) => (
-                <Tag color="blue" key={attr}>
+              {attributes.map((attr, idx) => (
+                <Tag color="blue" key={`${attr}-${idx}`}>
                   {attr}
                 </Tag>
               ))}
@@ -178,16 +284,16 @@ const DetailOrder = () => {
         title: t("order.detail.columns.price"),
         dataIndex: "price",
         key: "price",
-        render: (price: number) => `${formatCurrency(price)}`,
+        render: (price: number | string) => `${formatCurrency(Number(price))}`,
       },
       {
         title: t("order.detail.columns.total"),
         key: "total",
         render: (_, record) =>
-          `${formatCurrency(record.price * record.quantity)}`,
+          `${formatCurrency(Number(record.price) * Number(record.quantity))}`,
       },
     ];
-  }, [t]);
+  }, [t, products]);
 
   const handleUpdateStatus = async (status: string) => {
     if (!data?.id) return;
@@ -196,7 +302,7 @@ const DetailOrder = () => {
       status,
       updatedBy: {
         id: userInfo?.id,
-        name: userInfo.fullname,
+        name: userInfo?.fullname,
         email: userInfo?.email,
       },
     };
@@ -210,14 +316,21 @@ const DetailOrder = () => {
     await CreateActiveLog({
       module: `Detail Order - Status - ${id}`,
       action: "UPDATE",
-      user: userInfo.fullname,
+      user: userInfo?.fullname || "",
     });
 
-    setData(updated);
+    if (updated) {
+      setData(updated);
+      form.setFieldsValue({ status: updated.status?.toLowerCase() });
+    } else {
+      await fetchData();
+    }
   };
 
   if (loading) return <Spin />;
   if (!data) return <Empty description={t("order.detail.notFound")} />;
+
+  const currentStatus = (data.status || "").toLowerCase();
 
   return (
     <Form form={form}>
@@ -232,15 +345,15 @@ const DetailOrder = () => {
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.detail.customerName")}>
-            {data.customerName}
+            {data.customer.fullname}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("customer.email")}>
-            {data.customerEmail}
+            {data.customer?.email ?? data.customerEmail ?? "-"}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.shippingAddress")}>
-            {data.shippingAddress}
+            {data.shippingAddress || data.customer?.address || "-"}
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.detail.orderStatus")}>
@@ -248,31 +361,42 @@ const DetailOrder = () => {
               name="status"
               onChange={handleUpdateStatus}
               labelRender={({ value }) => {
+                const valStr = String(value ?? "").toLowerCase();
                 const found = orderStatuses.find(
-                  (s) => s.status === String(value),
+                  (s) => s.status.toLowerCase() === valStr,
                 );
                 return (
                   <StatusBadge
-                    value={String(value)}
+                    value={valStr}
                     label={found?.title}
                   />
                 );
               }}
               options={ORDER_STATUS_KEYS.map((s) => {
-                const statusInfo = orderStatuses.find((o) => o.status === s);
+                const statusInfo = orderStatuses.find(
+                  (o) => o.status.toLowerCase() === s,
+                );
                 return {
                   label: statusInfo?.title ?? s,
                   value: s,
                   disabled:
-                    s !== data.status &&
-                    !STATUS_TRANSITIONS[data.status]?.includes(s),
+                    s !== currentStatus &&
+                    !STATUS_TRANSITIONS[currentStatus]?.includes(s),
                 };
               })}
             />
           </Descriptions.Item>
 
           <Descriptions.Item label={t("order.totalPrice")}>
-            {formatCurrency(data.totalPrice)}
+            {formatCurrency(
+              data.totalPrice != null
+                ? Number(data.totalPrice)
+                : (data.items ?? []).reduce(
+                  (sum, item) =>
+                    sum + Number(item.price) * Number(item.quantity),
+                  0,
+                ),
+            )}
           </Descriptions.Item>
         </Descriptions>
 
@@ -297,19 +421,29 @@ const DetailOrder = () => {
         >
           <Timeline
             reverse={true}
-            items={(data.historyDetailOrder ?? []).map((item) => ({
-              children: (
-                <div>
+            items={(
+              data.history ??
+              data.histories ??
+              data.historyDetailOrder ??
+              []
+            ).map((item) => {
+              const statusObj = orderStatuses.find(
+                (s) => s.status.toLowerCase() === item.status?.toLowerCase(),
+              );
+              return {
+                children: (
                   <div>
-                    {item.updateBy ?? "System"},{" "}
-                    {item.message.toLowerCase()}
+                    <div>
+                      {item.updateBy ?? item.user?.fullname ?? "Hệ thống"},{" "}
+                      {(item.message || statusObj?.title || item.status).toLowerCase()}
+                    </div>
+                    <div style={{ color: "#999", fontSize: 13 }}>
+                      {formatDate(item.createdAt)}
+                    </div>
                   </div>
-                  <div style={{ color: "#999", fontSize: 13 }}>
-                    {formatDate(item.createdAt)}
-                  </div>
-                </div>
-              ),
-            }))}
+                ),
+              };
+            })}
           />
         </Card>
       </Card>

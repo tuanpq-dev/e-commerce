@@ -122,12 +122,12 @@ export type PaginatedOrders = {
   items: number;
 };
 
-export const GetOrders = async (
-): Promise<PaginatedOrders> => {
+export const GetOrders = async (): Promise<PaginatedOrders> => {
   const res = await axiosClient.post("/order/search");
+  const list = Array.isArray(res) ? res : res?.data || [];
   return {
-    data: res.data || [],
-    items: res.meta?.totalItems ?? res.data?.length ?? 0,
+    data: list,
+    items: res?.meta?.totalItems ?? list.length ?? 0,
   };
 };
 

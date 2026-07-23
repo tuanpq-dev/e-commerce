@@ -65,7 +65,7 @@ const ProductAttributeManagement: React.FC = () => {
   // ── Pool toàn cục ───────────────────────────────────────────
   const [allTitles, setAllTitles] = useState<AttributeTitle[]>([]);
   const [allValuePool, setAllValuePool] = useState<
-    Record<number, AttributeValueItem[]>
+    Record<number | string, AttributeValueItem[]>
   >({});
 
   // ── Drawer state ────────────────────────────────────────────
@@ -96,9 +96,10 @@ const ProductAttributeManagement: React.FC = () => {
       const mappedData = data.map((prod: any) => {
         const vMap: VariantCombinationMap = {};
         (prod.variants || []).forEach((variant: any) => {
-          if (variant.comboKey) {
-            vMap[variant.comboKey] = {
-              stock: variant.stock ?? 0,
+          const comboKey = variant.comboKey || variant.attributes?.comboKey;
+          if (comboKey) {
+            vMap[comboKey] = {
+              stock: Number(variant.stock ?? 0),
             };
           }
         });
@@ -114,8 +115,9 @@ const ProductAttributeManagement: React.FC = () => {
       const valuePoolMap: Record<number, AttributeValueItem[]> = {};
 
       (data || []).forEach((prod: any) => {
-        if (prod.attributesDetails) {
-          Object.entries(prod.attributesDetails).forEach(([titleId, groupObj]: [string, any]) => {
+        const attrDetails = prod.options || prod.attributesDetails;
+        if (attrDetails) {
+          Object.entries(attrDetails).forEach(([titleId, groupObj]: [string, any]) => {
             if (groupObj && groupObj.name) {
               const numTitleId = Number(titleId);
               titlesMap.set(numTitleId, groupObj.name);
@@ -167,8 +169,9 @@ const ProductAttributeManagement: React.FC = () => {
   const openDrawer = (product: DataType) => {
     setSelectedProduct(product);
 
-    // Convert attributesDetails object to AttributeGroup[]
-    const groups: AttributeGroup[] = Object.entries((product as any).attributesDetails || {}).map(([titleId, groupObj]: [string, any]) => ({
+    // Convert options / attributesDetails object to AttributeGroup[]
+    const attrDetails = (product as any).options || product.attributesDetails || {};
+    const groups: AttributeGroup[] = Object.entries(attrDetails).map(([titleId, groupObj]: [string, any]) => ({
       titleId: Number(titleId),
       name: groupObj.name,
       values: (groupObj.values || []).map((val: any) => ({
@@ -178,7 +181,16 @@ const ProductAttributeManagement: React.FC = () => {
       })),
     }));
 
-    const vMap = product.variant_map ?? {};
+    let vMap = product.variant_map;
+    if ((!vMap || Object.keys(vMap).length === 0) && Array.isArray(product.variants)) {
+      vMap = {};
+      product.variants.forEach((v: any) => {
+        const key = v.comboKey || v.attributes?.comboKey;
+        if (key) {
+          vMap![key] = { stock: Number(v.stock ?? 0) };
+        }
+      });
+    }
 
     setDraftGroups(groups);
     setDraftVariantMap(vMap);
@@ -215,7 +227,7 @@ const ProductAttributeManagement: React.FC = () => {
   const availableTitles = allTitles.filter((t) => !usedTitleIds.has(t.id));
 
   // ── Handlers — Groups ────────────────────────────────────
-  const handleAddGroup = (titleId: number) => {
+  const handleAddGroup = (titleId: number | string) => {
     const title = allTitles.find((t) => t.id === titleId);
     if (!title) return;
 
@@ -234,7 +246,7 @@ const ProductAttributeManagement: React.FC = () => {
     setPrevGroups(newGroups);
   };
 
-  const handleRemoveGroup = (titleId: number) => {
+  const handleRemoveGroup = (titleId: number | string) => {
     const newGroups = draftGroups.filter((g) => g.titleId !== titleId);
     const migrated = migrateAttributesOnChange(
       draftGroups,
@@ -247,7 +259,7 @@ const ProductAttributeManagement: React.FC = () => {
   };
 
   // ── Handlers — Values ────────────────────────────────────
-  const handleAddValue = (titleId: number, value: AttributeValueItem) => {
+  const handleAddValue = (titleId: number | string, value: AttributeValueItem) => {
     const newGroups = draftGroups.map((g) =>
       g.titleId !== titleId ? g : { ...g, values: [...g.values, value] },
     );
@@ -261,7 +273,7 @@ const ProductAttributeManagement: React.FC = () => {
     setPrevGroups(newGroups);
   };
 
-  const handleRemoveValue = (titleId: number, valueId: number) => {
+  const handleRemoveValue = (titleId: number | string, valueId: number | string) => {
     const newGroups = draftGroups.map((g) =>
       g.titleId !== titleId
         ? g
@@ -425,7 +437,8 @@ const ProductAttributeManagement: React.FC = () => {
     {
       title: "Nhóm thuộc tính",
       render: (_: unknown, record: DataType) => {
-        const groups = Object.keys(record.attributesDetails ?? []).length;
+        const attrDetails = (record as any).options ?? record.attributesDetails ?? {};
+        const groups = Object.keys(attrDetails).length;
         return (
           <Space wrap size={4}>
             <Tag>{groups} thuộc tính</Tag>
@@ -696,7 +709,7 @@ const ProductAttributeManagement: React.FC = () => {
                             size="small"
                             style={{ width: 160 }}
                             value={null}
-                            onChange={(valueId: number) => {
+                            onChange={(valueId: number | string) => {
                               const found = poolValues.find(
                                 (v) => v.id === valueId,
                               );

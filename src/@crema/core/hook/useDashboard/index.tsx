@@ -20,6 +20,16 @@ const getLast6Months = () => {
   return months;
 };
 
+const getOrderPrice = (item: OrderType): number => {
+  if (item.totalPrice != null) {
+    return Number(item.totalPrice);
+  }
+  return (item.items ?? []).reduce(
+    (acc, i) => acc + Number(i.price ?? 0) * Number(i.quantity ?? 0),
+    0,
+  );
+};
+
 const getTotalRevenueFromOrders = (
   orders: OrderType[],
   params?: {
@@ -41,7 +51,7 @@ const getTotalRevenueFromOrders = (
         })
       : orders;
 
-  return filtered.reduce((acc, item) => acc + Number(item.totalPrice ?? 0), 0);
+  return filtered.reduce((acc, item) => acc + getOrderPrice(item), 0);
 };
 
 const getOrdersByDayOfMonth = (
@@ -112,15 +122,21 @@ export const useDashboard = () => {
         setRevenueData(results);
         setOrdersByDayOfMonth(getOrdersByDayOfMonth(orders));
 
-        const uniqueCustomers = new Set(orders.map((o) => o.customerId).filter(Boolean)).size;
+        const uniqueCustomers = new Set(
+          orders.map((o: any) => o.customerId ?? o.customer?.id).filter(Boolean),
+        ).size;
+        const productList = Array.isArray(totalProducts)
+          ? totalProducts
+          : (totalProducts as any)?.data || [];
+
         setStats({
           totalOrders: orders.length,
           totalRevenue: orders.reduce(
-            (acc, o) => acc + Number(o.totalPrice ?? 0),
+            (acc, o) => acc + getOrderPrice(o),
             0,
           ),
           totalCustomers: uniqueCustomers,
-          totalProducts: totalProducts.length,
+          totalProducts: productList.length,
         });
       } catch (err) {
         console.log(err);

@@ -12,20 +12,20 @@ import {
 import { CreateActiveLog } from "../../../api/activeLogApi";
 
 export type EditingModifier = {
-  titleId: number;
-  valueId: number;
+  titleId: string | number;
+  valueId: string | number;
   draft: number;
 };
 
 export type AddValueState = {
   open: boolean;
-  titleId: number;
+  titleId: string | number;
   titleName: string;
 };
 
 export const useAttributeManagement = (user: string = "") => {
   const [titles, setTitles] = useState<AttributeTitle[]>([]);
-  const [valuePool, setValuePool] = useState<Record<number, AttributeValueItem[]>>({});
+  const [valuePool, setValuePool] = useState<Record<string | number, AttributeValueItem[]>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isAddTitleOpen, setIsAddTitleOpen] = useState(false);
   const [isSavingTitle, setIsSavingTitle] = useState(false);
@@ -48,13 +48,14 @@ export const useAttributeManagement = (user: string = "") => {
         dataPool.map((item: any) => ({
           id: Number(item.id),
           name: item.name,
-          attributeValues: item.attributeValues,
+          attributeValues: item.values || item.attributeValues || [],
         }))
       );
 
       const pool: Record<number, AttributeValueItem[]> = {};
       dataPool.forEach((item: any) => {
-        pool[Number(item.id)] = (item.attributeValues || []).map((val: any) => ({
+        const rawValues = item.values || item.attributeValues || [];
+        pool[Number(item.id)] = rawValues.map((val: any) => ({
           id: Number(val.id),
           value: val.value,
           price_modifier_amount: val.priceModifierAmount ?? val.price_modifier_amount ?? 0,
@@ -107,15 +108,15 @@ export const useAttributeManagement = (user: string = "") => {
         description: `Nhóm "${values.name}" đã bị xóa.`,
       });
       await fetchAll();
-    } catch (error){
+    } catch (error: any){
       openNotification("error", {
         message: "Lỗi",
-        description: error,
+        description: error?.response?.data?.message || error?.message || "Không thể xóa nhóm thuộc tính.",
       });
     }
   };
 
-  const handleUpdate = async (id: number, name: string): Promise<boolean> => {
+  const handleUpdate = async (id: string | number, name: string): Promise<boolean> => {
     setIsSavingTitle(true);
     try {
       await UpdateAttribute(id, name);
@@ -138,7 +139,7 @@ export const useAttributeManagement = (user: string = "") => {
     }
   }
 
-  const openAddValue = (titleId: number, titleName: string) => {
+  const openAddValue = (titleId: string | number, titleName: string) => {
     setAddValueState({ open: true, titleId, titleName });
   };
 
@@ -169,7 +170,7 @@ export const useAttributeManagement = (user: string = "") => {
     }
   };
 
-  const handleSaveValueAttribute = async (valueId: number, priceModifierAmount: number) => {
+  const handleSaveValueAttribute = async (valueId: string | number, priceModifierAmount: number) => {
     setIsSavingValue(true);
     try {
       await SaveValueAttribute(valueId, priceModifierAmount);
@@ -180,17 +181,17 @@ export const useAttributeManagement = (user: string = "") => {
       });
       await fetchAll();
       setEditingModifier(null);
-    } catch (error) {
+    } catch (error: any) {
       openNotification("error", {
         message: "Lỗi",
-        description: error,
+        description: error?.response?.data?.message || error?.message || "Không thể cập nhật giá trị.",
       });
     } finally {
       setIsSavingValue(false);
     }
   };
 
-  const handleDeleteValueAttribute = async (id: number) => {
+  const handleDeleteValueAttribute = async (id: string | number) => {
     setIsSavingValue(true);
     try {
       await DeleteValueAttribute(id);

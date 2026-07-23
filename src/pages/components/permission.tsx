@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import formatDate from "../../utils/formatDate";
 import openNotification from "../../@crema/core/Notification";
 import { useAuth } from "../../contexts/AuthContext";
+import { CreateActiveLog } from "../../api/activeLogApi";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 10;
@@ -37,6 +38,11 @@ const Permission = () => {
         setIsLoading(true);
         try {
             await axiosClient.patch(`/auth/permission/${id}`, { role })
+            await CreateActiveLog({
+                module: "Permission",
+                action: "Update",
+                user: userInfo?.fullname || "",
+            });
             openNotification('success', {
                 message: 'Thành công',
                 description: 'Chỉnh sửa quyền thành công'

@@ -5,16 +5,16 @@ export const GetAttributeTitles = async (): Promise<AttributeTitle[]> => {
   return callApiWithRetries<AttributeTitle[]>({ url: "/attribute/pool" });
 };
 
-export const DeleteAttributeTitle = async (id: number): Promise<void> => {
+export const DeleteAttributeTitle = async (id: string | number): Promise<void> => {
   await axiosClient.delete(`/attribute/${id}`);
 };
 
-export const UpdateAttribute = async (id: number, name: string) => {
+export const UpdateAttribute = async (id: string | number, name: string) => {
   await axiosClient.patch(`/attribute/${id}`, { name })
 }
 
 export const AddAttributeValue = async (
-  titleId: number,
+  titleId: string | number,
   value: string,
   priceModifierAmount = 0,
 ): Promise<AttributeValueItem> => {
@@ -27,16 +27,17 @@ export const AddAttributeValue = async (
 };
 
 export const DeleteAttributeValue = async (
-  valueId: number,
+  valueId: string | number,
 ): Promise<void> => {
   await axiosClient.delete(`/attribute/${valueId}`);
 };
 
-export const SaveValueAttribute = async (id: number, priceModifierAmount: number) => {
+export const SaveValueAttribute = async (id: string | number, priceModifierAmount: number) => {
   await axiosClient.patch(`/attribute/value/${id}`, { priceModifierAmount })
 }
 
-export const DeleteValueAttribute = async (id: number) => {
+export const DeleteValueAttribute = async (id: string | number) => {
   await axiosClient.delete(`/attribute/value/${id}`)
 }
+
 

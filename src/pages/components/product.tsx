@@ -43,7 +43,7 @@ const formatProductPrice = (record: DataType) => {
   const variants = getProductVariants(record);
 
   if (!variants.length) {
-    return formatCurrency(record.price);
+    return formatCurrency(record.price ?? record.basePrice ?? 0);
   }
 
   const prices = variants.map((variant) => Number(variant.price));
@@ -63,18 +63,19 @@ const formatProductVariants = (record: DataType) => {
   if (variants.length > 3) return `${variants.length} variants`;
 
   const labelMap = new Map<string, string>();
-  if (record.attributesDetails) {
+  const attrDetails = (record as any).options || record.attributesDetails;
+  if (attrDetails) {
     if (
-      typeof record.attributesDetails === "object" &&
-      !Array.isArray(record.attributesDetails)
+      typeof attrDetails === "object" &&
+      !Array.isArray(attrDetails)
     ) {
-      Object.values(record.attributesDetails).forEach((group: any) => {
+      Object.values(attrDetails).forEach((group: any) => {
         if (group && Array.isArray(group.values)) {
           group.values.forEach((v: any) => labelMap.set(String(v.id), v.value));
         }
       });
-    } else if (Array.isArray(record.attributesDetails)) {
-      record.attributesDetails.forEach((group: any) => {
+    } else if (Array.isArray(attrDetails)) {
+      attrDetails.forEach((group: any) => {
         if (group && Array.isArray(group.values)) {
           group.values.forEach((v: any) => labelMap.set(String(v.id), v.value));
         }
@@ -84,8 +85,9 @@ const formatProductVariants = (record: DataType) => {
 
   return variants
     .map((v) => {
-      if (v.comboKey) {
-        return v.comboKey
+      const comboKey = v.comboKey || (v.attributes as any)?.comboKey;
+      if (comboKey) {
+        return comboKey
           .split("-")
           .map((id: string) => labelMap.get(String(id)) || id)
           .join(" / ");
@@ -176,8 +178,8 @@ const Product: React.FC = () => {
           const categoryList: any[] = Array.isArray(categoriesRes)
             ? categoriesRes
             : Array.isArray(categoriesRes?.data)
-            ? categoriesRes.data
-            : [];
+              ? categoriesRes.data
+              : [];
 
           const mapCategoryNode = (node: any): any => {
             const children = node.children || node.child || [];
@@ -199,7 +201,8 @@ const Product: React.FC = () => {
             import("../../types/domain").AttributeValueItem[]
           > = {};
           (attributes || []).forEach((item: any) => {
-            mappedPool[String(item.id)] = (item.attributeValues || []).map(
+            const rawValues = item.values || [];
+            mappedPool[String(item.id)] = rawValues.map(
               (val: any) => ({
                 id: String(val.id),
                 value: val.value,
@@ -307,21 +310,21 @@ const Product: React.FC = () => {
   };
 
   const handleUpdate = (values: DataType) => {
-    // API trả về attributesDetails dạng Record<string, {name, values[]}> → convert sang AttributeGroup[]
-    const attributesDetailsRaw = values.attributesDetails as any;
+    // API trả về options hoặc attributesDetails dạng Record<string, {name, values[]}> → convert sang AttributeGroup[]
+    const attributesDetailsRaw = (values as any).options || values.attributesDetails;
     const attribute_groups = attributesDetailsRaw && typeof attributesDetailsRaw === "object" && !Array.isArray(attributesDetailsRaw)
       ? Object.entries(attributesDetailsRaw).map(([titleId, group]: [string, any]) => ({
-          titleId,
-          name: group.name,
-          values: (group.values ?? []).map((v: any) => ({
-            id: String(v.id),
-            value: v.value,
-            price_modifier_amount: v.price_modifier_amount ?? 0,
-          })),
-        }))
+        titleId,
+        name: group.name,
+        values: (group.values ?? []).map((v: any) => ({
+          id: String(v.id),
+          value: v.value,
+          price_modifier_amount: v.price_modifier_amount ?? 0,
+        })),
+      }))
       : Array.isArray(attributesDetailsRaw)
-      ? attributesDetailsRaw
-      : [];
+        ? attributesDetailsRaw
+        : [];
 
     const categoryObj = typeof values.category === "object" && values.category !== null
       ? (values.category as any)
@@ -336,7 +339,16 @@ const Product: React.FC = () => {
       childCategoryIds = [categoryObj.id];
     }
 
-    const variant_map = values.variant_map ?? {};
+    let variant_map = values.variant_map;
+    if (!variant_map && Array.isArray(values.variants)) {
+      variant_map = {};
+      values.variants.forEach((v: any) => {
+        const key = v.comboKey || v.attributes?.comboKey;
+        if (key) {
+          variant_map![key] = { stock: Number(v.stock ?? 0) };
+        }
+      });
+    }
 
     setRowData({
       id: values.id,
@@ -344,13 +356,13 @@ const Product: React.FC = () => {
       sku: values.sku,
       category: parentCategoryId,
       category_child: childCategoryIds,
-      price: values.price,
+      price: values.price ?? values.basePrice,
       stock: values.stock,
-      basePrice: values.basePrice,
+      basePrice: values.basePrice ?? values.price,
       variants: values.variants,
       description: values.description || "",
       attribute_groups,
-      variant_map,
+      variant_map: variant_map ?? {},
       image: getProductImages(values.image),
     });
   };
@@ -571,7 +583,7 @@ const Product: React.FC = () => {
     pageSize: pageSize,
     total: totalItems,
     showSizeChanger: true,
-    pageSizeOptions: ["2","5", "10", "20", "50"],
+    pageSizeOptions: ["2", "5", "10", "20", "50"],
     showTotal: (total: number, range: [number, number]) =>
       `${t("product.pagination", {
         count: range[1] - range[0] + 1,

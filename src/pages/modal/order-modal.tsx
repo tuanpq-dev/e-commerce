@@ -13,6 +13,7 @@ import FormSelect from "../../@crema/core/Form/FormSelect";
 import AntButton from "../../@crema/component/AntButton";
 import formatCurrency from "../../utils/formatCurrecy";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { generateCombinationKey } from "../../utils/variantEngine";
 
 // === UTILS ===
@@ -37,7 +38,7 @@ const findOrderProduct = (products: DataType[], productId?: string | number) =>
 
 const getProductAttributeGroups = (product?: DataType): AttributeGroup[] => {
   if (!product) return [];
-  let attrDetails = product.attributesDetails;
+  let attrDetails = (product as any).options || product.attributesDetails;
   if (typeof attrDetails === "string") {
     try {
       attrDetails = JSON.parse(attrDetails);
@@ -60,8 +61,20 @@ const getProductAttributeGroups = (product?: DataType): AttributeGroup[] => {
     return attrDetails;
   }
   const variants = product.variants ?? [];
-  const uniqueSizes = Array.from(new Set(variants.map((v) => v.size).filter(Boolean)));
-  const uniqueColors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean)));
+  const uniqueSizes = Array.from(
+    new Set(
+      variants
+        .map((v) => v.size)
+        .filter((s): s is string => Boolean(s) && typeof s === "string"),
+    ),
+  );
+  const uniqueColors = Array.from(
+    new Set(
+      variants
+        .map((v) => v.color)
+        .filter((c): c is string => Boolean(c) && typeof c === "string"),
+    ),
+  );
   const groups: AttributeGroup[] = [];
   if (uniqueSizes.length) {
     groups.push({
@@ -106,7 +119,11 @@ const findOrderVariant = (
   if (!allSelected) return undefined;
 
   // New dynamic N-attribute system (from NestJS/Prisma: variants have comboKey)
-  const isNewSystem = attributeGroups.length > 0 && (product.variants ?? []).some((v) => !!(v as any).comboKey);
+  const isNewSystem =
+    attributeGroups.length > 0 &&
+    (product.variants ?? []).some(
+      (v) => !!(v as any).comboKey || !!(v as any).attributes?.comboKey,
+    );
   if (isNewSystem) {
     const valueIds = attributeGroups
       .map((g) => selectedAttrs[g.titleId])
@@ -114,7 +131,9 @@ const findOrderVariant = (
 
     const comboKey = generateCombinationKey(valueIds);
     const variant = (product.variants ?? []).find(
-      (v) => String((v as any).comboKey) === String(comboKey),
+      (v) =>
+        String((v as any).comboKey || (v as any).attributes?.comboKey) ===
+        String(comboKey),
     );
 
     if (!variant) return undefined;
@@ -123,7 +142,7 @@ const findOrderVariant = (
     const labelMap = new Map<string, string>();
     attributeGroups.forEach((g) => {
       g.values.forEach((v) => {
-        labelMap.set(v.id, v.value);
+        labelMap.set(String(v.id), v.value);
       });
     });
     const labelStr = valueIds.map((id) => labelMap.get(id) ?? id).join(" / ");
@@ -176,7 +195,7 @@ const getOrderTotalPrice = (
   }, 0);
 
 const buildQuantityValidator = (
-  t: (key: string, opts?: object) => string,
+  t: TFunction,
   attributeGroups: AttributeGroup[],
   selectedAttributes: Record<string, string> | undefined,
   variant: ReturnType<typeof findOrderVariant>,
@@ -237,7 +256,10 @@ const useOrderItemField = (
   products: DataType[],
 ) => {
   const productCurrent = useMemo(
-    () => products.filter((product) => product.status === "active"),
+    () =>
+      products.filter(
+        (product) => product.status?.toLowerCase() === "active",
+      ),
     [products],
   );
 
@@ -306,7 +328,7 @@ const OrderItemFieldComponent = ({
           const defaultAttributes: Record<string, string> = {};
           groups.forEach((g) => {
             if (g.values.length > 0) {
-              defaultAttributes[g.titleId] = g.values[0].id;
+              defaultAttributes[String(g.titleId)] = String(g.values[0].id);
             }
           });
 

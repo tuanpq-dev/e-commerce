@@ -1,17 +1,17 @@
 export type AttributeTitle = {
-  id: number;    // "title_size"
+  id: string | number;    // "title_size"
   name: string;  // "Size"
   attributeValues?: any
 };
 
 export type AttributeValueItem = {
-  id: number;                    // "v_m"
+  id: string | number;                    // "v_m"
   value: string;                 // "M"
   price_modifier_amount: number; // ±VNĐ so với base_price
 };
 
 export type AttributeGroup = {
-  titleId: number;               // "title_size"
+  titleId: string | number;               // "title_size"
   name: string;                  // "Size"
   values: AttributeValueItem[];
 };
@@ -26,12 +26,13 @@ export type VariantCombinationMap = Record<string, { stock: number }>;
 export type ProductVariant = {
   id?: string | number;
   product_id?: string;
-  size: string;
-  color: string;
-  price: number | string;
-  stock: number | string;
+  size?: string;
+  color?: string;
+  price?: number | string;
+  stock?: number | string;
   sku?: string;
-  comboKey: any;
+  comboKey?: any;
+  attributes?: any;
 };
 
 export type ProductVariantsMap = Record<string, ProductVariant[]>;
@@ -94,33 +95,40 @@ export type CategoryType = {
 };
 
 export type OrderType = {
-  id: number;
+  id: number | string;
   orderCode: string;
-  customerId: number;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  totalPrice: number;
+  customerId: number | string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  customer?: {
+    id?: number | string;
+    fullname?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  totalPrice?: number | string;
   paymentMethod: "cod" | "banking" | string;
-  paymentStatus: "paid" | "unpaid";
+  paymentStatus: "paid" | "unpaid" | string;
   shippingStatus: "pending" | "shipping" | "delivered" | string;
   status: "completed" | "processing" | string;
-  shippingAddress: string;
-  note: string;
+  shippingAddress?: string;
+  note?: string;
   createdAt: string;
   updatedAt: string;
 
   items?: {
     id: string | number;
     orderId?: string | number;
-    productId: string | number;
+    productId?: string | number;
     productName: string;
     size?: string;
     color?: string;
     sku?: string;
     image?: string | string[];
     quantity: number;
-    price: number;
+    price: number | string;
   }[];
   historyDetailOrder?: {
     id?: string | number;

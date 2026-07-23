@@ -94,8 +94,9 @@ const Order: React.FC = () => {
   const fetchProducts = async () => {
     try {
       const { data: dataProduct } = await axiosClient.post('/product/search');
-      const productCurrent = dataProduct.filter(
-        (product) => product.status === "active",
+      const list = Array.isArray(dataProduct) ? dataProduct : (dataProduct?.data || []);
+      const productCurrent = list.filter(
+        (product: any) => product.status?.toLowerCase() === "active",
       );
       setProducts(productCurrent);
     } catch (err) {
@@ -132,9 +133,9 @@ const Order: React.FC = () => {
     },
     {
       title: t("order.columns.customer"),
-      dataIndex: "customerName",
       key: "customerName",
       fixed: !isMobile ? "start" : false,
+      render: (_, record) => record.customer?.fullname ?? record.customerName ?? "-",
     },
     {
       title: t("order.columns.createdAt"),
@@ -146,14 +147,25 @@ const Order: React.FC = () => {
       title: t("order.columns.totalPrice"),
       dataIndex: "totalPrice",
       key: "totalPrice",
-      render: (_, record) => formatCurrency(Number(record.totalPrice)),
+      render: (_, record) => {
+        const total =
+          record.totalPrice != null
+            ? Number(record.totalPrice)
+            : (record.items ?? []).reduce(
+              (sum, item) =>
+                sum + Number(item.price ?? 0) * Number(item.quantity ?? 0),
+              0,
+            );
+        return formatCurrency(total);
+      },
     },
     {
       title: t("order.columns.status"),
       dataIndex: "status",
       key: "status",
       render: (status: string) => {
-        const item = statusOrder.find((item) => item.status === status);
+        const statusLower = String(status ?? "").toLowerCase();
+        const item = statusOrder.find((s) => s.status.toLowerCase() === statusLower);
         if (!item) return <Tag>{status}</Tag>;
 
         return (
@@ -242,22 +254,33 @@ const Order: React.FC = () => {
   };
 
   const formatStatus = (status: string) => {
-    const found = statusOrder.find((s) => s.status === status);
+    const statusLower = String(status ?? "").toLowerCase();
+    const found = statusOrder.find((s) => s.status.toLowerCase() === statusLower);
     return found?.title ?? status;
   };
 
-  const exportData = data.map((d, index) => ({
-    [t("order.exportColumns.no")]: index + 1,
-    [t("order.exportColumns.orderCode")]: d.orderCode,
-    [t("order.exportColumns.customerName")]: d.customerName,
-    [t("order.exportColumns.email")]: d.customerEmail,
-    [t("order.exportColumns.address")]: d.shippingAddress,
-    [t("order.exportColumns.createdAt")]: (d.createdAt)
-      ? formatDate(d.createdAt)
-      : "",
-    [t("order.exportColumns.totalPrice")]: formatCurrency(Number(d.totalPrice)),
-    [t("order.exportColumns.status")]: d.status ? formatStatus(d.status) : "",
-  }));
+  const exportData = data.map((d, index) => {
+    const total =
+      d.totalPrice != null
+        ? Number(d.totalPrice)
+        : (d.items ?? []).reduce(
+          (sum, item) =>
+            sum + Number(item.price ?? 0) * Number(item.quantity ?? 0),
+          0,
+        );
+    return {
+      [t("order.exportColumns.no")]: index + 1,
+      [t("order.exportColumns.orderCode")]: d.orderCode,
+      [t("order.exportColumns.customerName")]: d.customer?.fullname,
+      [t("order.exportColumns.email")]: d.customer?.email,
+      [t("order.exportColumns.address")]: d.shippingAddress,
+      [t("order.exportColumns.createdAt")]: d.createdAt
+        ? formatDate(d.createdAt)
+        : "",
+      [t("order.exportColumns.totalPrice")]: formatCurrency(total),
+      [t("order.exportColumns.status")]: d.status ? formatStatus(d.status) : "",
+    };
+  });
 
   const exportExcel = () => {
     return exportToCSV(exportData, "order.csv");
@@ -289,7 +312,7 @@ const Order: React.FC = () => {
       });
       throw new Error('Xóa đơn hàng thất bại')
     }
-  } 
+  }
 
   return (
     <>
