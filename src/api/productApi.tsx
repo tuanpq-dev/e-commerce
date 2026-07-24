@@ -76,9 +76,10 @@ export const CreateProduct = handleSubmitProduct;
 
 type UpdateProductValues = Omit<ProductInitialValues, "id"> & {
   id: string | number;
+  deletedKeys?: string[];
 };
 
-export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
+export const UpdateProduct = async ({ id, deletedKeys, ...values }: UpdateProductValues) => {
   let price = Number(values.price) || 0;
   let stock = Number(values.stock) || 0;
   let variantsArray: any[] = [];
@@ -98,6 +99,10 @@ export const UpdateProduct = async ({ id, ...values }: UpdateProductValues) => {
           price_modifier_amount: val.price_modifier_amount
         }))
       };
+    }
+
+    if (deletedKeys && deletedKeys.length > 0) {
+      attributesDetails._deletedKeys = deletedKeys;
     }
 
     // Map variants to flat array expected by BE

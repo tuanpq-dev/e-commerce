@@ -150,7 +150,8 @@ export const useAttributeManagement = (user: string = "") => {
   const handleAddValue = async (value: string, modifier: number) => {
     setIsSavingValue(true);
     try {
-      await AddAttributeValue(addValueState.titleId, value, modifier ?? 0);
+      const numModifier = Number(modifier);
+      await AddAttributeValue(Number(addValueState.titleId), value, isNaN(numModifier) ? 0 : numModifier);
       await CreateActiveLog({ module: "Attribute", action: `CREATE value - ${value}`, user });
       openNotification("success", {
         message: "Thành công",
@@ -173,7 +174,8 @@ export const useAttributeManagement = (user: string = "") => {
   const handleSaveValueAttribute = async (valueId: string | number, priceModifierAmount: number) => {
     setIsSavingValue(true);
     try {
-      await SaveValueAttribute(valueId, priceModifierAmount);
+      const numModifier = Number(priceModifierAmount);
+      await SaveValueAttribute(Number(valueId), isNaN(numModifier) ? 0 : numModifier);
       await CreateActiveLog({ module: "Attribute", action: `UPDATE value modifier - ${valueId}`, user });
       openNotification("success", {
         message: "Thành công",

@@ -61,7 +61,8 @@
       "deleteSuccess": "Product deleted successfully",
       "updateSuccess": "Product updated successfully",
       "createSuccess": "Product created successfully",
-      "updateStatus": "Product update status successfully"
+      "updateStatus": "Product update status successfully",
+      "updateStatusFailed": "Product update status failed"
     },
     "titleCreate": "Add Product",
     "titleUpdate": "Update Product",
@@ -84,6 +85,21 @@
     "variantList": "Variant List",
     "variantName": "Variant",
     "variantCount": "{{count}} variants",
+    "attributes": {
+      "sectionTitle": "Select attributes from pool",
+      "poolEmpty": "⚠️ No attribute groups in pool.",
+      "goToPool": "Go to Attribute Pool page →",
+      "addGroupPlaceholder": "Add attribute group...",
+      "removeGroup": "Remove group",
+      "noValuesSelected": "No values selected.",
+      "selectFromPool": "Select from pool",
+      "generateCombinations": "Generate combinations",
+      "previewTitle": "Combination Preview ({{count}} combinations)",
+      "moreCombinations": "+{{count}} other combinations",
+      "combinationNote": "✅ All combinations will be created with stock = 0. Enter stock on the Product Attributes page.",
+      "validationRequired": "Please select at least 1 attribute group and generate combinations!",
+      "validationNoValues": "Attribute group \"{{name}}\" has no values selected. Please select values or remove this group."
+    },
     "bulkApply": "Apply to All",
     "bulkPrice": "Apply Price",
     "bulkStock": "Apply Stock",

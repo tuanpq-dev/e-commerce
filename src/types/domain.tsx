@@ -21,7 +21,10 @@ export type ProductAttributesDetails = Record<
   { name: string; values: AttributeValueItem[] }
 >;
 
-export type VariantCombinationMap = Record<string, { stock: number }>;
+export type VariantCombinationMap = Record<
+  string,
+  { stock: number; isDeleted?: boolean; deleted?: boolean }
+>;
 
 export type ProductVariant = {
   id?: string | number;

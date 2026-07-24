@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
-import { Modal, Form, InputNumber, Tooltip, Typography } from "antd";
+import { Modal, Form } from "antd";
 import FormInput from "../../../@crema/core/Form/FormInput";
-
-const { Text } = Typography;
 
 interface AddValueModalProps {
   open: boolean;
@@ -30,7 +28,8 @@ export const AddValueModal: React.FC<AddValueModalProps> = ({
   const handleOk = async () => {
     try {
       const { value, modifier } = await form.validateFields();
-      const success = await onOk?.(value, modifier ?? 0);
+      const numModifier = modifier !== undefined && modifier !== null ? Number(modifier) : 0;
+      const success = await onOk?.(value, isNaN(numModifier) ? 0 : numModifier);
       if (success) {
         form.resetFields();
       }
@@ -59,25 +58,6 @@ export const AddValueModal: React.FC<AddValueModalProps> = ({
             { max: 50, message: "Giá trị tối đa 50 ký tự" },
           ]}
         />
-        <Form.Item
-          label={
-            <Tooltip title="Cộng (+) hoặc trừ (-) thêm vào giá sàn của sản phẩm khi khách chọn giá trị này">
-              Chênh lệch giá (±VNĐ){" "}
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                tuỳ chọn
-              </Text>
-            </Tooltip>
-          }
-          name="modifier"
-          initialValue={0}
-        >
-          <InputNumber
-            style={{ width: "100%" }}
-            placeholder="0"
-            formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            parser={(v) => Number(v?.replace(/,/g, "") ?? 0)}
-          />
-        </Form.Item>
       </Form>
     </Modal>
   );

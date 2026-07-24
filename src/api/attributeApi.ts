@@ -19,9 +19,9 @@ export const AddAttributeValue = async (
   priceModifierAmount = 0,
 ): Promise<AttributeValueItem> => {
   const res = await axiosClient.post("/attribute/value", {
-    attributeTitleId: titleId,
+    attributeTitleId: Number(titleId),
     name: value.trim(),
-    priceModifierAmount,
+    priceModifierAmount: Number(priceModifierAmount) || 0,
   });
   return res.data;
 };
@@ -33,11 +33,11 @@ export const DeleteAttributeValue = async (
 };
 
 export const SaveValueAttribute = async (id: string | number, priceModifierAmount: number) => {
-  await axiosClient.patch(`/attribute/value/${id}`, { priceModifierAmount })
-}
+  await axiosClient.patch(`/attribute/value/${id}`, {
+    priceModifierAmount: Number(priceModifierAmount) || 0,
+  });
+};
 
 export const DeleteValueAttribute = async (id: string | number) => {
   await axiosClient.delete(`/attribute/value/${id}`)
 }
-
-

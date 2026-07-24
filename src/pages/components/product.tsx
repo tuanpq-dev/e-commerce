@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Flex, Grid, Input, Select, Space, Table } from "antd";
+import { Flex, Grid, Input, Select, Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import type {
@@ -169,54 +169,52 @@ const Product: React.FC = () => {
   }, [currentPage, pageSize, debouncedSearch]);
 
   useEffect(() => {
-    if (isOpenModal) {
-      Promise.all([
-        axiosClient.post("/category/search"),
-        axiosClient.get("/attribute/pool"),
-      ])
-        .then(([categoriesRes, attributes]) => {
-          const categoryList: any[] = Array.isArray(categoriesRes)
-            ? categoriesRes
-            : Array.isArray(categoriesRes?.data)
-              ? categoriesRes.data
-              : [];
+    Promise.all([
+      axiosClient.post("/category/search"),
+      axiosClient.get("/attribute/pool"),
+    ])
+      .then(([categoriesRes, attributes]) => {
+        const categoryList: any[] = Array.isArray(categoriesRes)
+          ? categoriesRes
+          : Array.isArray(categoriesRes?.data)
+            ? categoriesRes.data
+            : [];
 
-          const mapCategoryNode = (node: any): any => {
-            const children = node.children || node.child || [];
-            return {
-              ...node,
-              child: children.map(mapCategoryNode),
-              children: children.map(mapCategoryNode),
-            };
+        const mapCategoryNode = (node: any): any => {
+          const children = node.children || node.child || [];
+          return {
+            ...node,
+            child: children.map(mapCategoryNode),
+            children: children.map(mapCategoryNode),
           };
-          setCategory(categoryList.map(mapCategoryNode));
+        };
+        setCategory(categoryList.map(mapCategoryNode));
 
-          const mappedTitles = (attributes || []).map((item: any) => ({
-            id: String(item.id),
-            name: item.name,
-          }));
+        const mappedTitles = (attributes || []).map((item: any) => ({
+          id: String(item.id),
+          name: item.name,
+        }));
 
-          const mappedPool: Record<
-            string,
-            import("../../types/domain").AttributeValueItem[]
-          > = {};
-          (attributes || []).forEach((item: any) => {
-            const rawValues = item.values || [];
-            mappedPool[String(item.id)] = rawValues.map(
-              (val: any) => ({
-                id: String(val.id),
-                value: val.value,
-                price_modifier_amount: val.priceModifierAmount ?? 0,
-              }),
-            );
-          });
+        const mappedPool: Record<
+          string,
+          import("../../types/domain").AttributeValueItem[]
+        > = {};
+        (attributes || []).forEach((item: any) => {
+          const rawValues = item.values || [];
+          mappedPool[String(item.id)] = rawValues.map(
+            (val: any) => ({
+              id: String(val.id),
+              value: val.value,
+              price_modifier_amount: val.priceModifierAmount ?? 0,
+            }),
+          );
+        });
 
-          setAttributeTitles(mappedTitles);
-          setAttributeValuePool(mappedPool);
-        })
-        .catch(console.error);
-    }
-  }, [isOpenModal]);
+        setAttributeTitles(mappedTitles);
+        setAttributeValuePool(mappedPool);
+      })
+      .catch(console.error);
+  }, []);
 
   const categoryMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -246,8 +244,8 @@ const Product: React.FC = () => {
 
   const statusOptions = useMemo(
     () => [
-      { label: t("product.status.active"), value: "active" },
-      { label: t("product.status.pending"), value: "pending" },
+      { label: t("product.status.active"), value: "ACTIVE" },
+      { label: t("product.status.pending"), value: "INACTIVE" },
     ],
     [t],
   );
@@ -301,7 +299,7 @@ const Product: React.FC = () => {
       await fetchProducts();
     } catch (err) {
       openNotification("error", {
-        message: t("common.error"),
+        message: t("common.failed"),
         description: typeof err === "string" ? err : String(err || "Đã có lỗi xảy ra, vui lòng thử lại!"),
       });
     } finally {
@@ -313,15 +311,19 @@ const Product: React.FC = () => {
     // API trả về options hoặc attributesDetails dạng Record<string, {name, values[]}> → convert sang AttributeGroup[]
     const attributesDetailsRaw = (values as any).options || values.attributesDetails;
     const attribute_groups = attributesDetailsRaw && typeof attributesDetailsRaw === "object" && !Array.isArray(attributesDetailsRaw)
-      ? Object.entries(attributesDetailsRaw).map(([titleId, group]: [string, any]) => ({
-        titleId,
-        name: group.name,
-        values: (group.values ?? []).map((v: any) => ({
-          id: String(v.id),
-          value: v.value,
-          price_modifier_amount: v.price_modifier_amount ?? 0,
-        })),
-      }))
+      ? Object.entries(attributesDetailsRaw)
+        .filter(([titleId]) => !titleId.startsWith("_") && titleId !== "deletedKeys")
+        .map(([titleId, group]: [string, any]) => ({
+          titleId,
+          name: group?.name ?? "",
+          values: Array.isArray(group?.values)
+            ? group.values.map((v: any) => ({
+              id: String(v.id),
+              value: v.value,
+              price_modifier_amount: v.price_modifier_amount ?? 0,
+            }))
+            : [],
+        }))
       : Array.isArray(attributesDetailsRaw)
         ? attributesDetailsRaw
         : [];
@@ -383,7 +385,7 @@ const Product: React.FC = () => {
     } catch (err) {
       openNotification("error", {
         message: t("common.failed"),
-        description: t("product.notification.updateStatus"),
+        description: t("product.notification.updateStatusFailed"),
       });
       return err;
     }
@@ -423,11 +425,13 @@ const Product: React.FC = () => {
       title: t("product.columns.category"),
       dataIndex: "category",
       width: 150,
-      render: (categoryVal: string | CategoryType, record: DataType) => {
+      render: (categoryVal: string | CategoryType | any, record: DataType) => {
         const parentId =
           typeof categoryVal === "object" ? categoryVal?.id : categoryVal;
         const parentName =
-          categoryMap.get(String(parentId)) ?? String(parentId ?? "");
+          (typeof categoryVal === "object" ? categoryVal?.name : undefined) ??
+          categoryMap.get(String(parentId)) ??
+          String(parentId ?? "");
 
         const childIds = (record.category_child ?? [])
           .map((child) => (typeof child === "object" ? child?.id : child))
@@ -438,7 +442,8 @@ const Product: React.FC = () => {
           .filter(Boolean)
           .join(", ");
 
-        return childNames ? `${parentName} > ${childNames}` : parentName;
+        const categoryText = childNames ? `${parentName} > ${childNames}` : parentName;
+        return categoryText ? <Tag color="blue">{categoryText}</Tag> : null;
       },
     },
     {
@@ -570,7 +575,7 @@ const Product: React.FC = () => {
       setIsOpenModal(false);
     } catch (err) {
       openNotification("error", {
-        message: t("common.error"),
+        message: t("common.failed"),
         description: typeof err === "string" ? err : String(err || "Đã có lỗi xảy ra, vui lòng thử lại!"),
       });
     } finally {

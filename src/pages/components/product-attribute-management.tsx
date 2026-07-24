@@ -8,7 +8,6 @@ import {
   Flex,
   InputNumber,
   Popconfirm,
-  Select,
   Space,
   Spin,
   Table,
@@ -19,12 +18,10 @@ import {
 import {
   DeleteOutlined,
   EditOutlined,
-  PlusOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
 import type {
   AttributeGroup,
-  AttributeTitle,
   AttributeValueItem,
   DataType,
   VariantCombinationMap,
@@ -41,6 +38,8 @@ import {
   deleteVariantFromMap,
   applyBulkStock,
   countAffectedCombinations,
+  generateAllCombinations,
+  generateCombinationKey,
   type ResolvedCombination,
 } from "../../utils/variantEngine";
 import axiosClient from "../../api/axiosClient";
@@ -62,12 +61,6 @@ const ProductAttributeManagement: React.FC = () => {
   const [products, setProducts] = useState<DataType[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
-  // ── Pool toàn cục ───────────────────────────────────────────
-  const [allTitles, setAllTitles] = useState<AttributeTitle[]>([]);
-  const [allValuePool, setAllValuePool] = useState<
-    Record<number | string, AttributeValueItem[]>
-  >({});
-
   // ── Drawer state ────────────────────────────────────────────
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<DataType | null>(null);
@@ -77,7 +70,6 @@ const ProductAttributeManagement: React.FC = () => {
   const [draftVariantMap, setDraftVariantMap] = useState<VariantCombinationMap>(
     {},
   );
-  const [prevGroups, setPrevGroups] = useState<AttributeGroup[]>([]);
   const [bulkStock, setBulkStock] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -143,14 +135,6 @@ const ProductAttributeManagement: React.FC = () => {
           });
         }
       });
-
-      setAllTitles(
-        Array.from(titlesMap.entries()).map(([id, name]) => ({
-          id,
-          name,
-        }))
-      );
-      setAllValuePool(valuePoolMap);
     } catch {
       openNotification("error", {
         message: "Lỗi",
@@ -171,30 +155,39 @@ const ProductAttributeManagement: React.FC = () => {
 
     // Convert options / attributesDetails object to AttributeGroup[]
     const attrDetails = (product as any).options || product.attributesDetails || {};
-    const groups: AttributeGroup[] = Object.entries(attrDetails).map(([titleId, groupObj]: [string, any]) => ({
-      titleId: Number(titleId),
-      name: groupObj.name,
-      values: (groupObj.values || []).map((val: any) => ({
-        id: Number(val.id),
-        value: val.value,
-        price_modifier_amount: val.price_modifier_amount ?? val.priceModifierAmount ?? 0,
-      })),
-    }));
+    const deletedKeysArr: string[] = attrDetails._deletedKeys || attrDetails.deletedKeys || [];
+    const deletedKeysSet = new Set(deletedKeysArr);
 
-    let vMap = product.variant_map;
-    if ((!vMap || Object.keys(vMap).length === 0) && Array.isArray(product.variants)) {
-      vMap = {};
+    const groups: AttributeGroup[] = Object.entries(attrDetails)
+      .filter(([key]) => !key.startsWith("_") && key !== "deletedKeys")
+      .map(([titleId, groupObj]: [string, any]) => ({
+        titleId: Number(titleId),
+        name: groupObj.name,
+        values: (groupObj.values || []).map((val: any) => ({
+          id: Number(val.id),
+          value: val.value,
+          price_modifier_amount: val.price_modifier_amount ?? val.priceModifierAmount ?? 0,
+        })),
+      }));
+
+    let vMap: VariantCombinationMap = {};
+    if (Array.isArray(product.variants)) {
       product.variants.forEach((v: any) => {
         const key = v.comboKey || v.attributes?.comboKey;
         if (key) {
-          vMap![key] = { stock: Number(v.stock ?? 0) };
+          vMap[key] = { stock: Number(v.stock ?? 0) };
         }
       });
+    } else if (product.variant_map) {
+      vMap = { ...product.variant_map };
     }
+
+    deletedKeysSet.forEach((key) => {
+      vMap[key] = { stock: -1, isDeleted: true };
+    });
 
     setDraftGroups(groups);
     setDraftVariantMap(vMap);
-    setPrevGroups(groups);
     setBulkStock(null);
     setDrawerOpen(true);
   };
@@ -222,30 +215,6 @@ const ProductAttributeManagement: React.FC = () => {
     };
   }, [resolvedCombinations]);
 
-  // Titles chưa được dùng trong sản phẩm đang chọn
-  const usedTitleIds = new Set(draftGroups.map((g) => g.titleId));
-  const availableTitles = allTitles.filter((t) => !usedTitleIds.has(t.id));
-
-  // ── Handlers — Groups ────────────────────────────────────
-  const handleAddGroup = (titleId: number | string) => {
-    const title = allTitles.find((t) => t.id === titleId);
-    if (!title) return;
-
-    const newGroups = [
-      ...draftGroups,
-      { titleId: title.id, name: title.name, values: [] },
-    ];
-    const migrated = migrateAttributesOnChange(
-      prevGroups,
-      newGroups,
-      draftVariantMap,
-    );
-
-    setDraftGroups(newGroups);
-    setDraftVariantMap(migrated);
-    setPrevGroups(newGroups);
-  };
-
   const handleRemoveGroup = (titleId: number | string) => {
     const newGroups = draftGroups.filter((g) => g.titleId !== titleId);
     const migrated = migrateAttributesOnChange(
@@ -255,22 +224,6 @@ const ProductAttributeManagement: React.FC = () => {
     );
     setDraftGroups(newGroups);
     setDraftVariantMap(migrated);
-    setPrevGroups(newGroups);
-  };
-
-  // ── Handlers — Values ────────────────────────────────────
-  const handleAddValue = (titleId: number | string, value: AttributeValueItem) => {
-    const newGroups = draftGroups.map((g) =>
-      g.titleId !== titleId ? g : { ...g, values: [...g.values, value] },
-    );
-    const migrated = migrateAttributesOnChange(
-      prevGroups,
-      newGroups,
-      draftVariantMap,
-    );
-    setDraftGroups(newGroups);
-    setDraftVariantMap(migrated);
-    setPrevGroups(newGroups);
   };
 
   const handleRemoveValue = (titleId: number | string, valueId: number | string) => {
@@ -286,7 +239,6 @@ const ProductAttributeManagement: React.FC = () => {
     );
     setDraftGroups(newGroups);
     setDraftVariantMap(migrated);
-    setPrevGroups(newGroups);
   };
 
   // ── Handlers — Stock ─────────────────────────────────────
@@ -300,11 +252,7 @@ const ProductAttributeManagement: React.FC = () => {
 
   const handleBulkApply = () => {
     if (bulkStock == null) return;
-    const currentMap: VariantCombinationMap = {};
-    for (const combo of resolvedCombinations) {
-      currentMap[combo.key] = { stock: combo.stock };
-    }
-    setDraftVariantMap(applyBulkStock(currentMap, bulkStock));
+    setDraftVariantMap((prev) => applyBulkStock(prev, bulkStock));
   };
 
   // ── Save ─────────────────────────────────────────────────
@@ -318,6 +266,12 @@ const ProductAttributeManagement: React.FC = () => {
         finalMap[combo.key] = { stock: combo.stock };
       }
 
+      const allCombos = generateAllCombinations(draftGroups as any);
+      const activeKeys = new Set(resolvedCombinations.map((c) => c.key));
+      const deletedKeys = allCombos
+        .map((ids) => generateCombinationKey(ids))
+        .filter((key) => !activeKeys.has(key));
+
       await UpdateProduct({
         id: selectedProduct.id!,
         sku: selectedProduct.sku,
@@ -326,8 +280,9 @@ const ProductAttributeManagement: React.FC = () => {
         category: selectedProduct.category,
         category_child: selectedProduct.category_child,
         attribute_groups: draftGroups,
+        deletedKeys,
         variant_map: finalMap,
-      });
+      } as any);
 
       await CreateActiveLog({
         module: "ProductAttribute",
@@ -615,24 +570,6 @@ const ProductAttributeManagement: React.FC = () => {
                     </Popconfirm>
                   );
                 })}
-
-                {availableTitles.length > 0 && (
-                  <Select
-                    placeholder={
-                      <>
-                        <PlusOutlined /> Thêm nhóm
-                      </>
-                    }
-                    style={{ width: 160 }}
-                    value={null}
-                    onChange={handleAddGroup}
-                    options={availableTitles.map((t) => ({
-                      value: t.id,
-                      label: t.name,
-                    }))}
-                    size="small"
-                  />
-                )}
               </Flex>
             </div>
 
@@ -644,12 +581,6 @@ const ProductAttributeManagement: React.FC = () => {
                 style={{ marginBottom: 20 }}
               >
                 {draftGroups.map((group) => {
-                  const poolValues = allValuePool[group.titleId] ?? [];
-                  const usedValueIds = new Set(group.values.map((v) => v.id));
-                  const availableValues = poolValues.filter(
-                    (v) => !usedValueIds.has(v.id),
-                  );
-
                   return (
                     <Panel
                       key={group.titleId}
@@ -698,36 +629,6 @@ const ProductAttributeManagement: React.FC = () => {
                             </Tag>
                           </Tooltip>
                         ))}
-
-                        {availableValues.length > 0 && (
-                          <Select
-                            placeholder={
-                              <>
-                                <PlusOutlined /> Thêm từ pool
-                              </>
-                            }
-                            size="small"
-                            style={{ width: 160 }}
-                            value={null}
-                            onChange={(valueId: number | string) => {
-                              const found = poolValues.find(
-                                (v) => v.id === valueId,
-                              );
-                              if (found) handleAddValue(group.titleId, found);
-                            }}
-                            options={availableValues.map((v) => ({
-                              value: v.id,
-                              label: `${v.value}${v.price_modifier_amount !== 0 ? ` (${v.price_modifier_amount > 0 ? "+" : ""}${(v.price_modifier_amount / 1000).toFixed(0)}k)` : ""}`,
-                            }))}
-                          />
-                        )}
-
-                        {availableValues.length === 0 &&
-                          group.values.length > 0 && (
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              Đã chọn hết giá trị trong pool
-                            </Text>
-                          )}
                       </Flex>
                     </Panel>
                   );
