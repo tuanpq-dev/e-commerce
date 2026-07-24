@@ -314,9 +314,12 @@ const DetailOrder = () => {
     });
 
     await CreateActiveLog({
-      module: `Detail Order - Status - ${id}`,
-      action: "UPDATE",
-      user: userInfo?.fullname || "",
+      module: "Detail Order",
+      action: `UPDATE status - ${id}`,
+      userName: userInfo?.fullname || "",
+      userRole: userInfo?.role,
+      userId: Number(userInfo?.id),
+      payload: { id, status },
     });
 
     if (updated) {

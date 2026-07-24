@@ -353,8 +353,10 @@
     "columns": {
       "time": "Thời gian",
       "user": "Người dùng",
+      "role": "Quyền",
       "module": "Phân hệ",
-      "action": "Hành động"
+      "action": "Hành động",
+      "userId": "ID người dùng"
     },
     "pagination": "Hiển thị {{count}} bản ghi trên tổng số {{total}} kết quả"
   },

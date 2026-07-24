@@ -351,8 +351,10 @@
     "columns": {
       "time": "Time",
       "user": "User",
+      "role": "Role",
       "module": "Module",
-      "action": "Action"
+      "action": "Action",
+      "userId": "ID User"
     },
     "pagination": "Showing {{count}} records out of {{total}} results"
   },

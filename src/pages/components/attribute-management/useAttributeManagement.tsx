@@ -10,6 +10,7 @@ import {
   DeleteValueAttribute,
 } from "../../../api/attributeApi";
 import { CreateActiveLog } from "../../../api/activeLogApi";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export type EditingModifier = {
   titleId: string | number;
@@ -24,6 +25,7 @@ export type AddValueState = {
 };
 
 export const useAttributeManagement = (user: string = "") => {
+  const { userInfo } = useAuth();
   const [titles, setTitles] = useState<AttributeTitle[]>([]);
   const [valuePool, setValuePool] = useState<Record<string | number, AttributeValueItem[]>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +82,14 @@ export const useAttributeManagement = (user: string = "") => {
     setIsSavingTitle(true);
     try {
       await axiosClient.post("/attribute", { name });
-      await CreateActiveLog({ module: "Attribute", action: `CREATE - ${name}`, user });
+      await CreateActiveLog({
+        module: "Attribute",
+        action: `CREATE - ${name}`,
+        userName: userInfo?.fullname || user || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { name },
+      });
       openNotification("success", {
         message: "Thành công",
         description: `Đã thêm nhóm "${name}"`,
@@ -102,7 +111,14 @@ export const useAttributeManagement = (user: string = "") => {
   const handleDeleteTitle = async (values: AttributeTitle) => {
     try {
       await DeleteAttributeTitle(values.id);
-      await CreateActiveLog({ module: "Attribute", action: `DELETE - ${values.name}`, user });
+      await CreateActiveLog({
+        module: "Attribute",
+        action: `DELETE - ${values.name}`,
+        userName: userInfo?.fullname || user || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { id: values.id, name: values.name },
+      });
       openNotification("success", {
         message: "Đã xóa",
         description: `Nhóm "${values.name}" đã bị xóa.`,
@@ -120,7 +136,14 @@ export const useAttributeManagement = (user: string = "") => {
     setIsSavingTitle(true);
     try {
       await UpdateAttribute(id, name);
-      await CreateActiveLog({ module: "Attribute", action: `UPDATE - ${name}`, user });
+      await CreateActiveLog({
+        module: "Attribute",
+        action: `UPDATE - ${name}`,
+        userName: userInfo?.fullname || user || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { id, name },
+      });
       openNotification("success", {
         message: "Cập nhật thành công",
         description: `Đã đổi tên nhóm thành "${name}".`,
@@ -152,7 +175,14 @@ export const useAttributeManagement = (user: string = "") => {
     try {
       const numModifier = Number(modifier);
       await AddAttributeValue(Number(addValueState.titleId), value, isNaN(numModifier) ? 0 : numModifier);
-      await CreateActiveLog({ module: "Attribute", action: `CREATE value - ${value}`, user });
+      await CreateActiveLog({
+        module: "Attribute",
+        action: `CREATE value - ${value}`,
+        userName: userInfo?.fullname || user || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { titleId: addValueState.titleId, value, modifier: numModifier },
+      });
       openNotification("success", {
         message: "Thành công",
         description: `Đã thêm giá trị "${value}"`,
@@ -176,7 +206,14 @@ export const useAttributeManagement = (user: string = "") => {
     try {
       const numModifier = Number(priceModifierAmount);
       await SaveValueAttribute(Number(valueId), isNaN(numModifier) ? 0 : numModifier);
-      await CreateActiveLog({ module: "Attribute", action: `UPDATE value modifier - ${valueId}`, user });
+      await CreateActiveLog({
+        module: "Attribute",
+        action: `UPDATE value modifier - ${valueId}`,
+        userName: userInfo?.fullname || user || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { valueId, priceModifierAmount: numModifier },
+      });
       openNotification("success", {
         message: "Thành công",
         description: "Đã cập nhật chênh lệch giá thành công.",
@@ -197,7 +234,14 @@ export const useAttributeManagement = (user: string = "") => {
     setIsSavingValue(true);
     try {
       await DeleteValueAttribute(id);
-      await CreateActiveLog({ module: "Attribute", action: `DELETE value - ${id}`, user });
+      await CreateActiveLog({
+        module: "Attribute",
+        action: `DELETE value - ${id}`,
+        userName: userInfo?.fullname || user || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { id },
+      });
       openNotification("success", {
         message: "Thành công",
         description: "Đã xóa thành công.",

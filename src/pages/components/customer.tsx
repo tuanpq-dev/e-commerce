@@ -94,7 +94,10 @@ const Customer: React.FC = () => {
         await CreateActiveLog({
           module: "Customer",
           action: "UPDATE",
-          user: userInfo.fullname,
+          userName: userInfo?.fullname || "",
+          userRole: userInfo?.role,
+          userId: Number(userInfo?.id),
+          payload: { id: rowData.id, ...values },
         });
 
         await fetchCustomer();
@@ -110,7 +113,10 @@ const Customer: React.FC = () => {
         await CreateActiveLog({
           module: "Customer",
           action: "CREATE",
-          user: userInfo.fullname,
+          userName: userInfo?.fullname || "",
+          userRole: userInfo?.role,
+          userId: Number(userInfo?.id),
+          payload: values,
         });
 
         await fetchCustomer();
@@ -140,10 +146,13 @@ const Customer: React.FC = () => {
     try {
       await DeleteCustomer(rowData.id),
       await CreateActiveLog({
-          module: "Customer",
-          action: "DELETE",
-          user: userInfo.fullname,
-        });
+        module: "Customer",
+        action: "DELETE",
+        userName: userInfo?.fullname || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { id: rowData.id, fullname: rowData.fullname, email: rowData.email },
+      });
         
       setIsDeleteModal(false);
       openNotification("success", {

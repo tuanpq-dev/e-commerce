@@ -1,10 +1,11 @@
-import { Flex, Table, type TableProps } from "antd";
+import { Flex, Table, Tag, type TableProps } from "antd";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { ActiveLogType } from "../../types/domain";
 import formatDate from "../../utils/formatDate";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../api/axiosClient";
+import PayloadCell from "./payload-cell";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 10;
@@ -46,22 +47,71 @@ const ActiveLog = () => {
         record.createdAt ? formatDate(record.createdAt) : "",
     },
     {
-      title: t("activeLog.columns.user"),
-      dataIndex: "user",
-      key: "user",
+      title: t("activeLog.columns.userId"),
+      dataIndex: "userId",
+      key: "userId",
       width: 100,
+      align: "center",
+      render: (userId, record) => {
+        const displayVal = userId ?? record.user?.id ?? "-";
+        return displayVal !== "-" ? <Tag color="blue">{String(displayVal)}</Tag> : "-";
+      },
+    },
+    {
+      title: t("activeLog.columns.user"),
+      dataIndex: "userName",
+      key: "userName",
+      width: 150,
+      render: (_, record) => {
+        if (record.userName) return record.userName;
+        if (record.user) {
+          if (typeof record.user === "string") return record.user;
+          return record.user.fullname || record.user.email || "Unknown";
+        }
+        return "Unknown";
+      },
+    },
+    {
+      title: t("activeLog.columns.role"),
+      dataIndex: "userRole",
+      key: "userRole",
+      width: 100,
+      render: (_, record) => {
+        const role = record.userRole || record.user?.role;
+        return role ? <Tag color="cyan">{role}</Tag> : "-";
+      },
     },
     {
       title: t("activeLog.columns.module"),
       dataIndex: "module",
       key: "module",
       width: 100,
+      render: (module) => {
+        const displayMod =
+          typeof module === "object" && module !== null
+            ? JSON.stringify(module)
+            : module ?? "";
+        return <Tag color="blue">{String(displayMod)}</Tag>;
+      },
     },
     {
       title: t("activeLog.columns.action"),
       dataIndex: "action",
       key: "action",
       width: 100,
+      render: (action) => {
+        if (typeof action === "object" && action !== null) {
+          return JSON.stringify(action);
+        }
+        return action ? String(action) : "-";
+      },
+    },
+    {
+      title: "Payload",
+      dataIndex: "payload",
+      key: "payload",
+      width: 300,
+      render: (payload) => <PayloadCell payload={payload} />,
     },
   ];
 
@@ -71,12 +121,12 @@ const ActiveLog = () => {
     total: totalItems,
     showSizeChanger: true,
     pageSizeOptions: ["5", "10", "20", "50"],
-    showTotal: (total, range) =>
+    showTotal: (total: number, range: [number, number]) =>
       `${t("activeLog.pagination", {
-        count: range[1] - range[0] + 1,
-        total,
+        count: range ? range[1] - range[0] + 1 : 0,
+        total: total || 0,
       })}`,
-    onChange: (page, pageSize) => {
+    onChange: (page: number, pageSize: number) => {
       setSearchParams({
         _page: String(page),
         _per_page: String(pageSize),

@@ -294,7 +294,10 @@ const Order: React.FC = () => {
       await CreateActiveLog({
         module: "Order",
         action: "DELETE",
-        user: userInfo.fullname,
+        userName: userInfo?.fullname || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { id: rowData.id, orderCode: rowData.orderCode },
       });
 
       setIsDeleteModal(false);

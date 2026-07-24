@@ -199,9 +199,13 @@ export type CreateCustomerValues = {
 
 export type ActiveLogType = {
   id?: number | string;
-  user?: string;
+  userId?: number;
+  userName?: string;
+  userRole?: string;
   action?: string;
   module?: string;
+  payload?: any;
+  user?: any;
   createdAt?: string;
 };
 

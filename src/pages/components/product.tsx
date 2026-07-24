@@ -119,6 +119,7 @@ const Product: React.FC = () => {
   const isMobile = !screens.md;
   const { Search } = Input;
   const { userInfo } = useAuth();
+  console.log(userInfo)
   const [isLoading, setIsLoading] = useState(false);
   const [rowData, setRowData] = useState<ProductInitialValues | null>(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -282,12 +283,17 @@ const Product: React.FC = () => {
 
     try {
       setIsLoading(true);
-      await axiosClient.delete(`/product/${rowData.id}`);
-      await CreateActiveLog({
-        module: "Product",
-        action: "DELETE",
-        user: userInfo?.fullname || "",
-      });
+      await Promise.all([
+        axiosClient.delete(`/product/${rowData.id}`),
+        CreateActiveLog({
+          module: "Product",
+          action: "DELETE",
+          userName: userInfo?.fullname || "",
+          userRole: userInfo?.role,
+          userId: Number(userInfo?.id),
+          payload: { id: rowData.id, name: rowData.name },
+        }),
+      ]);
 
       setIsDeleteModal(false);
 
@@ -371,12 +377,17 @@ const Product: React.FC = () => {
 
   const handleChangeStatus = async (status: string, id: number | string) => {
     try {
-      await UpdateStatusProduct(status, id);
-      await CreateActiveLog({
-        module: "Product",
-        action: `UPDATE status - ${id}`,
-        user: userInfo?.fullname || "",
-      });
+      await Promise.all([
+        UpdateStatusProduct(status, id),
+        CreateActiveLog({
+          module: "Product",
+          action: `UPDATE status - ${id}`,
+          userName: userInfo?.fullname || "",
+          userRole: userInfo?.role,
+          userId: Number(userInfo?.id),
+          payload: { id, status },
+        }),
+      ]);
       openNotification("success", {
         message: t("common.success"),
         description: t("product.notification.updateStatus"),
@@ -543,7 +554,10 @@ const Product: React.FC = () => {
           CreateActiveLog({
             module: "Product",
             action: "UPDATE",
-            user: userInfo?.fullname || "",
+            userName: userInfo?.fullname || "",
+            userRole: userInfo.role,
+            userId: Number(userInfo.id),
+            payload: values,
           }),
         ]);
 
@@ -560,8 +574,11 @@ const Product: React.FC = () => {
           CreateActiveLog({
             module: "Product",
             action: "CREATE",
-            user: userInfo?.fullname || "",
-          })
+            userName: userInfo?.fullname || "",
+            userRole: userInfo?.role,
+            userId: Number(userInfo?.id),
+            payload: values,
+          }),
         ]);
 
         openNotification("success", {
@@ -570,7 +587,6 @@ const Product: React.FC = () => {
         });
       }
 
-      // Backend uses ES refresh:'wait_for' so data is ready immediately
       await fetchProducts();
       setIsOpenModal(false);
     } catch (err) {

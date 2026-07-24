@@ -287,7 +287,16 @@ const ProductAttributeManagement: React.FC = () => {
       await CreateActiveLog({
         module: "ProductAttribute",
         action: `UPDATE - ${selectedProduct.name}`,
-        user: userInfo?.fullname || "",
+        userName: userInfo?.fullname || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: {
+          productId: selectedProduct.id,
+          productName: selectedProduct.name,
+          draftGroups,
+          deletedKeys,
+          variant_map: finalMap,
+        },
       });
 
       openNotification("success", {

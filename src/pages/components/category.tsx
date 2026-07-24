@@ -106,7 +106,10 @@ const Category: React.FC = () => {
       await CreateActiveLog({
         module: "Category",
         action: "DELETE",
-        user: userInfo?.fullname ?? "Unknown",
+        userName: userInfo?.fullname || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: { id: rowData.id, name: rowData.name },
       });
 
       await Promise.all([fetchAllCategories()]);
@@ -209,7 +212,10 @@ const Category: React.FC = () => {
         CreateActiveLog({
           module: "Category",
           action: "UPDATE",
-          user: userInfo?.fullname,
+          userName: userInfo?.fullname || "",
+          userRole: userInfo?.role,
+          userId: Number(userInfo?.id),
+          payload: updateValues,
         }),
       ]);
 
@@ -227,7 +233,10 @@ const Category: React.FC = () => {
       await CreateActiveLog({
         module: "Category",
         action: `CREATE - ${values.name}`,
-        user: userInfo?.fullname ?? "Unknown",
+        userName: userInfo?.fullname || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: values,
       });
       await Promise.all([fetchAllCategories()]);
       setIsOpenModal(false);
@@ -244,7 +253,10 @@ const Category: React.FC = () => {
       await CreateActiveLog({
         module: "Category",
         action: `CREATE child - ${values.name}`,
-        user: userInfo?.fullname ?? "Unknown",
+        userName: userInfo?.fullname || "",
+        userRole: userInfo?.role,
+        userId: Number(userInfo?.id),
+        payload: values,
       });
       await fetchAllCategories();
       setIsOpenModalChild(false);

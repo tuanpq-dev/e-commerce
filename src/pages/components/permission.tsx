@@ -40,8 +40,11 @@ const Permission = () => {
             await axiosClient.patch(`/auth/permission/${id}`, { role })
             await CreateActiveLog({
                 module: "Permission",
-                action: "Update",
-                user: userInfo?.fullname || "",
+                action: "UPDATE",
+                userName: userInfo?.fullname || "",
+                userRole: userInfo?.role,
+                userId: Number(userInfo?.id),
+                payload: { targetUserId: id, role },
             });
             openNotification('success', {
                 message: 'Thành công',
